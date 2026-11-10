@@ -1,6 +1,19 @@
-# Filmlux
+<p align="center">
+  <img src="docs/readme/banner.jpg" alt="Filmlux wordmark over a navy dusk sky, with a filmmaker beside a glowing coral portal" width="100%">
+</p>
 
-*Videos, made by your agent.*
+<h3 align="center">Videos, made by your agent.</h3>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/python-3.10%2B-00195F?style=flat-square&logo=python&logoColor=FBEDDB" alt="Python 3.10+">
+  <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-00195F?style=flat-square" alt="Windows, macOS and Linux">
+  <img src="https://img.shields.io/badge/agents-Codex%20%7C%20Claude%20Code%20%7C%20Gemini%20CLI%20%7C%20Cursor-FB4E44?style=flat-square" alt="Works with any coding agent">
+  <img src="https://img.shields.io/badge/FFmpeg-not%20needed-FBEDDB?style=flat-square" alt="No FFmpeg needed">
+</p>
+
+<p align="center">
+  <img src="docs/readme/hero-reel.gif" alt="A montage of Filmlux renders: a wipe transition, snappy motion, a data card and a vertical social clip" width="720">
+</p>
 
 **An AI-agent-ready folder for making high-quality videos.** Point any coding agent (Codex, Claude Code, Gemini CLI, Cursor, GitHub Copilot or any other coding agent) at this folder, tell it what you need, drop in your files, and it produces a finished video:
 - a story
@@ -11,6 +24,21 @@
 - versions, subtitles and quality checks
 
 You don't need a video editor or any design skills.
+
+## See it in action
+
+Every clip below was rendered by Filmlux from a plain `project.json` file, without opening a video editor. The source projects are in `examples/`.
+
+<table>
+<tr>
+<td width="50%" valign="top"><img src="docs/readme/transitions.gif" alt="Transitions: push, wipe, soft edge, flip and clock wipe"><br><b>13 transitions</b><br><sub>Push, wipe, clock, iris, cube, zoom, glitch and more</sub></td>
+<td width="50%" valign="top"><img src="docs/readme/motion-styles.gif" alt="Motion styles: snappy, spring, bouncy, heavy and mask"><br><b>13 motion styles</b><br><sub>Real spring physics, mask, typewriter, stop-motion and more</sub></td>
+</tr>
+<tr>
+<td valign="top"><img src="docs/readme/data-story.gif" alt="Data story: a title card, a hero stat and a timeline"><br><b>Data stories</b><br><sub>Hero stats, charts and timelines from your numbers</sub></td>
+<td align="center" valign="top"><img src="docs/readme/social-vertical.gif" alt="Social vertical clip in 9:16 with big pop captions" width="150"><br><b>9:16 social clips</b><br><sub>A two-second hook and word-by-word captions</sub></td>
+</tr>
+</table>
 
 ## Works with any agent
 
@@ -124,6 +152,7 @@ examples/              finished example projects + synthetic demo footage
 templates/             brief and storyboard templates
 engine/                renderer (scene stage, footage composer, voice, music, encoder) + the Studio app
 assets/                brand (Filmlux mark + BRAND.md), fonts (SIL OFL), logos, gallery stills, voice and music samples
+docs/readme/           banner and GIFs for this README
 tools/                 sample builder, demo app
 ```
 
@@ -141,6 +170,22 @@ python studio.py imagegen <name> [--check]                  optional AI images
 ```
 
 Renders land in `projects/<name>/renders/<name>_vN.mp4`, next to an `.srt` subtitle file, a contact sheet and a QA report. Versions are never overwritten.
+
+## Brand
+
+<img src="docs/readme/logo-set.jpg" alt="Filmlux logo set: the wordmark on navy and on cream, the projector beam, and the f monogram" width="360" align="right">
+
+The Filmlux mark is a small projector throwing light (*lux*) into an **f**.
+
+| | Colour | Hex | Used for |
+|---|---|---|---|
+| <img src="docs/readme/swatch-00195F.svg" alt="" width="36" height="18"> | Navy | `#00195F` | backgrounds, the wordmark on light |
+| <img src="docs/readme/swatch-FBEDDB.svg" alt="" width="36" height="18"> | Cream | `#FBEDDB` | the wordmark on dark, light backgrounds |
+| <img src="docs/readme/swatch-FB4E44.svg" alt="" width="36" height="18"> | Coral | `#FB4E44` | the beam, accents |
+
+Logo files for light and dark backgrounds are in `assets/brand/`; see [BRAND.md](assets/brand/BRAND.md).
+
+<br clear="right">
 
 ## Notes
 
