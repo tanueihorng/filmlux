@@ -2,6 +2,8 @@
 
 These rules come from building a product walkthrough over seven versions, each driven by one sentence of feedback from real viewers and stakeholders. They apply to any video this studio makes.
 
+**How to read this playbook.** Each section gives defaults that reliably produce a good film. They are a floor, not a ceiling. Depart from any of them when the idea is stronger for it, and tell the user what you changed and why. The only things that never bend are the hard rules in `AGENTS.md` §2 and the scorecard in §7: whatever the style, the result has to pass it.
+
 ## 1. Story first
 
 - **Start from the viewer's gap.** What do they not know, or not believe, today? Write it as one sentence in the brief.
@@ -59,7 +61,7 @@ These rules come from building a product walkthrough over seven versions, each d
 
 ## 5. Visuals and motion
 
-- **Calm, confident motion:** eased entrances (rise, fade, de-blur), 0.4 s dissolves, a slow background drift. Nothing spins, bounces wildly or flashes.
+- **Motion with intent:** the default is calm and confident (eased entrances, 0.4 s dissolves, a slow background drift). Energy is a choice: bouncy, slam or glitch motion is right when the film's purpose is fun or hype, as long as the words stay readable and nothing flashes more than three times a second.
 - **Hierarchy:** one hero element per scene. Leave space around it (the safe area is 8 % at the sides, 12 % top, 14 % bottom, or 21 % with captions).
 - **Colour:** the theme's accent goes on one thing per scene (the key word, the active step, the main bar).
 - **Data:** the user's real numbers only. Label anything illustrative as "Sample data". Use one chart per scene and at most 6 bars.
@@ -79,7 +81,7 @@ These rules come from building a product walkthrough over seven versions, each d
 
 ## 5b. Choosing a look (theme × caption style)
 
-Pick the look from the **purpose and audience**, not from taste. Then keep it for the whole film.
+Pick the look from the **purpose and audience**, not from habit. The table is a starting point: combine themes, motion and captions in ways it doesn't list, or design a new theme (copy one in `themes/`) when the brand or idea calls for it. Keep one coherent look per film unless a deliberate shift serves the story.
 
 | Purpose | Theme | Captions | Music |
 |---|---|---|---|
@@ -124,6 +126,27 @@ Pick the look from the **purpose and audience**, not from taste. Then keep it fo
 
 ## 7. The quality loop (do this every time)
 
+### The scorecard (any style must pass it)
+
+Score the draft before showing the user. Each line is an outcome, not a method: reach it however suits the film.
+
+| # | The viewer… | How to check |
+|---|---|---|
+| 1 | knows what this is about within 5 s | the first still alone says it |
+| 2 | can follow it on mute | read only the stills and captions: is the story there? |
+| 3 | can read every word in time | no `qa` text-density warnings left unexplained; nothing clipped |
+| 4 | sees one main thing per scene | each still has a clear focal point |
+| 5 | never sees a sloppy frame | contact sheet: no blank, duplicate or broken frames |
+| 6 | hears a voice and music that suit the purpose | `audio`: natural pace, music under the voice |
+| 7 | trusts it | every number is real or labelled "Sample data"; no fake evidence |
+| 8 | remembers one moment | name it; if you can't, strengthen the hero scene (a bolder scene type, an `html` scene, a motion or transition accent) |
+| 9 | knows what to do next | the end card has a clear call to action |
+| 10 | doesn't feel it's a template | at least one choice made for this film (look, structure, a custom scene, an unexpected line) |
+
+All ten must pass. Report the score, plus anything you weren't sure about, with the stills.
+
+### The loop
+
 1. `plan`: check the total length and per-scene timing against the brief.
 2. `stills`: **open the sheet and look.** Check for:
    - clipped or overlapping text
@@ -132,10 +155,11 @@ Pick the look from the **purpose and audience**, not from taste. Then keep it fo
    - zoom too tight
    - captions over important content
 3. `audio`: listen to the voice, pauses and music level.
-4. `qa`: must print "no issues".
-5. `render`, then open the contact sheet. Every scene must appear, with no blank or black frames and no duplicates.
-6. Report to the user: the path, the length, what you checked, and anything you weren't sure about (with a still).
-7. **Feedback:** change one thing per sentence of feedback, re-render (a new version is automatic), and keep a changelog in the project's `brief.md`.
+4. `qa`: no ERRORs. For each WARN, fix it or keep the choice on purpose and note why.
+5. Score the draft with the scorecard above.
+6. `render`, then open the contact sheet. Every scene must appear, with no blank or black frames and no duplicates.
+7. Report to the user: the path, the length, the scorecard, any default you broke on purpose, and anything you weren't sure about (with a still).
+8. **Feedback:** change one thing per sentence of feedback, re-render (a new version is automatic), and keep a changelog in the project's `brief.md`.
 
 ## 8. Feedback, translated (real examples)
 

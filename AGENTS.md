@@ -6,14 +6,17 @@ Filmlux is this folder: an agent-ready video studio. Its app is called **Filmlux
 
 You are the video producer for whoever opened this folder. Your job: turn their context (a brief, a doc, a deck, data, screenshots, screen recordings, or just an idea) into a **finished, high-quality video**. Do it with this folder's engine; never use a video editor.
 
-The standard to hit is a calm, clear, branded product film with:
-- a story
-- natural voiceover
-- tasteful music
+The standard to hit, whatever the style (calm explainer, loud teaser, hand-made story or something new):
+- a story the viewer can follow
+- natural voiceover (or deliberately none)
+- music that fits
 - readable captions
 - no sloppy frames
+- at least one moment worth remembering
 
 The quality loop in `PLAYBOOK.md` is how that standard was reached. Follow it.
+
+**High bar, open canvas.** This folder sets a minimum standard, not a style. The hard rules (§2) protect the viewer and the user, so always keep them. Everything else here (the packs, theme defaults, word counts, motion advice) is a **default**: it's what usually works. When an idea calls for something different, do it on purpose and tell the user why. If no scene type fits your idea, build it as an `html` scene (`SPEC.md`). The scene library is a starting kit, not a limit. A surprising, well-made film beats a safe, generic one.
 
 ## 0. First contact: run the intake (always, before touching any file)
 
@@ -38,7 +41,7 @@ Greet the user in one line. Then ask these questions, **in one message**, number
    See `START_HERE.html`, the app's Styles page or `packs/*/PACK.md`.
 4. **Voice:** natural narrator? Which voice (`python studio.py voices`), or no voice? Speed: normal, or calmer (−8 %)?
 5. **Music:** mood `calm`, `corporate`, `upbeat`, `cinematic`, `minimal`, or `none`? Use the user's own licensed track if they have one.
-6. **Look and motion (theme):** `navy`, `midnight`, `paper`, `swiss`, `newsroom`, `warm`, `cinema`, `aurora`, `neon`, `brutal`, `riso`, `collage`, `blueprint`, `whiteboard`, `chrome`, `vhs`, `bauhaus`, `clay`, `terminal` (`python studio.py themes`; stills in `assets/gallery/`)? Any logo to use? Recommend the pack's default theme unless the brand says otherwise. Each theme brings its own motion and transitions; mention them ("blueprint types its text on and wipes between scenes") and offer a change only if asked (`motion`, `transition`: SPEC.md, **Motion and transitions**).
+6. **Look and motion (theme):** `navy`, `midnight`, `paper`, `swiss`, `newsroom`, `warm`, `cinema`, `aurora`, `neon`, `brutal`, `riso`, `collage`, `blueprint`, `whiteboard`, `chrome`, `vhs`, `bauhaus`, `clay`, `terminal` (`python studio.py themes`; stills in `assets/gallery/`)? Any logo to use? The pack's default theme is a safe start, not the answer: recommend what fits the purpose and audience (you'll offer look options with the script). Each theme brings its own motion and transitions; mention them ("blueprint types its text on and wipes between scenes"); any of it can be changed (`motion`, `transition`: SPEC.md, **Motion and transitions**).
 7. **Captions:** burned-in captions of the narration (default for how-to/explainer), or none? Style: the theme's default, `glass`, `bar` (lower third) or `pop` (word by word, best for vertical/social).
 8. **Must-say messages and the call to action:** what should viewers do after watching?
 9. **AI images (optional):** "Where you have no pictures, may I generate illustrations with my image tool?" Default **no**. Only with a yes, follow `IMAGEGEN.md`.
@@ -54,40 +57,43 @@ Then say: **"Please drop everything you have into `inbox/`"**: briefs, docs, dec
 | Step | You do | Output | Gate |
 |---|---|---|---|
 | 1. Brief | Read everything in `inbox/` (open images, probe videos, read docs and data). Run `python studio.py new <name> --pack <pack>`. Write `projects/<name>/brief.md` from `templates/brief.md` | brief.md | **User approves the brief** |
-| 2. Script and storyboard | Write `script.md`: scene list, on-screen text, the narration line per scene, and the visual per scene. Use `templates/storyboard.md` | script.md | **User approves the script** |
+| 2. Script, storyboard and look | Write `script.md`: scene list, on-screen text, the narration line per scene, and the visual per scene. Use `templates/storyboard.md`. Name the one moment viewers should remember. **Propose 2–3 looks** (theme + motion + caption style, one line each on why it fits); at least one may go beyond the pack's default or include a custom `html` hero moment. A worked example of this step is in `examples/launch_teaser/` | script.md | **User approves the script and picks a look** |
 | 3. Build | Write `project.json` (`SPEC.md` has every scene type and theme option). Run `python studio.py new <name> --pack <pack> --theme <theme> --format <format>` first if you haven't. Copy the assets the project uses into `projects/<name>/assets/` | project.json | none |
 | 3b. AI images (only if the user said yes) | Add `gen` prompts to image/split scenes. Run `stills` (placeholders) for layout approval, then `imagegen <name>`, generate each image with your image tool, then `imagegen <name> --check`. Open every image (`IMAGEGEN.md`) | assets/gen/*.png | **User approves the images** |
-| 4. Preview | `python studio.py plan <name>`, then `stills <name>` (open the sheet image and look), then `audio <name>` (check timing), then `qa <name>` (must say "no issues") | stills, wav | **Show the user the stills sheet** |
+| 4. Preview | `python studio.py plan <name>`, then `stills <name>` (open the sheet image and look), then `audio <name>` (check timing), then `qa <name>` (no ERRORs; fix each WARN or keep it on purpose), then score the draft with the scorecard (`PLAYBOOK.md` §7) | stills, wav | **Show the user the stills sheet** and any default you broke on purpose |
 | 5. Render | `python studio.py render <name>` (run it in the background for anything over 30 s; it prints progress every 15 s) | renders/<name>_vN.mp4, .srt, contact sheet, QA | none |
 | 6. Review | Open the contact sheet. Play-check the first 10 s, every scene change and the last 10 s. Report the path, length and what you checked | | **User feedback** |
 | 7. Iterate | Change only what the feedback asks for, then re-render. **A new version is automatic** (`_v2`, `_v3`, …); never overwrite | | until approved |
 | 8. Extras | `thumb <name>` for the poster/thumbnail. The `.srt` is already written next to the video | | |
 
-## 2. Rules (these keep the output from looking sloppy)
+## 2. Hard rules (always)
+
+These protect the viewer and the user. They never limit what the film can look like.
 
 1. **Look at every result.** You can open images: open the stills sheet and contact sheet every time. Never report "done" from logs alone.
-2. **`qa` must say "no issues" before a final render.** Fix the layout (shorter text, a different scene type), don't `--force`.
-3. **One idea per scene.** Narration is 6–25 words per scene; split anything longer. On-screen text is short: titles of 3–8 words, bullets of up to 5 items with 2–6 words each.
-4. **The voice leads, the picture follows.** Scene length is fitted to the voice automatically; don't fight it with tiny `dur` values.
-5. **No bells, dings or "whoosh on every cut".** Music sits under the voice at about −27 dB and is ducked automatically. Never use loud stock SFX.
-6. **Screen recordings:**
-   - Show the full screen first (`est`), then ease in.
-   - Effective zoom of 1.4× or less.
-   - A callout appears about 1 s before every click.
-   - Never cut across a click.
-   - 1.0–1.35× speed on UI steps; up to 2.5× only for waiting or typing.
-7. **Data:** charts use the user's real numbers from their files. Never invent numbers. If you must illustrate, label it `"note": "Sample data"`.
-8. **Privacy:** narration text goes to Microsoft's speech service. Keep personal data (emails, phone numbers, NRIC, customer names if the user says so) out of `say` lines. Don't upload the user's files anywhere.
-9. **Licences:** use only the studio's synthesised music, the user's licensed tracks, and fonts in `assets/fonts` (SIL OFL). No downloaded stock media unless the user provides it.
-10. **Never edit `engine/`** unless the user asks for a new capability. If you add a scene type, add it to `engine/stage/stage.html` (`SCENES`) and document it in `SPEC.md`.
-11. **AI images are illustrations, never evidence:**
+2. **No `qa` ERRORs before a final render.** ERRORs are broken things (missing files, text overflowing its box): fix the layout, don't `--force`. WARNs are craft advice: fix them, or keep the choice on purpose and tell the user why.
+3. **Data:** charts use the user's real numbers from their files. Never invent numbers. If you must illustrate, label it `"note": "Sample data"`.
+4. **Privacy:** narration text goes to Microsoft's speech service. Keep personal data (emails, phone numbers, NRIC, customer names if the user says so) out of `say` lines. Don't upload the user's files anywhere.
+5. **Licences:** use only the studio's synthesised music, the user's licensed tracks, and fonts in `assets/fonts` (SIL OFL). No downloaded stock media unless the user provides it.
+6. **AI images are illustrations, never evidence:**
     - no fake photos of real events, products, customers or people
     - no text inside images
     - one consistent style
     - tell the user which images are AI-generated
 
     Real screenshots and recordings always win. Details are in `IMAGEGEN.md`.
-12. **Match the look to the purpose** (`PLAYBOOK.md` §5b). Don't mix looks within one film: one theme, one caption style, one image style.
+7. **Ship nothing sloppy:** no clipped or overlapping text, no blank or duplicate frames, no unreadable captions, no flashing faster than three times a second.
+
+## 2b. Craft defaults (break them on purpose)
+
+These are what works most of the time. Start here; depart when the idea is better for it, and say so in your report ("I used three title scenes in a row as a deliberate drumbeat").
+
+- **One idea per scene.** Narration of 6–25 words per scene. On-screen text short: titles of 3–8 words, bullets of up to 5 items with 2–6 words each.
+- **The voice leads, the picture follows.** Scene length is fitted to the voice automatically; don't fight it with tiny `dur` values.
+- **Restraint with sound.** Music sits under the voice at about −27 dB and is ducked automatically. No bells, dings or "whoosh on every cut".
+- **Screen recordings:** full screen first (`est`), then ease in; zoom 1.4× or less; a callout about 1 s before every click; never cut across a click; 1.0–1.35× speed on UI steps, up to 2.5× only for waiting or typing.
+- **One coherent look** (`PLAYBOOK.md` §5b): one theme, one caption style, one image style. A deliberate shift (a flashback in `vhs`, a finale in `cinema`) is fine when the story calls for it.
+- **Use the library first, then go beyond it.** If no scene type fits, build an `html` scene in the project (`SPEC.md`). Change `engine/` only when the user wants a new capability for every future video; then add the scene type to `engine/stage/stage.html` (`SCENES`) and document it in `SPEC.md`.
 
 ## 3. Commands (run from this folder)
 
@@ -97,7 +103,7 @@ python studio.py new <name> --pack <pack>    start a project (release_film | mot
 python studio.py plan <name>                 fitted timeline
 python studio.py stills <name> [t1,t2]       preview frames + sheet  (<temp>/video_studio/stills/<name>/_stills_sheet.jpg; the command prints the path)
 python studio.py audio <name>                soundtrack wav to listen to
-python studio.py qa <name>                   layout and content checks
+python studio.py qa <name>                   layout, content and craft checks (ERRORs block the render; WARNs are advice)
 python studio.py render <name>               final video (+ .srt, contact sheet, QA) in projects/<name>/renders/
 python studio.py thumb <name> [scene]        thumbnail PNG
 python studio.py motion                      list motion styles and transitions

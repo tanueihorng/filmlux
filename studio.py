@@ -182,7 +182,8 @@ def cmd_qa(a):
         fr.close()
     for lvl, where, msg in issues:
         print(f"  {lvl:5s} {where}: {msg}")
-    print("no issues" if not issues else f"{sum(l == 'ERROR' for l, _, _ in issues)} error(s), {sum(l == 'WARN' for l, _, _ in issues)} warning(s)")
+    ne, nw = sum(l == "ERROR" for l, _, _ in issues), sum(l == "WARN" for l, _, _ in issues)
+    print("no issues" if not issues else f"{ne} error(s), {nw} warning(s)" + ("  (errors block the render; warnings are craft advice: fix them or keep them on purpose)" if nw else ""))
 
 
 def cmd_render(a):

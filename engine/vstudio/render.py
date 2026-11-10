@@ -653,6 +653,7 @@ def qa(prj: Project, fr: Frames | None = None):
             issues.append(("WARN", tag, f"{sc['dur']:.1f}s on one static scene; split it"))
         if sc["type"] not in ("screen", "html") and sc["type"] not in DEFAULT_DUR:
             issues.append(("ERROR", tag, f"unknown scene type '{sc['type']}' (see SPEC.md)"))
+    issues += craft_checks(prj)
     for s, e, text in prj.captions_list():
         if len(text) > 90:
             issues.append(("WARN", "caption", f"long caption ({len(text)} chars): {text[:50]}..."))
@@ -663,6 +664,61 @@ def qa(prj: Project, fr: Frames | None = None):
             for msg in fr.stage.eval(f"qa({i})") or []:
                 issues.append(("ERROR", f"scene {i + 1} ({sc['type']})", msg))
     return issues
+
+
+_TEXT_SKIP = {"say", "caption", "src", "gen", "type", "transition", "transition_s", "transition_timing", "transition_direction",
+              "motion", "cam", "note", "layers", "size", "accent", "dur", "speed", "hold", "move", "fit", "loop", "data", "unit"}
+LOUD_TRANSITIONS = {"flash", "glitch", "iris", "cube", "clockwipe"}
+
+
+def _onscreen_words(v, key=""):
+    if key in _TEXT_SKIP or key.startswith("_"):
+        return 0
+    if isinstance(v, str):
+        return len(re.sub(r"<[^>]+>", " ", v).split())
+    if isinstance(v, dict):
+        return sum(_onscreen_words(x, k) for k, x in v.items())
+    if isinstance(v, list):
+        return sum(_onscreen_words(x) for x in v)
+    return 0
+
+
+def _contrast(a, b):
+    def lum(h):
+        h = str(h).lstrip("#")
+        if len(h) != 6:
+            return None
+        c = [int(h[i:i + 2], 16) / 255 for i in (0, 2, 4)]
+        c = [x / 12.92 if x <= .03928 else ((x + .055) / 1.055) ** 2.4 for x in c]
+        return .2126 * c[0] + .7152 * c[1] + .0722 * c[2]
+    la, lb = lum(a), lum(b)
+    return None if la is None or lb is None else (max(la, lb) + .05) / (min(la, lb) + .05)
+
+
+def craft_checks(prj: Project):
+    """Craft warnings: they never block a render. Fix them, or keep the choice on purpose and say why."""
+    out, sc_ = [], prj.scenes
+    for i, sc in enumerate(sc_):
+        tag = f"scene {i + 1} ({sc['type']})"
+        if sc["type"] in ("screen", "html"):
+            continue
+        n = _onscreen_words(sc)
+        if n > max(16, 4 * sc.get("dur", 5)):
+            out.append(("WARN", tag, f"{n} words on screen for {sc.get('dur', 5):.1f}s; viewers read about 3 words a second (cut words or give it more time)"))
+        if i >= 2 and sc_[i - 1]["type"] == sc_[i - 2]["type"] == sc["type"]:
+            out.append(("WARN", tag, f"third '{sc['type']}' scene in a row; vary the scene type unless the repetition is the point"))
+    loud = [i + 1 for i, sc in enumerate(sc_) if i > 0 and
+            str(sc.get("transition") or prj.spec.get("transition") or "").partition(":")[0] in LOUD_TRANSITIONS]
+    if len(loud) > 3:
+        out.append(("WARN", "transitions", f"{len(loud)} loud transitions (scenes {', '.join(map(str, loud))}); they land harder on 2-3 key moments"))
+    c = prj.theme.get("colors", {})
+    ink = [_contrast(c.get("ink"), c.get(k)) for k in ("bg0", "bg1")]
+    if all(x is not None and x < 4.5 for x in ink):
+        out.append(("WARN", "theme", f"text colour on the background has low contrast ({min(ink):.1f}:1, aim for 4.5:1 or more)"))
+    acc = [_contrast(c.get("accent"), c.get(k)) for k in ("bg0", "bg1")]
+    if all(x is not None and x < 2.2 for x in acc):
+        out.append(("WARN", "theme", f"accent colour barely stands out from the background ({min(acc):.1f}:1)"))
+    return out
 
 
 # ---------------------------------------------------------------- commands

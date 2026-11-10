@@ -162,7 +162,7 @@ inbox/                 drop your files here
 projects/              one folder per video (brief, script, project.json, assets, renders)
 packs/                 12 style packs: recipes + starter projects
 themes/                19 visual themes (colours, type, background, effects, motion, transitions, captions, image style)
-examples/              finished example projects + synthetic demo footage
+examples/              finished example projects + synthetic demo footage (launch_teaser has a worked brief and script)
 templates/             brief and storyboard templates
 engine/                renderer (scene stage, footage composer, voice, music, encoder) + the Studio app
 assets/                brand (Filmlux mark + BRAND.md), fonts (SIL OFL), logos, gallery stills, voice and music samples

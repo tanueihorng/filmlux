@@ -197,7 +197,7 @@ function stylesView() {
 }
 function helpView() {
   $("#view").innerHTML = `<h1>How it works</h1>
-  <div class="grid g2"><div class="card pad"><h3>The loop</h3><p>Brief → script → <b>Plan</b> (timeline fitted to the voice) → <b>Stills</b> (one frame per scene) → <b>Audio</b> (voice + music) → <b>QA</b> (must say "no issues") → <b>Render</b> (MP4 + subtitles + contact sheet) → feedback → a new version. Versions are never overwritten.</p></div>
+  <div class="grid g2"><div class="card pad"><h3>The loop</h3><p>Brief → script → <b>Plan</b> (timeline fitted to the voice) → <b>Stills</b> (one frame per scene) → <b>Audio</b> (voice + music) → <b>QA</b> (no errors; warnings are craft advice you can keep on purpose) → <b>Render</b> (MP4 + subtitles + contact sheet) → feedback → a new version. Versions are never overwritten.</p></div>
   <div class="card pad"><h3>You, the agent, or both</h3><p>Every button runs the same <code>${S.py} studio.py …</code> command the agent uses. Edit <code>project.json</code> here or let the agent do it; the next preview picks it up.</p></div>
   <div class="card pad"><h3>AI images (optional)</h3><p>Scenes can carry a <code>gen</code> prompt. Previews show a placeholder until the image exists. <b>Images → Write requests</b> lists exact prompts and paths; your agent generates them with its image tool (or paste them into any image app); <b>Check images</b> verifies size and shape. See <code>IMAGEGEN.md</code>.</p></div>
   <div class="card pad"><h3>Speed</h3><p>Rendering runs about 6 minutes per minute of video (two headless browsers). Previews take seconds. Only one render runs at a time.</p></div></div>`;
