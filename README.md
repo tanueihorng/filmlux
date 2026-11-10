@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/readme/hero-reel.gif" alt="A montage of Filmlux renders: a wipe transition, snappy motion, a data card and a vertical social clip" width="720">
+  <img src="docs/readme/hero-reel.gif" alt="A montage of Filmlux output: transitions, a run through themes, motion styles, style packs and a vertical social clip" width="720">
 </p>
 
 **Filmlux is a video engine your coding agent drives.** Point any coding agent (Codex, Claude Code, Gemini CLI, Cursor, GitHub Copilot or any other) at it, tell it what you need and drop in your files. The agent directs; Filmlux renders. You get a finished video with:
@@ -27,15 +27,15 @@ You don't need a video editor or any design skills.
 
 ## See it in action
 
-Every clip below was rendered by Filmlux from a plain `project.json` file, without opening a video editor. The source projects are in `examples/`.
+Everything below was made by Filmlux itself, from plain `project.json` files and without a video editor. The source projects are in `examples/`.
 
 <table>
 <tr>
-<td width="50%" valign="top"><img src="docs/readme/transitions.gif" alt="Transitions: push, wipe, soft edge, flip and clock wipe"><br><b>13 transitions</b><br><sub>Push, wipe, clock, iris, cube, zoom, glitch and more</sub></td>
-<td width="50%" valign="top"><img src="docs/readme/motion-styles.gif" alt="Motion styles: snappy, spring, bouncy, heavy and mask"><br><b>13 motion styles</b><br><sub>Real spring physics, mask, typewriter, stop-motion and more</sub></td>
+<td width="50%" valign="top"><img src="docs/readme/themes.gif" alt="The same title card in Filmlux themes: aurora, brutal, midnight, riso, paper, Swiss, terminal, VHS and more"><br><b>19 themes</b><br><sub>One script, any look: Swiss, neon, paper, brutalist, terminal, VHS and more</sub></td>
+<td width="50%" valign="top"><img src="docs/readme/packs.gif" alt="A frame from each style pack: bento promo, product walkthrough, data story, cinematic, blueprint, whiteboard, collage and AI-illustrated"><br><b>12 style packs</b><br><sub>Promos, explainers, release films, data stories, cinematic, whiteboard and more</sub></td>
 </tr>
 <tr>
-<td valign="top"><img src="docs/readme/data-story.gif" alt="Data story: a title card, a hero stat and a timeline"><br><b>Data stories</b><br><sub>Hero stats, charts and timelines from your numbers</sub></td>
+<td valign="top"><img src="docs/readme/transitions.gif" alt="Transitions: push, wipe, soft edge, flip and clock wipe"><br><b>13 transitions, 13 motion styles</b><br><sub>Push, wipe, iris, cube and glitch, with real spring physics</sub></td>
 <td align="center" valign="top"><img src="docs/readme/social-vertical.gif" alt="Social vertical clip in 9:16 with big pop captions" width="150"><br><b>9:16 social clips</b><br><sub>A two-second hook and word-by-word captions</sub></td>
 </tr>
 </table>
