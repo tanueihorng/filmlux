@@ -1,0 +1,57 @@
+{
+  "name": "Bauhaus geometric",
+  "mode": "light",
+  "about": "Modernist poster: cream ground, big primary circles, squares and triangles at the edges, bold grotesk type, flat solid cards. Spring motion, iris reveals. For strategy, design, education and launches.",
+  "colors": {
+    "bg0": "#f2ead8",
+    "bg1": "#e9dfc7",
+    "bg2": "#faf5e8",
+    "ink": "#151515",
+    "muted": "rgba(21,21,21,.66)",
+    "accent": "#d7322b",
+    "accent2": "#1f4e9c",
+    "card": "#fffaf0",
+    "line": "rgba(21,21,21,.16)",
+    "glow": "rgba(0,0,0,0)"
+  },
+  "type": {
+    "display": "grotesk",
+    "body": "grotesk",
+    "eyebrow": "mono",
+    "tracking": "-.045em"
+  },
+  "look": {
+    "bg": "shapes",
+    "shape3": "#f2b705",
+    "shapes_alpha": 0.92,
+    "glow": false,
+    "cards": "flat",
+    "radius": 0
+  },
+  "caption": {
+    "style": "bar",
+    "fill": [
+      21,
+      21,
+      21,
+      240
+    ],
+    "chip": [
+      242,
+      183,
+      5
+    ],
+    "ink": [
+      255,
+      255,
+      255
+    ]
+  },
+  "motion": "spring",
+  "transition": "iris",
+  "imagegen": "Bauhaus modernist poster illustration, primary red blue and yellow geometric shapes, flat, cream background, no text",
+  "brand": {
+    "name": "",
+    "logo": ""
+  }
+}

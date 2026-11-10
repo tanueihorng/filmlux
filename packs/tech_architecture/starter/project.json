@@ -1,0 +1,106 @@
+{
+  "title": "New architecture explainer",
+  "format": "16:9",
+  "theme": "blueprint",
+  "voice": {
+    "name": "en-US-AndrewNeural",
+    "rate": "-6%"
+  },
+  "music": {
+    "mood": "minimal"
+  },
+  "captions": "narration",
+  "caption_style": "bar",
+  "scenes": [
+    {
+      "type": "title",
+      "eyebrow": "Architecture",
+      "title": "How the system <em>works</em>",
+      "sub": "Replace with a one-line summary",
+      "say": "Replace with one short sentence for this scene."
+    },
+    {
+      "type": "compare",
+      "title": "Today and <em>tomorrow</em>",
+      "left": {
+        "title": "Today",
+        "items": [
+          "Data in silos",
+          "Manual lookups",
+          "No audit trail"
+        ]
+      },
+      "right": {
+        "title": "With the system",
+        "items": [
+          "One source",
+          "Answers in seconds",
+          "Governed access"
+        ]
+      },
+      "say": "Replace with one short sentence for this scene."
+    },
+    {
+      "type": "process",
+      "title": "How data <em>flows</em>",
+      "steps": [
+        "Capture",
+        "Resolve",
+        "Govern",
+        "Serve"
+      ],
+      "say": "Replace with one short sentence for this scene."
+    },
+    {
+      "type": "bento",
+      "eyebrow": "Building blocks",
+      "title": "What's <em>inside</em>",
+      "tiles": [
+        {
+          "size": "2x1",
+          "title": "Ingestion",
+          "body": "Replace with the real component"
+        },
+        {
+          "title": "Identity",
+          "body": "…"
+        },
+        {
+          "title": "Policy",
+          "body": "…"
+        },
+        {
+          "size": "2x1",
+          "title": "Serving API",
+          "body": "…"
+        }
+      ],
+      "say": "Replace with one short sentence for this scene."
+    },
+    {
+      "type": "timeline",
+      "title": "The <em>roadmap</em>",
+      "items": [
+        {
+          "when": "Now",
+          "title": "Pilot"
+        },
+        {
+          "when": "Next",
+          "title": "Scale"
+        },
+        {
+          "when": "Later",
+          "title": "Extend"
+        }
+      ],
+      "say": "Replace with one short sentence for this scene."
+    },
+    {
+      "type": "end",
+      "title": "Build on <em>it</em>",
+      "cta": "Replace with where to learn more",
+      "say": "Replace with one short sentence for this scene."
+    }
+  ]
+}

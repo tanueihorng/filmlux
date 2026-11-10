@@ -1,0 +1,58 @@
+{
+  "name": "Retro VHS",
+  "mode": "dark",
+  "about": "80s/90s tape: pixel terminal type, chromatic aberration, scanlines, a rolling tracking band, grain. Glitch entrances and glitch cuts. For throwbacks, gaming, culture and playful teasers.",
+  "colors": {
+    "bg0": "#1a0b2e",
+    "bg1": "#07020f",
+    "bg2": "#3b1257",
+    "ink": "#fdf6ff",
+    "muted": "rgba(240,225,255,.70)",
+    "accent": "#ff3d81",
+    "accent2": "#3df5ff",
+    "card": "rgba(255,255,255,.05)",
+    "line": "rgba(61,245,255,.30)",
+    "glow": "rgba(255,61,129,.22)"
+  },
+  "type": {
+    "display": "pixel",
+    "body": "grotesk",
+    "eyebrow": "pixel"
+  },
+  "look": {
+    "bg": "horizon",
+    "scan": 0.16,
+    "tracking": true,
+    "grain": 0.1,
+    "vignette": 0.35,
+    "cards": "outline",
+    "radius": 0,
+    "text": "chroma"
+  },
+  "caption": {
+    "style": "bar",
+    "fill": [
+      10,
+      4,
+      20,
+      230
+    ],
+    "chip": [
+      61,
+      245,
+      255
+    ],
+    "ink": [
+      253,
+      246,
+      255
+    ]
+  },
+  "motion": "glitch",
+  "transition": "glitch",
+  "imagegen": "retro 1980s synthwave illustration, VHS texture, neon pink and cyan, sunset grid, chromatic aberration, no text",
+  "brand": {
+    "name": "",
+    "logo": ""
+  }
+}

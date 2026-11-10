@@ -1,0 +1,57 @@
+{
+  "title": "New brand film",
+  "format": "16:9",
+  "theme": "cinema",
+  "voice": {
+    "name": "en-US-AvaNeural",
+    "rate": "-8%"
+  },
+  "music": {
+    "mood": "cinematic"
+  },
+  "captions": "narration",
+  "scenes": [
+    {
+      "type": "quote",
+      "text": "Every customer has a <em>story</em>.",
+      "by": "",
+      "say": "Replace with an opening line that sets the feeling."
+    },
+    {
+      "type": "image",
+      "src": "assets/gen/moment_1.png",
+      "gen": {
+        "prompt": "Replace: describe the first moment (place, light, mood), no faces"
+      },
+      "full": true,
+      "title": "A short <em>moment</em> title",
+      "move": "in",
+      "transition_s": 0.8,
+      "say": "Replace with the first moment."
+    },
+    {
+      "type": "image",
+      "src": "assets/gen/moment_2.png",
+      "gen": {
+        "prompt": "Replace: describe the second moment"
+      },
+      "full": true,
+      "title": "A second moment",
+      "move": "left",
+      "transition_s": 0.8,
+      "say": "Replace with the second moment."
+    },
+    {
+      "type": "section",
+      "number": "02",
+      "eyebrow": "What we built",
+      "title": "Replace with the turn",
+      "say": "Replace with the turn in the story."
+    },
+    {
+      "type": "logo",
+      "tagline": "Replace with the tagline",
+      "say": "Replace with the closing line."
+    }
+  ]
+}

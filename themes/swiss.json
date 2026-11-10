@@ -1,0 +1,54 @@
+{
+  "name": "Swiss editorial (light)",
+  "mode": "light",
+  "about": "Swiss / International style: white paper, black type, one red accent, visible grid, giant numbers. Clean and authoritative.",
+  "colors": {
+    "bg0": "#f4f3ef",
+    "bg1": "#ecebe6",
+    "bg2": "#ffffff",
+    "ink": "#111111",
+    "muted": "rgba(17,17,17,.62)",
+    "accent": "#e63312",
+    "accent2": "#e63312",
+    "card": "#ffffff",
+    "line": "rgba(17,17,17,.14)",
+    "glow": "rgba(230,51,18,0)"
+  },
+  "type": {
+    "display": "grotesk",
+    "body": "grotesk",
+    "eyebrow": "mono",
+    "tracking": "-.04em"
+  },
+  "look": {
+    "bg": "grid",
+    "grid": 135,
+    "glow": false,
+    "cards": "outline",
+    "radius": 2
+  },
+  "brand": {
+    "name": "",
+    "logo": ""
+  },
+  "caption": {
+    "style": "bar",
+    "fill": [
+      17,
+      17,
+      17,
+      235
+    ],
+    "chip": [
+      230,
+      51,
+      18
+    ],
+    "ink": [
+      255,
+      255,
+      255
+    ]
+  },
+  "imagegen": "Swiss modernist poster style, flat geometric shapes, off-white paper background, black and a single vermilion red accent, strong grid composition, no text"
+}

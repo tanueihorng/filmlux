@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Filmlux Studio</title>
+<link rel="icon" type="image/svg+xml" href="/files/assets/brand/filmlux-favicon.svg">
+<style>
+@font-face { font-family: "D"; font-weight: 400; src: url("/files/assets/fonts/InterDisplay-Regular.ttf"); }
+@font-face { font-family: "D"; font-weight: 500; src: url("/files/assets/fonts/InterDisplay-Medium.ttf"); }
+@font-face { font-family: "D"; font-weight: 600; src: url("/files/assets/fonts/InterDisplay-SemiBold.ttf"); }
+@font-face { font-family: "S"; font-style: italic; font-weight: 600; src: url("/files/assets/fonts/fraunces-latin-600-italic.woff2"); }
+@font-face { font-family: "IS"; font-style: italic; font-weight: 400; src: url("/files/assets/fonts/instrument-serif-400-italic.woff2"); }
+@font-face { font-family: "M"; font-weight: 500; src: url("/files/assets/fonts/jetbrains-mono-500.woff2"); }
+:root { color-scheme: dark; --bg: #0b0b0d; --side: #111113; --card: #17171a; --ink: #f5f5f7; --muted: #a1a1a6; --line: #2a2a2e; --accent: #ff5a3c; --on-accent: #140806; --soft: #3a1710; --chip: #222226; --code: #111318; --ok: #3ccf8e; --warn: #ffb340; }
+:root[data-theme="light"] { color-scheme: light; --bg: #f5f5f7; --side: #ececf0; --card: #fff; --ink: #1d1d1f; --muted: #6e6e73; --line: #e1e1e6; --accent: #d23a1c; --on-accent: #fff; --soft: #fde9e4; --chip: #f0f0f3; --code: #111318; --ok: #12935f; --warn: #b26a00; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "D", "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+em { font-family: "S", Georgia, serif; font-style: italic; font-weight: 600; color: var(--accent); }
+a { color: var(--accent); }
+.app { display: grid; grid-template-columns: 270px 1fr; min-height: 100vh; }
+@media (max-width: 860px) { .app { grid-template-columns: 1fr; } aside { position: static !important; height: auto !important; } }
+aside { background: var(--side); border-right: 1px solid var(--line); padding: 18px 14px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.logo { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 18px; padding: 4px 8px 16px; }
+.logo img { width: 30px; height: 30px; border-radius: 8px; display: block; }
+.logo b { font-weight: 600; letter-spacing: -.02em; font-size: 20px; } .logo b i { font-family: "IS", Georgia, serif; font-style: italic; font-weight: 400; color: var(--accent); font-size: 1.12em; letter-spacing: 0; }
+.logo small { display: block; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 500; margin-top: -2px; }
+.nav a { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 10px; color: var(--ink); text-decoration: none; font-size: 14.5px; }
+.nav a:hover { background: var(--chip); } .nav a.on { background: var(--card); box-shadow: 0 1px 0 var(--line), 0 0 0 1px var(--line); font-weight: 600; }
+.nav a small { color: var(--muted); font-size: 12px; font-weight: 400; }
+.sh { font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); padding: 18px 10px 6px; font-weight: 600; }
+main { padding: 28px clamp(16px, 4vw, 44px) 140px; max-width: 1280px; width: 100%; }
+h1 { font-size: clamp(30px, 4vw, 44px); letter-spacing: -.03em; line-height: 1.05; font-weight: 600; }
+h2 { font-size: 22px; letter-spacing: -.015em; font-weight: 600; }
+.lead { color: var(--muted); margin-top: 8px; font-size: 16.5px; max-width: 760px; }
+.grid { display: grid; gap: 16px; margin-top: 20px; }
+.g2 { grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); } .g3 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); } .g4 { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+@media (max-width: 520px) { .g2, .g3 { grid-template-columns: 1fr; } }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 20px; overflow: hidden; }
+.pad { padding: 18px 20px 20px; }
+.card h3 { font-size: 18px; letter-spacing: -.01em; } .card p { color: var(--muted); font-size: 14.5px; margin-top: 4px; }
+label { display: block; font-size: 13.5px; font-weight: 600; margin-top: 12px; } label small { font-weight: 400; color: var(--muted); }
+input, select, textarea { width: 100%; margin-top: 5px; padding: 10px 12px; border-radius: 11px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; font-size: 14.5px; }
+textarea { min-height: 80px; resize: vertical; }
+textarea.code { font-family: "M", Consolas, monospace; font-size: 13px; min-height: 480px; line-height: 1.45; white-space: pre; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; } @media (max-width: 520px) { .row2 { grid-template-columns: 1fr; } }
+.btn { border: 0; border-radius: 999px; padding: 10px 18px; font: inherit; font-weight: 600; font-size: 14.5px; cursor: pointer; background: var(--accent); color: var(--on-accent); display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+.btn.alt { background: var(--chip); color: var(--ink); } .btn:disabled { opacity: .45; cursor: default; }
+.btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.tag { display: inline-block; font-size: 12px; padding: 2px 9px; border-radius: 99px; background: var(--chip); color: var(--muted); margin: 8px 6px 0 0; }
+.tag.red { background: var(--soft); color: var(--accent); }
+.shots { position: relative; aspect-ratio: 16/9; background: #0b1530; overflow: hidden; }
+.shots img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .6s; } .shots img.on { opacity: 1; }
+.sw { display: flex; gap: 6px; margin-top: 10px; } .sw span { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--line); }
+.drop { border: 2px dashed var(--line); border-radius: 18px; padding: 26px; text-align: center; color: var(--muted); cursor: pointer; transition: .2s; }
+.drop.over { border-color: var(--accent); background: var(--soft); color: var(--ink); }
+.files { margin-top: 12px; font-size: 14px; } .files div { display: flex; justify-content: space-between; padding: 6px 2px; border-top: 1px solid var(--line); } .files small { color: var(--muted); }
+.tabs { display: flex; gap: 4px; margin-top: 22px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs button { border: 0; background: none; color: var(--muted); font: inherit; font-size: 14.5px; padding: 10px 14px; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }
+.tabs button.on { color: var(--ink); border-color: var(--accent); font-weight: 600; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; } td, th { text-align: left; padding: 9px 10px; border-top: 1px solid var(--line); vertical-align: top; } th { color: var(--muted); font-weight: 600; font-size: 12.5px; border-top: 0; }
+td.t { font-family: "M", Consolas, monospace; font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+.stills { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; margin-top: 14px; }
+.stills img { width: 100%; border-radius: 10px; display: block; cursor: zoom-in; border: 1px solid var(--line); }
+video { width: 100%; border-radius: 14px; display: block; background: #000; }
+.ver { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 900px) { .ver { grid-template-columns: 1fr; } }
+.cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; } @media (max-width: 760px) { .cmp { grid-template-columns: 1fr; } }
+pre, .md { background: var(--code); color: #e6e9f2; border-radius: 14px; padding: 16px; overflow-x: auto; font-size: 12.8px; white-space: pre-wrap; font-family: "M", Consolas, monospace; margin-top: 12px; }
+.note { color: var(--muted); font-size: 13.5px; margin-top: 10px; }
+.ok { color: var(--ok); font-weight: 600; } .bad { color: var(--accent); font-weight: 600; } .warn { color: var(--warn); font-weight: 600; }
+#drawer { position: fixed; right: 18px; bottom: 18px; width: min(560px, calc(100vw - 36px)); background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 20px 60px rgba(0,0,0,.25); display: none; z-index: 20; }
+#drawer header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line); font-weight: 600; font-size: 14px; gap: 10px; }
+#drawer pre { margin: 0; border-radius: 0 0 18px 18px; max-height: 300px; overflow-y: auto; }
+#drawer button { border: 0; background: var(--chip); color: var(--ink); border-radius: 8px; padding: 4px 10px; cursor: pointer; font: inherit; font-size: 13px; }
+.bar { height: 4px; background: var(--chip); border-radius: 4px; overflow: hidden; margin: 0 16px 10px; } .bar i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .4s; }
+#zoom { position: fixed; inset: 0; background: rgba(0,0,0,.85); display: none; place-items: center; z-index: 30; cursor: zoom-out; padding: 3vw; } #zoom img { max-width: 100%; max-height: 100%; border-radius: 10px; }
+.empty { padding: 30px; color: var(--muted); text-align: center; }
+.top { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+#mode { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 8px; padding: 5px 10px; font: inherit; font-size: 13px; cursor: pointer; margin: 18px 8px 0; }
+.toast { position: fixed; left: 50%; top: 18px; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 99px; font-size: 14px; z-index: 40; display: none; }
+code { font-family: "M", Consolas, monospace; font-size: .88em; background: var(--chip); padding: 1px 6px; border-radius: 6px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="logo"><img src="/files/assets/brand/filmlux-mark.svg" alt=""><div><b>Film<i>lux</i></b><small>Studio</small></div></div>
+    <div class="nav" id="nav"></div>
+    <button id="mode" type="button">◐ Light / dark</button>
+  </aside>
+  <main id="view"><div class="empty">Loading…</div></main>
+</div>
+<div id="drawer"><header><span id="jt">Job</span><span><button id="jclose" type="button">Hide</button></span></header><div class="bar"><i id="jbar"></i></div><pre id="jlog"></pre></div>
+<div id="zoom"><img alt="Preview frame enlarged"></div>
+<div class="toast" id="toast"></div>
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+let S = null, P = null, TAB = localStore("tab") || "overview", ROT = [];
+function localStore(k, v) { try { if (v === undefined) return localStorage.getItem("vs_" + k); localStorage.setItem("vs_" + k, v); } catch (e) { return null; } }
+function toast(t) { const e = $("#toast"); e.textContent = t; e.style.display = "block"; clearTimeout(e._t); e._t = setTimeout(() => e.style.display = "none", 2600); }
+async function api(path, body) {
+  const r = await fetch(path, body === undefined ? {} : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || j.out || r.statusText); return j;
+}
+const fileUrl = p => "/files/" + p.split("/").map(encodeURIComponent).join("/");
+const bust = () => "?t=" + Date.now();
+
+// ---------------------------------------------------------------- routing
+async function load() { S = await api("/api/state"); nav(); route(); }
+function nav() {
+  const h = location.hash || "#home";
+  const mine = S.projects.filter(p => !p.example), ex = S.projects.filter(p => p.example);
+  const link = (href, label, sub) => `<a href="${href}" class="${h === href ? "on" : ""}">${label}${sub ? `<small>${sub}</small>` : ""}</a>`;
+  $("#nav").innerHTML = link("#home", "Start", "") + link("#styles", "Styles", S.packs.length + " packs") + link("#inbox", "Inbox", S.inbox.length + " files") + link("#help", "How it works", "") +
+    `<div class="sh">Your projects</div>` + (mine.map(p => link("#p/" + p.id, esc(p.title), p.renders.length ? "v" + p.renders.length : "")).join("") || `<div class="note" style="padding:0 10px">None yet</div>`) +
+    `<div class="sh">Examples</div>` + ex.map(p => link("#p/" + p.id, esc(p.title), p.renders.length ? "v" + p.renders.length : "")).join("");
+}
+window.addEventListener("hashchange", () => { nav(); route(); });
+function route() {
+  ROT.forEach(clearInterval); ROT = [];
+  const h = location.hash || "#home";
+  if (h.startsWith("#p/")) return projectView(decodeURIComponent(h.slice(3)));
+  ({ "#styles": stylesView, "#inbox": inboxView, "#help": helpView }[h] || homeView)();
+}
+
+// ---------------------------------------------------------------- start
+function opts(list, sel, label = x => x.name) { return list.map(x => `<option value="${esc(x.name)}" ${x.name === sel ? "selected" : ""}>${esc(label(x))}</option>`).join(""); }
+function homeView() {
+  $("#view").innerHTML = `
+  <h1>Make a <em>video</em> with your coding agent.</h1>
+  <p class="lead">Start a project here, drop your files, and either click through the preview and render steps yourself or open this folder in your coding agent (Codex, Claude Code, Gemini CLI, Cursor…) and say <b>"Read AGENTS.md and make my video."</b> The app and the agent use the same commands, so you can switch between them at any time.</p>
+  <div class="grid g2">
+    <div class="card pad"><h2>1 · New project</h2>
+      <label>Name <small>(letters, numbers, dashes)</small><input id="nn" placeholder="q4_update"></label>
+      <label>Style pack<select id="np">${opts(S.packs, "motion_promo", p => p.name.replace(/_/g, " "))}</select></label>
+      <div class="row2"><label>Theme<select id="nt"><option value="">pack default</option>${opts(S.themes, "")}</select></label>
+      <label>Format<select id="nf"><option value="">pack default</option><option>16:9</option><option>9:16</option><option>1:1</option><option>4:5</option></select></label></div>
+      <p class="note" id="pdesc"></p>
+      <div class="btns"><button class="btn" id="mk" type="button">Create project</button></div></div>
+    <div class="card pad"><h2>2 · Drop your files</h2><p>Docs, decks, CSV/XLSX, images, logos and screen recordings go into <code>inbox/</code>, where the agent reads them.</p>
+      <div class="drop" id="drop" style="margin-top:14px">Drop files here, or click to choose</div><input type="file" id="fi" multiple hidden>
+      <div class="files" id="fl"></div></div>
+  </div>
+  <div class="grid g2">
+    <div class="card pad"><h2>3 · Brief <small style="color:var(--muted);font-weight:400">(optional)</small></h2><p>Saved as <code>inbox/brief.json</code>. The agent reads it and only asks what's missing.</p>
+      <label>What is it for, and who watches?<textarea id="b_purpose" placeholder="Launch of Release 2 for all AMs; they should know the three new features and where to start."></textarea></label>
+      <div class="row2"><label>Length<select id="b_length"><option>about 30 s</option><option selected>about 60 s</option><option>about 2 min</option><option>3–5 min walkthrough</option></select></label>
+      <label>Voice<select id="b_voice"><option value="none">no voice</option>${opts(S.voices, "en-US-AvaNeural")}</select></label>
+      <label>Music<select id="b_music">${opts(S.moods, "calm")}<option value="none">none</option></select></label>
+      <label>Captions<select id="b_captions"><option value="narration">narration</option><option value="none">none</option></select></label></div>
+      <label>Must-say messages and call to action<textarea id="b_must" placeholder="Live from 1 Dec. Ask your manager for access."></textarea></label>
+      <label>AI images <small>(your agent or any image app can make illustrations)</small><select id="b_ai"><option value="no">No: use only my files and the studio's graphics</option><option value="yes">Yes, where I have no visuals</option></select></label>
+      <div class="btns"><button class="btn" id="bs" type="button">Save brief</button><button class="btn alt" id="bc" type="button">Copy the prompt for your agent</button></div></div>
+    <div class="card pad"><h2>Recent jobs</h2>${S.jobs.length ? `<table>${S.jobs.map(j => `<tr><td>${esc(j.cmd)}</td><td>${esc(j.project || "")}</td><td class="${j.status === "done" ? "ok" : j.status === "failed" ? "bad" : "warn"}">${j.status}</td><td class="t">${new Date(j.started * 1000).toLocaleTimeString()}</td></tr>`).join("")}</table>` : `<p>No jobs yet. Preview and render steps run in the background and show up here.</p>`}
+      <div class="btns"><button class="btn alt" type="button" onclick="runJob('check')">Check this computer</button></div></div>
+  </div>`;
+  const desc = () => { const p = S.packs.find(x => x.name === $("#np").value); $("#pdesc").innerHTML = p ? esc(p.for) + ` <a href="#styles">See styles</a>` : ""; };
+  $("#np").onchange = desc; desc();
+  $("#mk").onclick = async () => { try { const r = await api("/api/new", { name: $("#nn").value, pack: $("#np").value, theme: $("#nt").value, format: $("#nf").value }); toast("Created " + r.id); await load(); location.hash = "#p/" + r.id; } catch (e) { toast(e.message); } };
+  dropzone(); files();
+  const brief = () => ({ purpose: $("#b_purpose").value, length: $("#b_length").value, pack: $("#np").value, theme: $("#nt").value || null, format: $("#nf").value || null,
+    voice: $("#b_voice").value, music: $("#b_music").value, captions: $("#b_captions").value, must_say: $("#b_must").value, ai_images: $("#b_ai").value === "yes", saved: new Date().toISOString() });
+  $("#bs").onclick = async () => { await api("/api/brief", brief()); toast("Saved inbox/brief.json"); };
+  $("#bc").onclick = () => copy(`Read AGENTS.md and make my video. My brief is in inbox/brief.json and my files are in inbox/.${$("#b_ai").value === "yes" ? " You may generate illustrations with your image tool where I have no visuals (follow IMAGEGEN.md)." : ""}`);
+}
+function copy(t) { (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast("Copied"), () => { prompt("Copy this:", t); }); }
+function dropzone() {
+  const d = $("#drop"), fi = $("#fi"); if (!d) return;
+  d.onclick = () => fi.click(); fi.onchange = () => upload([...fi.files]);
+  d.ondragover = e => { e.preventDefault(); d.classList.add("over"); }; d.ondragleave = () => d.classList.remove("over");
+  d.ondrop = e => { e.preventDefault(); d.classList.remove("over"); upload([...e.dataTransfer.files]); };
+}
+async function upload(list) {
+  for (const f of list) { toast("Uploading " + f.name + "…"); const r = await fetch("/api/upload?name=" + encodeURIComponent(f.name), { method: "POST", body: f }); if (!r.ok) { toast("Upload failed: " + f.name); continue; } }
+  S = await api("/api/state"); nav(); files(); toast(list.length + " file(s) added to inbox/");
+}
+function files() { const e = $("#fl"); if (e) e.innerHTML = S.inbox.map(f => `<div><span>${esc(f.name)}</span><small>${f.kb.toLocaleString()} KB</small></div>`).join("") || `<div><small>inbox/ is empty</small></div>`; }
+function inboxView() {
+  $("#view").innerHTML = `<h1>Inbox</h1><p class="lead">Everything here is context for the agent: briefs, docs, data, images, logos and screen recordings. Files stay on this computer.</p>
+  <div class="card pad" style="margin-top:20px"><div class="drop" id="drop">Drop files here, or click to choose</div><input type="file" id="fi" multiple hidden><div class="files" id="fl"></div></div>`;
+  dropzone(); files();
+}
+
+// ---------------------------------------------------------------- styles
+function stylesView() {
+  $("#view").innerHTML = `<h1>Styles</h1><p class="lead">A <b>pack</b> is a recipe (story shape, scene types, defaults). A <b>theme</b> is the look (colours, type, background, film effects, caption style). Any pack works with any theme.</p>
+  <h2 style="margin-top:26px">Packs</h2><div class="grid g3">${S.packs.map(p => `<div class="card"><div class="shots" data-rot>${(p.stills.length ? p.stills : []).map((s, i) => `<img src="/files/assets/gallery/${s}" class="${i ? "" : "on"}" alt="${esc(p.name)} example frame ${i + 1}">`).join("") || `<div class="empty" style="color:#fff">${esc(p.name)}</div>`}</div>
+    <div class="pad"><h3>${esc(p.name.replace(/_/g, " "))}</h3><p>${esc(p.for)}</p><span class="tag">${esc(p.format)}</span>${p.theme ? `<span class="tag">theme: ${esc(p.theme)}</span>` : ""}
+    <details style="margin-top:10px"><summary style="cursor:pointer;font-size:14px">Recipe</summary><div class="md">${esc(p.md)}</div></details></div></div>`).join("")}</div>
+  <h2 style="margin-top:34px">Themes</h2><div class="grid g3">${S.themes.map(t => `<div class="card">${t.still ? `<div class="shots"><img class="on" src="/files/assets/gallery/${t.still}" alt="${esc(t.name)} theme example"></div>` : ""}
+    <div class="pad"><h3>${esc(t.name)}</h3><p>${esc(t.about)}</p><div class="sw">${["bg0", "bg2", "ink", "accent", "accent2"].map(k => `<span title="${k}" style="background:${esc(t.colors[k])}"></span>`).join("")}</div></div></div>`).join("")}</div>`;
+  document.querySelectorAll("[data-rot]").forEach(box => { const ims = box.querySelectorAll("img"); if (ims.length < 2) return; let k = 0;
+    ROT.push(setInterval(() => { ims[k].classList.remove("on"); k = (k + 1) % ims.length; ims[k].classList.add("on"); }, 2200)); });
+}
+function helpView() {
+  $("#view").innerHTML = `<h1>How it works</h1>
+  <div class="grid g2"><div class="card pad"><h3>The loop</h3><p>Brief → script → <b>Plan</b> (timeline fitted to the voice) → <b>Stills</b> (one frame per scene) → <b>Audio</b> (voice + music) → <b>QA</b> (must say "no issues") → <b>Render</b> (MP4 + subtitles + contact sheet) → feedback → a new version. Versions are never overwritten.</p></div>
+  <div class="card pad"><h3>You, the agent, or both</h3><p>Every button runs the same <code>${S.py} studio.py …</code> command the agent uses. Edit <code>project.json</code> here or let the agent do it; the next preview picks it up.</p></div>
+  <div class="card pad"><h3>AI images (optional)</h3><p>Scenes can carry a <code>gen</code> prompt. Previews show a placeholder until the image exists. <b>Images → Write requests</b> lists exact prompts and paths; your agent generates them with its image tool (or paste them into any image app); <b>Check images</b> verifies size and shape. See <code>IMAGEGEN.md</code>.</p></div>
+  <div class="card pad"><h3>Speed</h3><p>Rendering runs about 6 minutes per minute of video (two headless browsers). Previews take seconds. Only one render runs at a time.</p></div></div>`;
+}
+
+// ---------------------------------------------------------------- project
+async function projectView(id) {
+  try { P = await api("/api/project/" + id); } catch (e) { $("#view").innerHTML = `<div class="empty">${esc(e.message)}</div>`; return; }
+  const sp = P.spec, tabs = [["overview", "Overview"], ["preview", "Preview"], ["render", "Versions"], ["compare", "Compare"], ["images", "AI images" + (P.pending_images ? ` (${P.pending_images})` : "")], ["edit", "Edit"], ["agent", "Ask your agent"]];
+  if (!tabs.some(t => t[0] === TAB)) TAB = "overview";
+  $("#view").innerHTML = `<div class="top"><div><h1>${esc(sp.title || id)}</h1><div><span class="tag">${esc(id)}</span><span class="tag">${esc(sp.format || "16:9")}</span><span class="tag">theme: ${esc(sp.theme || "navy")}</span><span class="tag">voice: ${esc(sp.voice ? sp.voice.name : "none")}</span><span class="tag">music: ${esc(sp.music && sp.music.mood || sp.music && sp.music.file || "none")}</span>${P.pending_images ? `<span class="tag red">${P.pending_images} AI image(s) pending</span>` : ""}</div></div>
+    <div class="btns" style="margin-top:4px"><button class="btn alt" type="button" onclick="runJob('stills')">Preview stills</button><button class="btn" type="button" onclick="runJob('render')">Render</button></div></div>
+    <div class="tabs">${tabs.map(([k, l]) => `<button type="button" data-t="${k}" class="${k === TAB ? "on" : ""}">${l}</button>`).join("")}</div><div id="tab"></div>`;
+  document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => { TAB = b.dataset.t; localStore("tab", TAB); document.querySelectorAll(".tabs button").forEach(x => x.classList.toggle("on", x === b)); tab(); });
+  tab();
+}
+function tab() {
+  const T = $("#tab"), sp = P.spec, id = P.id;
+  if (TAB === "overview") {
+    T.innerHTML = `<div class="card" style="margin-top:18px"><table><tr><th>#</th><th>Type</th><th>On screen</th><th>Narration</th></tr>${(sp.scenes || []).map((s, i) => `<tr><td class="t">${i + 1}</td><td><span class="tag" style="margin:0">${esc(s.type)}</span>${s.gen || (s.layers || []).some(l => l.gen) ? ` <span class="tag red" style="margin:0">AI</span>` : ""}</td>
+      <td>${esc((s.title || s.heading || s.value || (s.lines || []).join(" / ") || s.text || s.src || "").replace(/<[^>]+>/g, ""))}</td><td style="color:var(--muted)">${esc(s.say || "")}</td></tr>`).join("")}</table></div>
+      <div class="grid g2">${P.brief ? `<div class="card pad"><h3>brief.md</h3><div class="md">${esc(P.brief)}</div></div>` : ""}${P.script ? `<div class="card pad"><h3>script.md</h3><div class="md">${esc(P.script)}</div></div>` : ""}</div>`;
+  } else if (TAB === "preview") {
+    T.innerHTML = `<div class="btns"><button class="btn alt" type="button" onclick="runJob('plan')">Plan (timeline)</button><button class="btn alt" type="button" onclick="runJob('stills')">Stills</button><button class="btn alt" type="button" onclick="runJob('audio')">Audio</button><button class="btn alt" type="button" onclick="runJob('qa')">QA</button></div>
+      <p class="note">Plan, Audio and Render need internet the first time each narration line is spoken (lines are cached). Stills take a few seconds per scene.</p>
+      ${P.audio ? `<div class="card pad" style="margin-top:14px"><h3>Soundtrack preview</h3><audio controls style="width:100%;margin-top:10px" src="/work/${encodeURIComponent(P.stills_dir)}_audio_preview.wav${bust()}"></audio></div>` : ""}
+      ${P.stills.length ? `<div class="stills">${P.stills.map(f => `<img loading="lazy" alt="Preview frame at ${esc(f)}" src="/work/stills/${encodeURIComponent(P.stills_dir)}/${f}${bust()}">`).join("")}</div>` : `<div class="empty">No stills yet. Click <b>Stills</b>.</div>`}`;
+    T.querySelectorAll(".stills img").forEach(im => im.onclick = () => { $("#zoom img").src = im.src; $("#zoom").style.display = "grid"; });
+  } else if (TAB === "render") {
+    const R = [...P.renders].reverse();
+    T.innerHTML = R.length ? R.map(r => `<div class="card pad" style="margin-top:18px"><div class="ver"><video controls preload="metadata" src="${fileUrl(r.video)}"></video>
+      <div><h3>${esc(r.video.split("/").pop())}</h3><p>${r.time} · ${r.size_mb} MB</p><p class="${/^no issues/.test(r.qa) ? "ok" : "warn"}" style="margin-top:8px">QA: ${esc(r.qa.split("\n")[0] || "-")}</p>
+      <div class="btns">${r.contact ? `<a class="btn alt" target="_blank" href="${fileUrl(r.contact)}">Contact sheet</a>` : ""}${r.srt ? `<a class="btn alt" href="${fileUrl(r.srt)}" download>Subtitles (.srt)</a>` : ""}<a class="btn alt" href="${fileUrl(r.video)}" download>Download MP4</a></div>
+      <p class="note">On disk: <code>${esc(r.video)}</code></p></div></div></div>`).join("") : `<div class="empty">No versions yet. Preview first, then click <b>Render</b>.</div>`;
+  } else if (TAB === "compare") {
+    const R = P.renders.map(r => r.video);
+    if (R.length < 2) { T.innerHTML = `<div class="empty">Compare needs two versions. Render again after a change (each render is a new version).</div>`; return; }
+    const o = (sel) => R.map(v => `<option ${v === sel ? "selected" : ""}>${esc(v.split("/").pop())}</option>`).join("");
+    T.innerHTML = `<div class="btns"><select id="ca" style="max-width:280px">${o(R[R.length - 2])}</select><select id="cb" style="max-width:280px">${o(R[R.length - 1])}</select>
+      <button class="btn" type="button" id="cp">Play both</button><button class="btn alt" type="button" id="cs">Pause</button><label style="margin:0;display:flex;gap:8px;align-items:center;font-weight:400"><input type="checkbox" id="cm" style="width:auto;margin:0" checked> mute left</label></div>
+      <div class="cmp"><video id="va" controls muted></video><video id="vb" controls></video></div><p class="note">Seeking either video moves both. Listen to one side at a time.</p>`;
+    const va = $("#va"), vb = $("#vb"), pick = () => { va.src = fileUrl(R.find(v => v.endsWith($("#ca").value))); vb.src = fileUrl(R.find(v => v.endsWith($("#cb").value))); };
+    $("#ca").onchange = $("#cb").onchange = pick; pick();
+    $("#cp").onclick = () => { vb.currentTime = va.currentTime; va.play(); vb.play(); }; $("#cs").onclick = () => { va.pause(); vb.pause(); };
+    $("#cm").onchange = e => { va.muted = e.target.checked; vb.muted = !e.target.checked; };
+    let lock = false; const sync = (a, b) => a.addEventListener("seeked", () => { if (lock) return; lock = true; b.currentTime = a.currentTime; setTimeout(() => lock = false, 120); });
+    sync(va, vb); sync(vb, va);
+  } else if (TAB === "images") {
+    T.innerHTML = `<div class="card pad" style="margin-top:18px"><h3>Optional: AI-generated images</h3><p>Scenes with a <code>gen</code> prompt get their picture from your coding agent's image tool, an image MCP server, or any image app you paste the prompts into. The studio writes the exact prompts, sizes and save paths; your agent or any image app generates them; the check verifies them. Until then, previews show a striped placeholder and QA blocks the final render.</p>
+      <div class="btns"><button class="btn" type="button" onclick="runJob('imagegen')">Write requests</button><button class="btn alt" type="button" onclick="runJob('imagegen-check')">Check images</button>
+      <button class="btn alt" type="button" onclick="copy('Read IMAGEGEN.md, then generate every TO DO image in projects/${esc(id)}/assets/gen/REQUESTS.md with your image tool, save each to its path, run ${S.py} studio.py imagegen ${esc(id)} --check, and show me the images.')">Copy the prompt for your agent</button></div>
+      ${P.imagegen ? `<div class="md">${esc(P.imagegen)}</div>` : `<p class="note">No requests written yet${P.pending_images ? "" : " (this project has no AI image scenes)"}.</p>`}</div>`;
+  } else if (TAB === "edit") {
+    T.innerHTML = `<div class="card pad" style="margin-top:18px"><h3>project.json</h3><p>Every field is in <code>SPEC.md</code>. Saving keeps a backup in <code>project.json.bak</code>.</p>
+      <textarea class="code" id="ed" spellcheck="false">${esc(JSON.stringify(sp, null, 2))}</textarea><div class="btns"><button class="btn" type="button" id="sv">Save</button><button class="btn alt" type="button" id="svs">Save and preview stills</button></div><p class="note" id="ern"></p></div>`;
+    const save = async () => { let spec; try { spec = JSON.parse($("#ed").value); } catch (e) { $("#ern").innerHTML = `<span class="bad">Not valid JSON: ${esc(e.message)}</span>`; return false; }
+      try { await api("/api/project/" + id + "/save", { spec }); P.spec = spec; $("#ern").innerHTML = `<span class="ok">Saved.</span>`; return true; } catch (e) { $("#ern").innerHTML = `<span class="bad">${esc(e.message)}</span>`; return false; } };
+    $("#sv").onclick = save; $("#svs").onclick = async () => { if (await save()) runJob("stills"); };
+  } else if (TAB === "agent") {
+    const last = P.renders.length ? P.renders[P.renders.length - 1].video.split("/").pop() : "(no render yet)";
+    const prompts = [["Continue this project", `Read AGENTS.md. Work on projects/${id}. Read brief.md, script.md and project.json, run the preview steps, show me the stills, then render.`],
+      ["Give feedback on the latest version", `Read AGENTS.md. Feedback on projects/${id} version ${last}:\n- \n- \nChange only what I asked, preview, then render a new version.`],
+      ["Make a vertical cut", `Read AGENTS.md. Make a 9:16 version of projects/${id} as a new project (social_vertical pack rules: pop captions, 30 s, hook first). Keep the same voice and theme.`],
+      ["Try another look", `Read AGENTS.md. Copy projects/${id} to a new project and restyle it with the theme <name> (${S.py} studio.py themes). Show me stills of both before rendering.`]];
+    T.innerHTML = `<div class="grid g2">${prompts.map(([h, p], i) => `<div class="card pad"><h3>${h}</h3><pre>${esc(p)}</pre><div class="btns"><button class="btn alt" type="button" data-p="${i}">Copy</button></div></div>`).join("")}</div>`;
+    T.querySelectorAll("[data-p]").forEach(b => b.onclick = () => copy(prompts[+b.dataset.p][1]));
+  }
+}
+
+// ---------------------------------------------------------------- jobs
+let JOB = null;
+async function runJob(cmd) {
+  const project = ["check", "samples"].includes(cmd) ? null : P && P.id;
+  try { const r = await api("/api/run", { cmd, project }); JOB = r.job; $("#drawer").style.display = "block"; $("#jt").textContent = `${cmd} ${project || ""}: running…`; $("#jlog").textContent = ""; $("#jbar").style.width = "3%"; poll(); }
+  catch (e) { toast(e.message); }
+}
+async function poll() {
+  if (!JOB) return; let j; try { j = await api("/api/job/" + JOB); } catch (e) { return; }
+  const log = j.log.join("\n"); const L = $("#jlog"); const atEnd = L.scrollTop + L.clientHeight >= L.scrollHeight - 20; L.textContent = log; if (atEnd) L.scrollTop = L.scrollHeight;
+  const m = [...log.matchAll(/frames (\d+)\/(\d+)/g)].pop(); $("#jbar").style.width = (j.status !== "running" ? 100 : m ? Math.max(4, 90 * m[1] / m[2]) : 30) + "%";
+  $("#jt").innerHTML = `${esc(j.cmd)} ${esc(j.project || "")}: <span class="${j.status === "done" ? "ok" : j.status === "failed" ? "bad" : "warn"}">${j.status}</span>${j.status !== "running" ? ` · ${Math.round((j.ended - j.started))} s` : ""}`;
+  if (j.status === "running") return setTimeout(poll, 1000);
+  JOB = null; S = await api("/api/state"); nav();
+  if (P && (location.hash || "").startsWith("#p/")) { const keep = TAB; if (j.cmd === "stills" || j.cmd === "audio") TAB = "preview"; if (j.cmd === "render" && j.status === "done") TAB = "render"; if (j.cmd.startsWith("imagegen")) TAB = "images"; if (TAB !== keep) localStore("tab", TAB); projectView(P.id); }
+}
+$("#jclose").onclick = () => $("#drawer").style.display = "none";
+$("#zoom").onclick = () => $("#zoom").style.display = "none";
+$("#mode").onclick = () => { const r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === "dark" : true; r.dataset.theme = dark ? "light" : "dark"; localStore("mode", r.dataset.theme); };
+if (localStore("mode")) document.documentElement.dataset.theme = localStore("mode");
+load().catch(e => $("#view").innerHTML = `<div class="empty">Could not reach the studio server: ${esc(e.message)}</div>`);
+</script>
+</body>
+</html>

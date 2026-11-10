@@ -1,0 +1,59 @@
+{
+  "name": "Terminal",
+  "mode": "dark",
+  "about": "For developers: black screen, phosphor green mono type, scanlines, a soft glow, outline cards. Typewriter text and hard cuts. For engineering updates, APIs, security and AI tooling.",
+  "colors": {
+    "bg0": "#06120b",
+    "bg1": "#010402",
+    "bg2": "#0b2416",
+    "ink": "#d7ffe4",
+    "muted": "rgba(170,255,200,.62)",
+    "accent": "#39ff88",
+    "accent2": "#39ff88",
+    "card": "rgba(57,255,136,.04)",
+    "line": "rgba(57,255,136,.30)",
+    "glow": "rgba(57,255,136,.14)"
+  },
+  "type": {
+    "display": "mono",
+    "body": "mono",
+    "eyebrow": "mono",
+    "tracking": "-.03em"
+  },
+  "look": {
+    "bg": "grid",
+    "grid": 60,
+    "scan": 0.12,
+    "vignette": 0.4,
+    "cards": "outline",
+    "radius": 2,
+    "text": "glow"
+  },
+  "caption": {
+    "style": "bar",
+    "fill": [
+      1,
+      8,
+      4,
+      235
+    ],
+    "chip": [
+      57,
+      255,
+      136
+    ],
+    "ink": [
+      215,
+      255,
+      228
+    ],
+    "font": "jetbrains-mono-500.woff2"
+  },
+  "motion": "typewriter",
+  "transition": "cut",
+  "imagegen": "retro computer terminal aesthetic illustration, phosphor green on black, wireframe, minimal, no text",
+  "brand": {
+    "name": "",
+    "logo": ""
+  }
+}

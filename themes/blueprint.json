@@ -1,0 +1,55 @@
+{
+  "name": "Blueprint",
+  "mode": "dark",
+  "about": "Technical drawing: deep cobalt, white linework, grid with registration crosses, mono labels, outline cards. Typewriter text and wipes. For architecture, systems, how-it-works and engineering.",
+  "colors": {
+    "bg0": "#0d3b8c",
+    "bg1": "#082a66",
+    "bg2": "#1550b0",
+    "ink": "#f4f8ff",
+    "muted": "rgba(220,235,255,.74)",
+    "accent": "#ffd23f",
+    "accent2": "#9fd3ff",
+    "card": "rgba(255,255,255,.05)",
+    "line": "rgba(220,235,255,.45)",
+    "glow": "rgba(159,211,255,.14)"
+  },
+  "type": {
+    "display": "grotesk",
+    "body": "grotesk",
+    "eyebrow": "mono"
+  },
+  "look": {
+    "bg": "blueprint",
+    "cards": "outline",
+    "radius": 4,
+    "glow": false,
+    "vignette": 0.25
+  },
+  "caption": {
+    "style": "bar",
+    "fill": [
+      6,
+      30,
+      74,
+      235
+    ],
+    "chip": [
+      255,
+      210,
+      63
+    ],
+    "ink": [
+      244,
+      248,
+      255
+    ]
+  },
+  "motion": "typewriter",
+  "transition": "wipe",
+  "imagegen": "technical blueprint line drawing, white lines on cobalt blue, isometric, annotations as simple marks, precise, no text",
+  "brand": {
+    "name": "",
+    "logo": ""
+  }
+}

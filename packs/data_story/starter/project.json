@@ -1,0 +1,81 @@
+{
+  "title": "New data story",
+  "format": "16:9",
+  "theme": "newsroom",
+  "voice": {
+    "name": "en-US-AndrewNeural",
+    "rate": "-4%"
+  },
+  "music": {
+    "mood": "minimal"
+  },
+  "captions": "narration",
+  "scenes": [
+    {
+      "type": "title",
+      "eyebrow": "Quarterly update",
+      "title": "Replies <em>doubled</em> in four weeks",
+      "sub": "What changed, and what we do next",
+      "say": "Replace with the headline finding, said as one sentence."
+    },
+    {
+      "type": "stat",
+      "eyebrow": "Reply rate",
+      "value": "41%",
+      "label": "up from 19%",
+      "sub": "Source: replace with the file and date",
+      "say": "Replace with the hero number and what it compares to."
+    },
+    {
+      "type": "chart",
+      "kind": "line",
+      "title": "Week four was the <em>turning point</em>",
+      "data": [
+        [
+          "W1",
+          19
+        ],
+        [
+          "W2",
+          22
+        ],
+        [
+          "W3",
+          31
+        ],
+        [
+          "W4",
+          41
+        ]
+      ],
+      "unit": "%",
+      "note": "Sample data",
+      "say": "Replace with what the trend shows, in one sentence."
+    },
+    {
+      "type": "timeline",
+      "title": "What happens next",
+      "items": [
+        {
+          "when": "Nov",
+          "title": "Roll out"
+        },
+        {
+          "when": "Dec",
+          "title": "Measure"
+        },
+        {
+          "when": "Jan",
+          "title": "Scale"
+        }
+      ],
+      "say": "Replace with the next three steps."
+    },
+    {
+      "type": "end",
+      "title": "The ask",
+      "sub": "Replace with the decision you need",
+      "say": "Replace with the decision or ask."
+    }
+  ]
+}

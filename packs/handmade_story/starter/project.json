@@ -1,0 +1,79 @@
+{
+  "title": "New handmade story",
+  "format": "16:9",
+  "theme": "collage",
+  "voice": {
+    "name": "en-US-EmmaNeural",
+    "rate": "-4%"
+  },
+  "music": {
+    "mood": "calm"
+  },
+  "captions": "narration",
+  "scenes": [
+    {
+      "type": "title",
+      "eyebrow": "Team spotlight",
+      "title": "Meet the people behind <em>every reply</em>",
+      "say": "Replace with one short sentence for this scene."
+    },
+    {
+      "type": "quote",
+      "text": "Replace with a real quote, in their own <em>words</em>.",
+      "by": "Name",
+      "role": "Role",
+      "say": "Replace with one short sentence for this scene."
+    },
+    {
+      "type": "bento",
+      "eyebrow": "What they do",
+      "title": "A day in <em>the life</em>",
+      "tiles": [
+        {
+          "size": "2x1",
+          "title": "Morning",
+          "body": "…"
+        },
+        {
+          "title": "Midday",
+          "body": "…"
+        },
+        {
+          "title": "Afternoon",
+          "body": "…"
+        },
+        {
+          "size": "2x1",
+          "title": "What they love",
+          "body": "…"
+        }
+      ],
+      "say": "Replace with one short sentence for this scene."
+    },
+    {
+      "type": "timeline",
+      "title": "Their <em>journey</em>",
+      "items": [
+        {
+          "when": "Then",
+          "title": "…"
+        },
+        {
+          "when": "Now",
+          "title": "…"
+        },
+        {
+          "when": "Next",
+          "title": "…"
+        }
+      ],
+      "say": "Replace with one short sentence for this scene."
+    },
+    {
+      "type": "end",
+      "title": "Come <em>say hello</em>",
+      "cta": "Replace with the invitation",
+      "say": "Replace with one short sentence for this scene."
+    }
+  ]
+}

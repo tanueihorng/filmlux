@@ -1,0 +1,256 @@
+{
+  "title": "All scene types (reference)",
+  "format": "16:9",
+  "theme": "navy",
+  "voice": null,
+  "music": {
+    "mood": "corporate"
+  },
+  "captions": "none",
+  "scenes": [
+    {
+      "type": "title",
+      "eyebrow": "Release 1",
+      "title": "From insight to a <em>closed loop</em>",
+      "sub": "Everything an account manager needs, in one place."
+    },
+    {
+      "type": "kinetic",
+      "lines": [
+        "Know your customers.",
+        "Reach them <em>personally</em>.",
+        "Close the loop."
+      ]
+    },
+    {
+      "type": "bullets",
+      "eyebrow": "Why it matters",
+      "heading": "Three things change",
+      "items": [
+        {
+          "title": "One view of every account",
+          "body": "Services, contracts, contacts"
+        },
+        {
+          "title": "Ask, don't search",
+          "body": "The chatbot ranks who to call"
+        },
+        {
+          "title": "Outreach in minutes",
+          "body": "Personalised, tracked, followed up"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "eyebrow": "In your book",
+      "value": "3,318",
+      "label": "accounts, one view",
+      "sub": "Illustrative figure"
+    },
+    {
+      "type": "quote",
+      "text": "It finally shows me who to call today, and <em>why</em>.",
+      "by": "Account manager",
+      "role": "pilot user"
+    },
+    {
+      "type": "chart",
+      "kind": "bar",
+      "title": "Replies by channel",
+      "data": [
+        [
+          "Email",
+          42
+        ],
+        [
+          "Phone",
+          31
+        ],
+        [
+          "Event",
+          18
+        ],
+        [
+          "Web",
+          9
+        ]
+      ],
+      "unit": "%",
+      "note": "Sample data"
+    },
+    {
+      "type": "chart",
+      "kind": "line",
+      "title": "Weekly outreach",
+      "data": [
+        [
+          "W1",
+          12
+        ],
+        [
+          "W2",
+          18
+        ],
+        [
+          "W3",
+          26
+        ],
+        [
+          "W4",
+          41
+        ],
+        [
+          "W5",
+          57
+        ]
+      ],
+      "note": "Sample data"
+    },
+    {
+      "type": "chart",
+      "kind": "donut",
+      "title": "Pipeline mix",
+      "data": [
+        [
+          "Existing",
+          58
+        ],
+        [
+          "Winback",
+          27
+        ],
+        [
+          "New",
+          15
+        ]
+      ],
+      "unit": "%",
+      "note": "Sample data"
+    },
+    {
+      "type": "process",
+      "title": "The account manager's loop",
+      "loop": true,
+      "steps": [
+        "Explore",
+        "Understand",
+        "Plan",
+        "Engage",
+        "Track",
+        "Respond"
+      ]
+    },
+    {
+      "type": "process",
+      "title": "How a broadcast works",
+      "steps": [
+        {
+          "title": "Audience",
+          "body": "Filters"
+        },
+        {
+          "title": "Draft",
+          "body": "AI writes"
+        },
+        {
+          "title": "Review",
+          "body": "Preview"
+        },
+        {
+          "title": "Send",
+          "body": "Tracked"
+        }
+      ]
+    },
+    {
+      "type": "bento",
+      "title": "Four features, one loop",
+      "tiles": [
+        {
+          "label": "Customer 360",
+          "title": "Your whole book",
+          "size": "2x2",
+          "accent": true,
+          "value": "360"
+        },
+        {
+          "label": "Chatbot",
+          "title": "Ask who to call",
+          "size": "2x1"
+        },
+        {
+          "label": "Broadcast",
+          "title": "Personal, at scale"
+        },
+        {
+          "label": "Daily Connect",
+          "title": "Replies to actions"
+        }
+      ]
+    },
+    {
+      "type": "compare",
+      "title": "Before and after",
+      "left": {
+        "title": "Spreadsheets",
+        "items": [
+          "Scattered data",
+          "Manual emails",
+          "No follow-up"
+        ]
+      },
+      "right": {
+        "title": "With Orbit",
+        "items": [
+          "One view",
+          "AI drafts",
+          "Tracked replies"
+        ]
+      }
+    },
+    {
+      "type": "section",
+      "number": "03",
+      "eyebrow": "Section",
+      "title": "A chapter <em>card</em>",
+      "say": "A section card opens a new chapter with a big number."
+    },
+    {
+      "type": "timeline",
+      "title": "A <em>timeline</em>",
+      "items": [
+        {
+          "when": "Q1",
+          "title": "Discover"
+        },
+        {
+          "when": "Q2",
+          "title": "Pilot",
+          "body": "Two teams"
+        },
+        {
+          "when": "Q3",
+          "title": "Launch"
+        },
+        {
+          "when": "Q4",
+          "title": "Scale"
+        }
+      ],
+      "say": "A timeline draws milestones in order."
+    },
+    {
+      "type": "logo",
+      "tagline": "A logo sting, with a tagline",
+      "say": "A logo sting closes on the brand.",
+      "name": "Filmlux"
+    },
+    {
+      "type": "end",
+      "title": "See it in <em>Orbit</em>",
+      "sub": "Release 1, available now",
+      "cta": "Open Orbit"
+    }
+  ]
+}

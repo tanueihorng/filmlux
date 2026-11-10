@@ -1,0 +1,56 @@
+{
+  "title": "New kinetic type film",
+  "format": "16:9",
+  "theme": "brutal",
+  "motion": "slam",
+  "transition": "cut",
+  "voice": null,
+  "music": {
+    "mood": "upbeat"
+  },
+  "captions": "none",
+  "scenes": [
+    {
+      "type": "kinetic",
+      "lines": [
+        "Stop searching.",
+        "Start <em>knowing</em>."
+      ],
+      "say": "Replace with one short sentence for this scene."
+    },
+    {
+      "type": "section",
+      "number": "01",
+      "eyebrow": "The shift",
+      "title": "One <em>idea</em> per screen"
+    },
+    {
+      "type": "kinetic",
+      "lines": [
+        "Every customer.",
+        "Every signal.",
+        "<em>One</em> place."
+      ],
+      "say": "Replace with one short sentence for this scene."
+    },
+    {
+      "type": "stat",
+      "eyebrow": "Proof",
+      "value": "3x",
+      "label": "faster answers",
+      "sub": "Replace with your real number and source"
+    },
+    {
+      "type": "kinetic",
+      "lines": [
+        "Less hunting.",
+        "More <em>doing</em>."
+      ]
+    },
+    {
+      "type": "end",
+      "title": "Make it <em>loud</em>",
+      "cta": "Replace with the call to action"
+    }
+  ]
+}

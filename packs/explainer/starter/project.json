@@ -1,0 +1,69 @@
+{
+  "title": "New explainer",
+  "format": "16:9",
+  "theme": "navy",
+  "voice": {
+    "name": "en-US-AvaNeural",
+    "rate": "-6%"
+  },
+  "music": {
+    "mood": "calm"
+  },
+  "captions": "narration",
+  "scenes": [
+    {
+      "type": "title",
+      "eyebrow": "Explainer",
+      "title": "The question this <em>answers</em>",
+      "say": "In the next minute, here's the question we'll answer."
+    },
+    {
+      "type": "bullets",
+      "heading": "Three things to know",
+      "items": [
+        "First point",
+        "Second point",
+        "Third point"
+      ],
+      "say": "There are three things to know."
+    },
+    {
+      "type": "process",
+      "title": "How it works",
+      "steps": [
+        "Step one",
+        "Step two",
+        "Step three",
+        "Step four"
+      ],
+      "say": "Here's how it works, step by step."
+    },
+    {
+      "type": "chart",
+      "kind": "column",
+      "title": "The evidence",
+      "data": [
+        [
+          "A",
+          10
+        ],
+        [
+          "B",
+          20
+        ],
+        [
+          "C",
+          30
+        ]
+      ],
+      "note": "Sample data: replace with the user's real figures",
+      "say": "And here's the evidence, from your own data."
+    },
+    {
+      "type": "end",
+      "title": "What to do <em>next</em>",
+      "cta": "Next step",
+      "say": "Here's what to do next."
+    }
+  ]
+}

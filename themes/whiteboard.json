@@ -1,0 +1,56 @@
+{
+  "name": "Whiteboard",
+  "mode": "light",
+  "about": "Marker on a whiteboard: clean white, hand-lettered titles, sketchy outline cards, red and blue markers. Typewriter write-on, wipes. For training, explainers and step-by-step processes.",
+  "colors": {
+    "bg0": "#ffffff",
+    "bg1": "#f3f4f6",
+    "bg2": "#ffffff",
+    "ink": "#1f2430",
+    "muted": "rgba(31,36,48,.66)",
+    "accent": "#e23b3b",
+    "accent2": "#2563eb",
+    "card": "rgba(255,255,255,.9)",
+    "line": "rgba(31,36,48,.20)",
+    "glow": "rgba(0,0,0,0)"
+  },
+  "type": {
+    "display": "hand",
+    "body": "sans",
+    "eyebrow": "hand",
+    "case": "none"
+  },
+  "look": {
+    "bg": "plain",
+    "glow": false,
+    "cards": "sketch",
+    "radius": 10,
+    "vignette": 0.06
+  },
+  "caption": {
+    "style": "glass",
+    "fill": [
+      255,
+      255,
+      255,
+      230
+    ],
+    "chip": [
+      226,
+      59,
+      59
+    ],
+    "ink": [
+      31,
+      36,
+      48
+    ]
+  },
+  "motion": "typewriter",
+  "transition": "wipe",
+  "imagegen": "whiteboard marker doodle illustration, black outlines with red and blue marker accents, simple, white background, hand-drawn, no text",
+  "brand": {
+    "name": "",
+    "logo": ""
+  }
+}

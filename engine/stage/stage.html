@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Filmlux Stage</title>
+<!-- The scene library. The renderer calls:
+       await setSpec(spec)            once: theme + resolved scenes (durations already fitted to the voice)
+       renderFrame(i, t)              draw scene i at time t (seconds into the scene) — a pure function of t
+       qa(i)                          list layout problems (overflow / outside safe area) for scene i
+     Every scene type is documented in SPEC.md. Add a new type by adding a builder to SCENES. -->
+<style>
+@font-face { font-family: "Display"; font-weight: 400; src: url("../../assets/fonts/InterDisplay-Regular.ttf"); }
+@font-face { font-family: "Display"; font-weight: 500; src: url("../../assets/fonts/InterDisplay-Medium.ttf"); }
+@font-face { font-family: "Display"; font-weight: 600; src: url("../../assets/fonts/InterDisplay-SemiBold.ttf"); }
+@font-face { font-family: "Serif"; font-style: italic; font-weight: 600; src: url("../../assets/fonts/fraunces-latin-600-italic.woff2"); }
+@font-face { font-family: "Display"; font-weight: 800; src: url("../../assets/fonts/inter-800.woff2"); }
+@font-face { font-family: "Editorial"; font-weight: 400; src: url("../../assets/fonts/instrument-serif-400.woff2"); }
+@font-face { font-family: "Editorial"; font-style: italic; font-weight: 400; src: url("../../assets/fonts/instrument-serif-400-italic.woff2"); }
+@font-face { font-family: "Fraunces"; font-weight: 500; src: url("../../assets/fonts/fraunces-500.woff2"); }
+@font-face { font-family: "Fraunces"; font-style: italic; font-weight: 500; src: url("../../assets/fonts/fraunces-500-italic.woff2"); }
+@font-face { font-family: "Condensed"; font-weight: 400; src: url("../../assets/fonts/anton-400.woff2"); }
+@font-face { font-family: "Grotesk"; font-weight: 500; src: url("../../assets/fonts/space-grotesk-500.woff2"); }
+@font-face { font-family: "Grotesk"; font-weight: 700; src: url("../../assets/fonts/space-grotesk-700.woff2"); }
+@font-face { font-family: "Mono"; font-weight: 500; src: url("../../assets/fonts/jetbrains-mono-500.woff2"); }
+@font-face { font-family: "Hand"; font-weight: 700; src: url("../../assets/fonts/caveat-700.woff2"); }
+@font-face { font-family: "Pixel"; font-weight: 400; src: url("../../assets/fonts/vt323-400.woff2"); }
+@font-face { font-family: "Chunky"; font-weight: 800; src: url("../../assets/fonts/bricolage-800.woff2"); }
+:root { --W: 1920px; --H: 1080px; --u: 1px; --bg0: #0b1530; --bg1: #060a16; --bg2: #16264a; --ink: #fff; --muted: rgba(255,255,255,.66);
+  --accent: #ED193D; --accent2: #ff6b84; --card: rgba(255,255,255,.06); --line: rgba(255,255,255,.12); --glow: rgba(237,25,61,.25);
+  --font-display: "Display"; --font-body: "Display"; --font-eyebrow: "Display"; --font-em: "Serif";
+  --title-weight: 600; --title-case: none; --title-track: -.03em; --title-lh: 1.02; --em-style: italic; --em-weight: 600; --radius: 28; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: var(--W); height: var(--H); overflow: hidden; background: var(--bg1); }
+body { font-family: var(--font-body), "Segoe UI", system-ui, sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+em { font-family: var(--font-em), Georgia, serif; font-style: var(--em-style); font-weight: var(--em-weight); color: var(--accent); letter-spacing: 0; text-transform: inherit; }
+#fx { inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.lb #brand { top: calc(var(--H) * .075 + 28 * var(--u)); } .lb #chapter { top: calc(var(--H) * .075 + 32 * var(--u)); }
+.cards-flat .card { box-shadow: none; } .cards-outline .card { background: transparent; box-shadow: none; border: calc(2 * var(--u)) solid var(--line); }
+.cards-solid .card { box-shadow: 0 calc(10 * var(--u)) calc(30 * var(--u)) rgba(0,0,0,.12); }
+.cards-brutal .card { border: calc(4 * var(--u)) solid var(--ink); box-shadow: calc(12 * var(--u)) calc(12 * var(--u)) 0 var(--ink); }
+.cards-paper .card { border: 0; background: linear-gradient(var(--tape, rgba(255,236,160,.75)), var(--tape, rgba(255,236,160,.75))) 50% 0 / calc(150 * var(--u)) calc(28 * var(--u)) no-repeat, var(--card);
+  box-shadow: 0 calc(8 * var(--u)) calc(22 * var(--u)) rgba(40,30,10,.20), 0 1px 0 rgba(0,0,0,.06); }
+.cards-paper .card:nth-child(odd) { rotate: -1.4deg; } .cards-paper .card:nth-child(even) { rotate: 1.1deg; }
+.cards-clay .card { border: 0; border-radius: calc(44 * var(--u)); box-shadow: inset calc(-12 * var(--u)) calc(-12 * var(--u)) calc(26 * var(--u)) rgba(60,40,120,.14), inset calc(12 * var(--u)) calc(12 * var(--u)) calc(26 * var(--u)) rgba(255,255,255,.8), 0 calc(26 * var(--u)) calc(50 * var(--u)) rgba(80,60,140,.22); }
+.cards-glow .card { background: rgba(0,0,0,.28); border: calc(2 * var(--u)) solid var(--accent2); box-shadow: 0 0 calc(26 * var(--u)) var(--glow), inset 0 0 calc(20 * var(--u)) var(--glow); }
+.cards-sketch .card { background: transparent; box-shadow: none; border: calc(3.5 * var(--u)) solid var(--ink); border-radius: 255px 18px 225px 18px / 18px 225px 18px 255px; }
+.flat-title .grad, .flat-title .grad .w, .flat-title .accentgrad { background: none; color: var(--ink); -webkit-text-fill-color: var(--ink); }
+.flat-title .grad em, .flat-title .grad em .w { color: var(--accent); -webkit-text-fill-color: var(--accent); }
+.text-shadow .title, .text-shadow .stat-v { text-shadow: calc(7 * var(--u)) calc(7 * var(--u)) 0 var(--accent2); }
+.text-misreg .title { text-shadow: calc(6 * var(--u)) calc(5 * var(--u)) 0 color-mix(in srgb, var(--accent2) 70%, transparent); }
+.text-glow .title { text-shadow: 0 0 calc(16 * var(--u)) var(--accent2), 0 0 calc(44 * var(--u)) var(--glow); }
+.text-chroma .title { text-shadow: calc(-4 * var(--u)) 0 rgba(255,40,110,.7), calc(4 * var(--u)) 0 rgba(40,220,255,.7); }
+.text-outline .title, .text-outline .title .w { color: transparent; -webkit-text-fill-color: transparent; background: none; -webkit-text-stroke: calc(2.6 * var(--u)) var(--ink); }
+.text-outline .title em, .text-outline .title em .w { -webkit-text-fill-color: var(--accent); -webkit-text-stroke: 0; }
+.text-chrome .grad, .text-chrome .grad .w, .text-chrome .title:not(.grad) { background: linear-gradient(180deg, #ffffff 0%, #d9dfeb 36%, #5d6578 50%, #eef2fa 64%, #a3acbf 100%); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+.text-chrome .grad.split { background: none; }
+.text-chrome .grad em, .text-chrome .grad em .w, .text-chrome .title em { background: linear-gradient(180deg, var(--accent2), var(--accent)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.pending { display: grid; place-items: center; text-align: center; padding: 6%; background: repeating-linear-gradient(135deg, rgba(127,127,127,.10) 0 calc(14 * var(--u)), transparent 0 calc(28 * var(--u))) var(--bg2); border: calc(3 * var(--u)) dashed var(--accent); color: var(--ink); font-size: calc(26 * var(--u)); line-height: 1.4; }
+.pending b { display: block; color: var(--accent); letter-spacing: .2em; font-size: calc(18 * var(--u)); margin-bottom: calc(12 * var(--u)); }
+.abs { position: absolute; }
+#bg { inset: 0; background: radial-gradient(calc(var(--W) * .75) calc(var(--H) * .8) at 50% 40%, var(--bg2) 0%, var(--bg0) 48%, var(--bg1) 100%); }
+#field { inset: 0; width: 100%; height: 100%; }
+#glow { width: calc(900 * var(--u)); height: calc(900 * var(--u)); border-radius: 50%; background: radial-gradient(circle, var(--glow), transparent 65%); filter: blur(calc(20 * var(--u))); }
+#brand { left: calc(64 * var(--u)); top: calc(52 * var(--u)); display: flex; align-items: center; gap: calc(14 * var(--u)); font-size: calc(24 * var(--u)); font-weight: 600; }
+#brand img { height: calc(30 * var(--u)); }
+#chapter { right: calc(64 * var(--u)); top: calc(56 * var(--u)); font-size: calc(17 * var(--u)); letter-spacing: .22em; font-weight: 600; color: var(--accent2); text-transform: uppercase; }
+#scene { inset: 0; }
+.safe { position: absolute; left: 8%; right: 8%; top: 12%; bottom: 14%; }
+.caps .safe { bottom: 21%; }
+.caps.portrait .safe { bottom: 26%; }
+.tile { display: flex; flex-direction: column; }
+.tile .push { margin-top: auto; }
+.center { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.eyebrow { font-family: var(--font-eyebrow), "Display", sans-serif; font-size: calc(22 * var(--u)); letter-spacing: .26em; font-weight: 600; color: var(--accent2); text-transform: uppercase; }
+.title { font-family: var(--font-display), "Display", sans-serif; font-weight: var(--title-weight); letter-spacing: var(--title-track); line-height: var(--title-lh); text-transform: var(--title-case); text-wrap: balance; }
+.sub { text-wrap: pretty; }
+.sub { color: var(--muted); font-size: calc(32 * var(--u)); line-height: 1.4; font-weight: 500; }
+.w { display: inline-block; white-space: pre; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: calc(var(--radius) * var(--u)); box-shadow: 0 calc(30 * var(--u)) calc(80 * var(--u)) rgba(0,0,0,.28); }
+.grad, .grad .w { background: linear-gradient(180deg, var(--ink) 0%, color-mix(in srgb, var(--ink) 62%, transparent) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.grad.split { background: none; color: var(--ink); }
+.grad em .w, .grad em { background: none; -webkit-text-fill-color: var(--accent); color: var(--accent); }
+.accentgrad { background: linear-gradient(90deg, var(--accent2), var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.badge { display: inline-grid; place-items: center; width: calc(46 * var(--u)); height: calc(46 * var(--u)); border-radius: 50%; background: var(--accent); color: #fff; font-weight: 600; font-size: calc(20 * var(--u)); flex: none; box-shadow: 0 0 0 calc(6 * var(--u)) var(--glow); }
+.light { --ink: #0b1220; }
+</style>
+</head>
+<body>
+<div id="bg" class="abs"></div>
+<canvas id="field" class="abs"></canvas>
+<div id="glow" class="abs"></div>
+<div id="scene" class="abs"></div>
+<div id="brand" class="abs"></div>
+<div id="chapter" class="abs"></div>
+<canvas id="fx" class="abs"></canvas>
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const seg = (t, a, b) => clamp((t - a) / Math.max(1e-6, b - a));
+const eo = p => 1 - Math.pow(1 - p, 3);                       // ease out cubic
+const eio = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+const back = p => { const c = 1.4; return 1 + (c + 1) * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
+let SPEC = null, THEME = null, U = 1, W = 1920, H = 1080, PORTRAIT = false, CUR = -1, BUILT = null, CURT = 0;
+
+// ---------- helpers
+function el(tag, cls, html, parent) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; (parent || $("scene")).appendChild(e); return e; }
+function px(n) { return (n * U) + "px"; }
+function esc(s) { return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&lt;(\/?)em&gt;/g, "<$1em>").replace(/&lt;br&gt;/g, "<br>"); }
+function words(e) {                                            // wrap words for staggered reveals, keeping <em>
+  e.classList.add("split"); const out = [];
+  const walk = (node, emp) => { [...node.childNodes].forEach(n => {
+    if (n.nodeType === 3) { n.textContent.split(/(\s+)/).forEach(part => { if (!part) return;
+      if (/^\s+$/.test(part)) { out.push(document.createTextNode(part)); return; }
+      const s = document.createElement("span"); s.className = "w"; s.textContent = part; if (emp) { const m = document.createElement("em"); m.appendChild(s); out.push(m); } else out.push(s); }); }
+    else if (n.nodeName === "EM") walk(n, true); else if (n.nodeName === "BR") out.push(document.createElement("br")); }); };
+  walk(e, false); e.innerHTML = ""; out.forEach(n => e.appendChild(n)); return [...e.querySelectorAll(".w")];
+}
+// ---------- motion styles: how elements arrive (theme/project/scene "motion"; see SPEC.md)
+const MOTIONS = ["smooth", "snappy", "spring", "bouncy", "heavy", "mask", "typewriter", "stopmotion", "focus", "flip", "slam", "gentle", "glitch"];
+// Damped spring, the same physics as Remotion's spring(): mass / damping / stiffness, starts at 0, settles at 1.
+const SPRINGS = { spring: { damping: 10, stiffness: 100, mass: 1 }, snappy: { damping: 20, stiffness: 200, mass: 1 }, bouncy: { damping: 8, stiffness: 100, mass: 1 },
+                  heavy: { damping: 15, stiffness: 80, mass: 2 }, smooth: { damping: 200, stiffness: 100, mass: 1 } };
+function springAt(ts, c) {
+  if (ts <= 0) return 0; const m = c.mass ?? 1, k = c.stiffness ?? 100, d = c.damping ?? 10, w0 = Math.sqrt(k / m), z = d / (2 * Math.sqrt(k * m)); let x;
+  if (z < 1) { const wd = w0 * Math.sqrt(1 - z * z); x = Math.exp(-z * w0 * ts) * (-Math.cos(wd * ts) - (z * w0 / wd) * Math.sin(wd * ts)); }
+  else if (z === 1) x = Math.exp(-w0 * ts) * (-1 - w0 * ts);
+  else { const r = Math.sqrt(z * z - 1), r1 = -w0 * (z - r), r2 = -w0 * (z + r), B = r1 / (r2 - r1), A = -1 - B; x = A * Math.exp(r1 * ts) + B * Math.exp(r2 * ts); }
+  const v = 1 + x; return c.overshootClamping ? Math.min(1, v) : v;
+}
+const SPRING_T = 1.1;                                              // seconds of spring time per entrance window (windows are ~0.6-0.8 s)
+const spr = (p, name) => p >= 1 ? 1 : springAt(p * SPRING_T * (LOOK.spring_speed || 1), Object.assign({}, SPRINGS[name] || SPRINGS.spring, name === BASE_MOTION ? LOOK.spring || {} : {}));
+let MOTION = "smooth", BASE_MOTION = "smooth";
+const hash = (str, n) => { let h = 2166136261 ^ n; for (let i = 0; i < str.length; i++) h = Math.imul(h ^ str.charCodeAt(i), 16777619); return ((h >>> 0) % 10000) / 10000; };
+function move(kind, k, dist) {                                  // the shared "rise / left / right / scale / pop" offsets
+  if (kind === "left") return `translateX(${px((1 - k) * -dist * 1.6)})`;
+  if (kind === "right") return `translateX(${px((1 - k) * dist * 1.6)})`;
+  if (kind === "scale") return `scale(${.92 + .08 * k})`;
+  if (kind === "pop") return `scale(${.86 + .14 * k})`;
+  return `translateY(${px((1 - k) * dist)})`;
+}
+function reveal(e, p, kind = "rise", dist = 26) {             // p: 0..1 entrance progress
+  if (!e) return; p = clamp(p); const m = MOTION, st = e.style;
+  st.clipPath = ""; st.filter = "none"; st.transformOrigin = "";
+  if (m === "snappy" || m === "glitch") {                       // spring {damping 20, stiffness 200}: quick, minimal bounce
+    const k = spr(p, "snappy"); st.opacity = clamp(p * 4); st.transform = move(kind, k, dist * 1.4);
+  } else if (m === "spring" || m === "bouncy") {                // spring {damping 10} / {damping 8}: playful bounce
+    const k = spr(p, m); st.opacity = clamp(p * 4);
+    st.transform = kind === "left" || kind === "right" ? move(kind, k, dist * 1.5) : `translateY(${px((1 - k) * dist * 2.2)}) scale(${.7 + .3 * k})`;
+  } else if (m === "heavy") {                                   // spring {damping 15, stiffness 80, mass 2}: slow, weighty, small bounce
+    const k = spr(p, "heavy"); st.opacity = clamp(p * 2.5); st.transform = `${move(kind, k, dist * 2.4)} scale(${1.06 - .06 * k})`;
+  } else if (m === "mask") {                                    // editorial: slides up from behind an invisible line
+    const k = eio(clamp(p * 1.15)); st.opacity = p > 0 ? 1 : 0;
+    if (kind === "left" || kind === "right") { const d = (1 - k) * 100 * (kind === "left" ? -1 : 1);
+      st.transform = `translateX(${d}%)`; st.clipPath = kind === "left" ? `inset(-25% -6% -25% ${(1 - k) * 100}%)` : `inset(-25% ${(1 - k) * 100}% -25% -6%)`; }
+    else { st.transform = `translateY(${(1 - k) * 105}%)`; st.clipPath = `inset(-30% -6% ${(1 - k) * 120 - 18}% -6%)`; }
+  } else if (m === "typewriter") {                              // typed on, character by character
+    const n = Math.max(1, (e.textContent || "").length), q = Math.floor(clamp(p * 1.25) * n + (p > 0 ? 1 : 0)) / n;
+    st.opacity = q > 0 ? 1 : 0; st.transform = "none"; st.clipPath = `inset(-30% ${(1 - clamp(q)) * 100}% -30% -4%)`;
+  } else if (m === "stopmotion") {                              // handmade: on twos, with a little boil
+    const q = Math.floor(p * 6) / 6, k = eo(q), f = Math.floor(CURT * 8), key = (e.textContent || e.tagName).slice(0, 24);
+    const j1 = hash(key, f) - .5, j2 = hash(key, f + 99) - .5, amp = .35 + .65 * (1 - k);
+    st.opacity = q > 0 ? 1 : 0; st.transform = `${move(kind, k, dist * 1.4)} rotate(${(j1 * 2.6 * amp).toFixed(2)}deg) translate(${px(j2 * 4 * amp)}, ${px(j1 * 3 * amp)}) scale(${.9 + .1 * k})`;
+  } else if (m === "focus") {                                   // cinematic focus pull
+    const k = eio(p); st.opacity = clamp(p * 1.3); st.transform = `scale(${1.14 - .14 * k})`; st.filter = p < 1 ? `blur(${px((1 - k) * 24)})` : "none";
+  } else if (m === "flip") {                                    // tips up towards the viewer
+    const k = spr(p, "snappy"); st.opacity = clamp(p * 2.5); st.transformOrigin = "50% 100%"; st.transform = `perspective(${px(900)}) rotateX(${(1 - k) * -88}deg)`;
+  } else if (m === "slam") {                                    // drops in big, lands with a small shake
+    const k = spr(p, "snappy"), q = clamp(p * 2.2), sh = q >= 1 ? Math.sin(p * 70) * (1 - p) * 7 : 0;
+    st.opacity = clamp(q * 2.5); st.transform = `translateX(${px(sh)}) scale(${1.9 - .9 * k})`;
+  } else if (m === "gentle") {                                  // slow, calm, no blur
+    const k = eio(clamp(p * .9)); st.opacity = clamp(p * 1.1); st.transform = move(kind, k, dist * .6);
+  } else {                                                      // "smooth" (default): eased rise with a soft blur
+    const k = eo(p); st.opacity = clamp(p * 1.4); st.transform = move(kind, k, dist);
+    st.filter = p < 1 && !LOOK.glitch ? `blur(${px((1 - k) * 8)})` : "none";
+  }
+  glitch(e, p, CURT);
+}
+function fit(e, maxPx, minPx, widthPx) {                       // shrink a text block until it fits its box
+  let s = maxPx; e.style.fontSize = px(s);
+  const limit = widthPx ? widthPx * U : e.parentElement.clientWidth;
+  while (s > minPx && (e.scrollWidth > limit + 1 || e.scrollWidth > e.clientWidth + 1)) { s -= 2; e.style.fontSize = px(s); }
+  return s;
+}
+function count(text, p) {                                      // animate the number inside "S$1,234.5k"
+  const m = String(text).match(/^(\D*?)(-?[\d,]*\.?\d+)(.*)$/); if (!m) return text;
+  const target = parseFloat(m[2].replace(/,/g, "")), dec = (m[2].split(".")[1] || "").length, v = target * eo(clamp(p));
+  let s = v.toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec });
+  if (/^0\d+$/.test(m[2])) s = s.padStart(m[2].length, "0");                 // keep "02" as "02"
+  return m[1] + (m[2].includes(",") ? s : s.replace(/,/g, "")) + m[3];
+}
+const THEME_RADIUS = () => (THEME.look && THEME.look.radius) ?? 28;
+function asset(src) { if (!src) return ""; if (/^(https?:|file:|data:)/.test(src)) return src; return SPEC.root_uri + "/" + src.replace(/\\/g, "/"); }
+
+// ---------- background + film effects (theme.look; every value is a pure function of t)
+let DOTS = null, NOISE = null, LOOK = {};
+const rng = seed => { let s = seed; return () => (s = (s * 16807) % 2147483647) / 2147483647; };
+function field(t, sc) {
+  const c = $("field"), x = c.getContext("2d"); if (c.width !== W) { c.width = W; c.height = H; }
+  x.clearRect(0, 0, W, H);
+  const bg = LOOK.bg || "dots", light = THEME.mode === "light", cs = getComputedStyle(document.documentElement);
+  if (bg === "dots") {
+    if (!DOTS) { const r = rng(7); DOTS = Array.from({ length: 140 }, () => [r(), r(), .5 + r(), r() * 6.28]); }
+    const a = light ? "rgba(20,40,90," : "rgba(170,195,255,";
+    DOTS.forEach(([dx, dy, s, ph]) => { const xx = ((dx + t * .004 * s) % 1) * W, yy = (dy * H + Math.sin(t * .3 + ph) * 6 * U);
+      x.fillStyle = a + (.10 + .12 * Math.sin(t * .8 + ph) ** 2) + ")"; x.beginPath(); x.arc(xx, yy, 1.3 * U * s, 0, 7); x.fill(); });
+  } else if (bg === "aurora") {                                  // slow, soft colour blobs (glassy, colourful)
+    const cols = LOOK.aurora || [cs.getPropertyValue("--accent"), cs.getPropertyValue("--accent2"), "#7c5cff", "#22c3ee"];
+    cols.forEach((col, k) => { const cx = W * (.5 + .38 * Math.sin(t * .07 + k * 1.9)), cy = H * (.5 + .34 * Math.cos(t * .06 + k * 2.4)), r = Math.max(W, H) * (.42 + .06 * Math.sin(t * .1 + k));
+      const g = x.createRadialGradient(cx, cy, 0, cx, cy, r); g.addColorStop(0, col.trim()); g.addColorStop(1, "transparent");
+      x.globalAlpha = LOOK.aurora_alpha ?? (light ? .28 : .38); x.fillStyle = g; x.fillRect(0, 0, W, H); });
+    x.globalAlpha = 1;
+  } else if (bg === "grid") {                                    // Swiss / tech grid, drifting very slowly
+    const step = (LOOK.grid || 120) * U, off = (t * 6 * U) % step; x.strokeStyle = light ? "rgba(10,20,40,.07)" : "rgba(160,190,255,.07)"; x.lineWidth = 1;
+    for (let gx = -off; gx < W; gx += step) { x.beginPath(); x.moveTo(gx, 0); x.lineTo(gx, H); x.stroke(); }
+    for (let gy = 0; gy < H; gy += step) { x.beginPath(); x.moveTo(0, gy); x.lineTo(W, gy); x.stroke(); }
+  } else if (bg === "horizon") {                                 // neon perspective floor
+    const hy = H * .62; x.strokeStyle = cs.getPropertyValue("--accent2").trim() || "#0ff"; x.globalAlpha = .22; x.lineWidth = 1.2 * U;
+    for (let k = -14; k <= 14; k++) { x.beginPath(); x.moveTo(W / 2 + k * 40 * U, hy); x.lineTo(W / 2 + k * 260 * U, H); x.stroke(); }
+    for (let k = 0; k < 12; k++) { const p = ((k + (t * .35) % 1) / 12), y = hy + (H - hy) * p * p; x.globalAlpha = .22 * p; x.beginPath(); x.moveTo(0, y); x.lineTo(W, y); x.stroke(); }
+    x.globalAlpha = 1;
+  } else if (bg === "halftone") {                               // print halftone: dot size follows a slow moving light
+    const step = (LOOK.dot || 26) * U, col = (LOOK.ink || cs.getPropertyValue("--accent2")).trim(), lx = W * (.7 + .2 * Math.sin(t * .09)), ly = H * (.3 + .2 * Math.cos(t * .07));
+    x.fillStyle = col; x.globalAlpha = LOOK.halftone_alpha ?? .22; const R = Math.hypot(W, H) * .75;
+    for (let gy = step / 2; gy < H; gy += step) for (let gx = (Math.round(gy / step) % 2) * step / 2; gx < W; gx += step) {
+      const r = step * .48 * clamp(1 - Math.hypot(gx - lx, gy - ly) / R) ** 1.4; if (r > .6) { x.beginPath(); x.arc(gx, gy, r, 0, 6.283); x.fill(); } }
+    x.globalAlpha = 1;
+  } else if (bg === "blueprint") {                              // technical drawing: minor + major grid, crosses
+    const mi = 32 * U, ma = mi * 5, off = (t * 4 * U) % ma, ink = light ? "10,40,90" : "200,225,255";
+    x.lineWidth = 1; x.strokeStyle = `rgba(${ink},.07)`; x.beginPath();
+    for (let gx = -off; gx < W; gx += mi) { x.moveTo(gx, 0); x.lineTo(gx, H); } for (let gy = 0; gy < H; gy += mi) { x.moveTo(0, gy); x.lineTo(W, gy); } x.stroke();
+    x.strokeStyle = `rgba(${ink},.16)`; x.beginPath();
+    for (let gx = -off; gx < W; gx += ma) { x.moveTo(gx, 0); x.lineTo(gx, H); } for (let gy = 0; gy < H; gy += ma) { x.moveTo(0, gy); x.lineTo(W, gy); } x.stroke();
+    x.strokeStyle = `rgba(${ink},.45)`; x.lineWidth = 1.4 * U; x.beginPath();
+    for (let gx = -off; gx < W; gx += ma) for (let gy = 0; gy < H; gy += ma) { x.moveTo(gx - 6 * U, gy); x.lineTo(gx + 6 * U, gy); x.moveTo(gx, gy - 6 * U); x.lineTo(gx, gy + 6 * U); } x.stroke();
+  } else if (bg === "iso") {                                    // isometric grid (architecture, systems)
+    const st = 64 * U, off = (t * 5 * U) % st, a = Math.tan(Math.PI / 6); x.lineWidth = 1; x.strokeStyle = light ? "rgba(10,20,60,.07)" : "rgba(170,200,255,.08)"; x.beginPath();
+    for (let c = -H / a - st; c < W + st; c += st) { const c0 = c + off; x.moveTo(c0, 0); x.lineTo(c0 + H / a, H); x.moveTo(c0 + H / a, 0); x.lineTo(c0, H); }
+    for (let gx = -st + off % st; gx < W; gx += st) { x.moveTo(gx, 0); x.lineTo(gx, H); } x.stroke();
+  } else if (bg === "shapes") {                                 // Bauhaus: big geometric shapes drifting at the edges
+    const cols = [cs.getPropertyValue("--accent"), cs.getPropertyValue("--accent2"), LOOK.shape3 || "#f2b705", cs.getPropertyValue("--ink")].map(c => c.trim()), S = Math.min(W, H);
+    x.globalAlpha = LOOK.shapes_alpha ?? .9;
+    [[-.04, -.06, .42, 0], [1.02, .1, .30, 1], [.95, 1.05, .46, 2], [.02, 1.0, .26, 3], [.5, -.1, .16, 4]].forEach(([fx0, fy0, sz, k]) => {
+      const cx = fx0 * W + Math.sin(t * .11 + k) * 18 * U, cy = fy0 * H + Math.cos(t * .09 + k) * 14 * U, r = sz * S, rot = t * .05 * (k % 2 ? -1 : 1) + k;
+      x.save(); x.translate(cx, cy); x.rotate(rot); x.fillStyle = cols[k % 4];
+      x.beginPath();
+      if (k === 0) x.arc(0, 0, r / 2, 0, 6.283);
+      else if (k === 1) { x.rect(-r / 2, -r / 2, r, r); }
+      else if (k === 2) { x.arc(0, 0, r / 2, Math.PI, 0); x.closePath(); }
+      else if (k === 3) { x.moveTo(0, -r / 2); x.lineTo(r / 2, r / 2); x.lineTo(-r / 2, r / 2); x.closePath(); }
+      else { x.arc(0, 0, r / 2, 0, Math.PI / 2); x.lineTo(0, 0); x.closePath(); }
+      x.fill(); x.restore(); });
+    x.globalAlpha = 1;
+  } else if (bg === "waves") {                                  // calm flowing lines
+    const col = cs.getPropertyValue("--accent2").trim(); x.strokeStyle = col; x.lineWidth = 1.6 * U;
+    for (let k = 0; k < 9; k++) { x.globalAlpha = .05 + .025 * k; x.beginPath();
+      for (let gx = 0; gx <= W; gx += 12 * U) { const y = H * (.56 + k * .045) + Math.sin(gx / W * 6.283 * 1.3 + t * .35 + k * .5) * H * .05 * (1 + k * .12); gx ? x.lineTo(gx, y) : x.moveTo(gx, y); }
+      x.stroke(); }
+    x.globalAlpha = 1;
+  }                                                              // "plain" / "paper": gradient or flat colour only
+  const g = $("glow"), gx = sc.glow_x ?? .72, gy = sc.glow_y ?? .62;
+  g.style.display = LOOK.glow === false ? "none" : "";
+  g.style.left = (gx * W - 450 * U + Math.sin(t * .25) * 30 * U) + "px"; g.style.top = (gy * H - 450 * U + Math.cos(t * .2) * 24 * U) + "px";
+}
+let SCAN = null;
+function fx(t) {                                                 // drawn at half resolution (soft effects; 4x cheaper to composite)
+  const c = $("fx"), x = c.getContext("2d"), on = LOOK.leak || LOOK.vignette || LOOK.scan || LOOK.grain || LOOK.letterbox || LOOK.tracking;
+  c.style.display = on ? "" : "none"; if (!on) return;
+  if (c.width !== Math.round(W / 2)) { c.width = Math.round(W / 2); c.height = Math.round(H / 2); }
+  x.setTransform(.5, 0, 0, .5, 0, 0); x.clearRect(0, 0, W, H);
+  if (LOOK.leak) {                                               // warm film light leaks drifting across one edge
+    x.globalCompositeOperation = "screen";
+    [[.08, .2, "rgba(255,140,60,"], [.92, .75, "rgba(255,60,90,"]].forEach(([fx0, fy0, col], k) => {
+      const cx = W * (fx0 + .06 * Math.sin(t * .23 + k * 2)), cy = H * (fy0 + .1 * Math.cos(t * .17 + k)), r = W * (.35 + .05 * Math.sin(t * .31 + k));
+      const a = (LOOK.leak === true ? .22 : LOOK.leak) * (.75 + .25 * Math.sin(t * .5 + k * 3));
+      const g = x.createRadialGradient(cx, cy, 0, cx, cy, r); g.addColorStop(0, col + a + ")"); g.addColorStop(1, col + "0)"); x.fillStyle = g; x.fillRect(0, 0, W, H); });
+    x.globalCompositeOperation = "source-over";
+  }
+  if (LOOK.vignette) { const g = x.createRadialGradient(W / 2, H / 2, Math.min(W, H) * .35, W / 2, H / 2, Math.max(W, H) * .75);
+    g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(1, `rgba(0,0,0,${LOOK.vignette})`); x.fillStyle = g; x.fillRect(0, 0, W, H); }
+  if (LOOK.scan) { if (!SCAN) { const n = document.createElement("canvas"); n.width = 8; n.height = 8; const nx = n.getContext("2d"); nx.fillStyle = `rgba(0,0,0,${LOOK.scan === true ? .12 : LOOK.scan})`; nx.fillRect(0, 0, 8, 3); SCAN = x.createPattern(n, "repeat"); }
+    x.fillStyle = SCAN; x.fillRect(0, 0, W, H); }
+  if (LOOK.grain) {                                              // film grain: 4 pre-made noise tiles, picked by frame number (deterministic)
+    if (!NOISE) { NOISE = [1, 2, 3, 4].map(k => { const n = document.createElement("canvas"); n.width = n.height = 256; const nx = n.getContext("2d"), id = nx.createImageData(256, 256), r = rng(97 * k);
+      for (let i = 0; i < id.data.length; i += 4) { const v = r() * 255; id.data[i] = id.data[i + 1] = id.data[i + 2] = v; id.data[i + 3] = 255; } nx.putImageData(id, 0, 0); return x.createPattern(n, "repeat"); }); }
+    x.globalAlpha = LOOK.grain * .8; x.fillStyle = NOISE[Math.floor(t * 24) % 4]; x.fillRect(0, 0, W, H); x.globalAlpha = 1;
+  }
+  if (LOOK.tracking) {                                          // VHS: a soft noisy band rolling down the picture
+    const by = ((t * .11) % 1.25 - .12) * H, bh = H * .06; x.fillStyle = "rgba(255,255,255,.06)"; x.fillRect(0, by, W, bh);
+    for (let k = 0; k < 14; k++) { const yy = by + (hash("v", Math.floor(t * 24) * 31 + k) * bh), ww = W * (.2 + .6 * hash("w", Math.floor(t * 24) + k));
+      x.fillStyle = `rgba(255,255,255,${.08 + .12 * hash("a", k + Math.floor(t * 24))})`; x.fillRect(hash("x", k + Math.floor(t * 24)) * (W - ww), yy, ww, 1.5 * U); }
+  }
+  if (LOOK.letterbox) { const h = H * .075; x.fillStyle = "#000"; x.fillRect(0, 0, W, h); x.fillRect(0, H - h, W, h); }
+}
+function glitch(e, p, t) {                                       // RGB split + jitter while a title arrives
+  if (!(LOOK.glitch || MOTION === "glitch") || !e || !(e.classList.contains("title") || e.closest(".title"))) return;
+  const k = 1 - clamp(p), j = Math.sin(t * 91.7 + e.textContent.length) * 43758.5453 % 1;
+  if (k < .02) { e.style.textShadow = "none"; return; }
+  const d = (6 + 10 * Math.abs(j)) * k * U; e.style.textShadow = `${d}px 0 rgba(255,0,80,.75), ${-d}px 0 rgba(0,230,255,.75)`;
+  e.style.transform = (e.style.transform || "") + ` translateX(${(j * 14 * k).toFixed(2)}px) skewX(${(j * 8 * k).toFixed(2)}deg)`;
+}
+
+// ---------- scene builders: build(sc) -> {update(t, d)}
+const SCENES = {
+  title(sc) {
+    const box = el("div", "safe center"); box.style.alignItems = sc.align === "left" ? "flex-start" : "center"; box.style.textAlign = sc.align === "left" ? "left" : "center";
+    const eb = sc.eyebrow ? el("div", "eyebrow", esc(sc.eyebrow), box) : null;
+    const tt = el("div", "title grad", esc(sc.title), box); tt.style.marginTop = px(eb ? 26 : 0); tt.style.width = "100%";
+    fit(tt, PORTRAIT ? 120 : 150, 54); const ws = words(tt);
+    const rule = el("div", "", "", box); Object.assign(rule.style, { height: px(4), width: px(140), background: "var(--accent)", borderRadius: px(4), marginTop: px(34), transformOrigin: sc.align === "left" ? "left" : "center" });
+    const sb = sc.sub ? el("div", "sub", esc(sc.sub), box) : null; if (sb) { sb.style.marginTop = px(30); sb.style.maxWidth = px(PORTRAIT ? 860 : 1180); }
+    return { update(t) {
+      reveal(eb, seg(t, .1, .7));
+      ws.forEach((w, i) => reveal(w, seg(t, .25 + i * .07, .95 + i * .07), "rise", 40));
+      rule.style.transform = `scaleX(${eo(seg(t, .7, 1.4))})`; rule.style.opacity = seg(t, .7, .9);
+      reveal(sb, seg(t, .95 + ws.length * .05, 1.7 + ws.length * .05));
+      tt.style.transform = `scale(${1 + .015 * seg(t, 0, 8)})`;
+    } };
+  },
+  kinetic(sc) {
+    const lines = (sc.lines || []).map(s => { const e = el("div", "abs center"); Object.assign(e.style, { left: "7%", right: "7%", top: "12%", bottom: "14%" });
+      const inner = el("div", "title", esc(s), e); inner.style.maxWidth = "100%"; fit(inner, PORTRAIT ? 120 : 150, 50); e._in = inner; return e; });   // inner block keeps "word<em>x</em>." on one line
+    return { update(t, d) {
+      const n = lines.length, slot = d / Math.max(1, n);
+      lines.forEach((e, i) => { const a = i * slot, last = i === n - 1, out = last ? 0 : seg(t, a + slot - .3, a + slot + .05);
+        const p = i === 0 ? seg(t, .05, .7) : seg(t, a - .15, a + .5), k = eo(p);          // next line overlaps the exit: never a blank frame
+        if (MOTION !== "smooth") { e.style.opacity = 1 - out; e.style.transform = `translateY(${px(-out * 40)})`; e.style.filter = out > 0 ? `blur(${px(out * 8)})` : "none"; reveal(e._in, p, "rise", 40); return; }
+        e.style.opacity = clamp(p * 1.5) * (1 - out);
+        e.style.transform = `translateY(${px((1 - k) * 40 - out * 40)}) scale(${1.05 - .05 * k})`;
+        e.style.filter = LOOK.glitch ? "none" : `blur(${px((1 - k) * 10 + out * 8)})`; e._in.style.transform = ""; glitch(e._in, Math.min(p, 1 - out), t); });
+    } };
+  },
+  bullets(sc) {
+    const box = el("div", "safe"); box.style.display = "flex"; box.style.flexDirection = PORTRAIT ? "column" : "row"; box.style.gap = px(70); box.style.alignItems = PORTRAIT ? "stretch" : "center";
+    const left = el("div", "", "", box); left.style.flex = PORTRAIT ? "none" : "0 0 38%";
+    const eb = sc.eyebrow ? el("div", "eyebrow", esc(sc.eyebrow), left) : null;
+    const hd = el("div", "title grad", esc(sc.heading || sc.title || ""), left); hd.style.marginTop = px(eb ? 20 : 0); fit(hd, PORTRAIT ? 84 : 82, 40);
+    const list = el("div", "", "", box); list.style.flex = "1"; list.style.display = "grid"; list.style.gap = px(22);
+    const items = (sc.items || []).map((it, i) => { const o = typeof it === "string" ? { title: it } : it;
+      const r = el("div", "card", "", list); Object.assign(r.style, { display: "flex", gap: px(22), alignItems: "center", padding: px(24) + " " + px(28) });
+      el("div", "badge", sc.numbered === false ? "✓" : String(i + 1), r);
+      const tx = el("div", "", `<div style="font-size:${px(32)};font-weight:600;letter-spacing:-.01em">${esc(o.title)}</div>` + (o.body ? `<div style="font-size:${px(22)};color:var(--muted);margin-top:${px(6)}">${esc(o.body)}</div>` : ""), r);
+      return r; });
+    return { update(t, d) {
+      reveal(eb, seg(t, .1, .6)); reveal(hd, seg(t, .2, .9));
+      const span = Math.min(.9, (d - 1.6) / Math.max(1, items.length));
+      items.forEach((r, i) => reveal(r, seg(t, .8 + i * span, 1.4 + i * span), "left", 30));
+    } };
+  },
+  stat(sc) {
+    const box = el("div", "safe center");
+    const eb = sc.eyebrow ? el("div", "eyebrow", esc(sc.eyebrow), box) : null;
+    const v = el("div", "title accentgrad", esc(sc.value), box); v.style.marginTop = px(16); fit(v, PORTRAIT ? 230 : 280, 90);
+    const lb = el("div", "title", esc(sc.label || ""), box); lb.style.marginTop = px(10); fit(lb, 64, 30);
+    const sb = sc.sub ? el("div", "sub", esc(sc.sub), box) : null; if (sb) { sb.style.marginTop = px(22); sb.style.maxWidth = px(1100); }
+    return { update(t) { reveal(eb, seg(t, .05, .5)); reveal(v, seg(t, .15, .7), "pop"); v.textContent = count(sc.value, seg(t, .2, 1.6)); reveal(lb, seg(t, .7, 1.3)); reveal(sb, seg(t, 1.1, 1.8)); } };
+  },
+  quote(sc) {
+    const box = el("div", "safe center");
+    const mk = el("div", "", "“", box); Object.assign(mk.style, { fontFamily: "Serif", fontSize: px(220), lineHeight: ".6", color: "var(--accent)", height: px(110) });
+    const q = el("div", "title", esc(sc.text), box); q.style.fontWeight = 500; q.style.maxWidth = px(PORTRAIT ? 900 : 1400); q.style.lineHeight = 1.18; fit(q, PORTRAIT ? 64 : 66, 36);
+    const ws = words(q);
+    const by = el("div", "sub", (sc.by ? "— " + esc(sc.by) : "") + (sc.role ? `<span style="opacity:.7">, ${esc(sc.role)}</span>` : ""), box); by.style.marginTop = px(34); by.style.fontSize = px(26);
+    return { update(t) { reveal(mk, seg(t, 0, .5), "scale"); ws.forEach((w, i) => reveal(w, seg(t, .3 + i * .045, .8 + i * .045), "rise", 18)); reveal(by, seg(t, .5 + ws.length * .045, 1.1 + ws.length * .045)); } };
+  },
+  chart(sc) {
+    const box = el("div", "safe"); box.style.display = "flex"; box.style.flexDirection = "column";
+    const eb = sc.eyebrow ? el("div", "eyebrow", esc(sc.eyebrow), box) : null;
+    const hd = el("div", "title grad", esc(sc.title || ""), box); hd.style.marginTop = px(eb ? 16 : 0); fit(hd, 64, 34);
+    const area = el("div", "card", "", box); Object.assign(area.style, { flex: "1", minHeight: "0", marginTop: px(34), padding: px(40), position: "relative" });
+    const data = (sc.data || []).map(r => Array.isArray(r) ? { label: r[0], value: +r[1] } : { label: r.label, value: +r.value });
+    const max = Math.max(...data.map(d => d.value), 1) * 1.08, unit = sc.unit || "", kind = sc.kind || "bar";
+    const note = el("div", "", esc(sc.note || ""), box); Object.assign(note.style, { fontSize: px(18), color: "var(--muted)", marginTop: px(14) });
+    const dec = sc.decimals ?? (data.every(d => Number.isInteger(d.value)) ? 0 : 1);
+    const fmt = v => (sc.prefix || "") + v.toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec }) + unit;
+    let upd = () => {};
+    if (kind === "bar") {
+      area.style.display = "grid"; area.style.alignContent = "center"; area.style.gap = px(22);
+      const rows = data.map(dd => { const r = el("div", "", "", area); Object.assign(r.style, { display: "grid", gridTemplateColumns: `${px(PORTRAIT ? 230 : 300)} 1fr ${px(170)}`, alignItems: "center", gap: px(22) });
+        el("div", "", esc(dd.label), r).style.cssText = `font-size:${px(26)};font-weight:500;color:var(--muted);text-align:right`;
+        const tr = el("div", "", "", r); tr.style.cssText = `height:${px(34)};border-radius:${px(17)};background:rgba(127,127,127,.14);overflow:hidden`;
+        const b = el("div", "", "", tr); b.style.cssText = `height:100%;border-radius:${px(17)};background:linear-gradient(90deg,var(--accent2),var(--accent));width:0`;
+        const v = el("div", "", "", r); v.style.cssText = `font-size:${px(30)};font-weight:600`; return { b, v, dd }; });
+      upd = t => rows.forEach((o, i) => { const p = eo(seg(t, .6 + i * .12, 1.8 + i * .12)); o.b.style.width = (100 * o.dd.value / max * p) + "%"; o.v.textContent = fmt(o.dd.value * p); o.v.style.opacity = seg(t, .6 + i * .12, 1 + i * .12); });
+    } else if (kind === "column" || kind === "line") {
+      const ns = "http://www.w3.org/2000/svg", sv = document.createElementNS(ns, "svg"); sv.setAttribute("viewBox", "0 0 1000 520"); sv.style.cssText = "width:100%;height:100%;overflow:visible"; area.appendChild(sv);
+      const n = data.length, xw = 1000 / n, Y = v => 470 - 430 * v / max;
+      for (let k = 0; k <= 4; k++) { const ln = document.createElementNS(ns, "line"); ln.setAttribute("x1", 0); ln.setAttribute("x2", 1000); ln.setAttribute("y1", 470 - 107.5 * k); ln.setAttribute("y2", 470 - 107.5 * k); ln.setAttribute("stroke", "rgba(127,127,127,.18)"); sv.appendChild(ln); }
+      const labels = data.map((dd, i) => { const tx = document.createElementNS(ns, "text"); tx.setAttribute("x", xw * i + xw / 2); tx.setAttribute("y", 505); tx.setAttribute("text-anchor", "middle"); tx.setAttribute("fill", "var(--muted)"); tx.setAttribute("font-size", 20); tx.textContent = dd.label; sv.appendChild(tx);
+        const vt = document.createElementNS(ns, "text"); vt.setAttribute("x", xw * i + xw / 2); vt.setAttribute("text-anchor", "middle"); vt.setAttribute("fill", "var(--ink)"); vt.setAttribute("font-size", 24); vt.setAttribute("font-weight", 600); sv.appendChild(vt); return vt; });
+      if (kind === "column") {
+        const bars = data.map((dd, i) => { const r = document.createElementNS(ns, "rect"); r.setAttribute("x", xw * i + xw * .22); r.setAttribute("width", xw * .56); r.setAttribute("rx", 10); r.setAttribute("fill", "var(--accent)"); sv.appendChild(r); return r; });
+        upd = t => data.forEach((dd, i) => { const p = eo(seg(t, .6 + i * .1, 1.7 + i * .1)), v = dd.value * p; bars[i].setAttribute("y", Y(v)); bars[i].setAttribute("height", Math.max(0, 470 - Y(v))); labels[i].setAttribute("y", Y(v) - 14); labels[i].textContent = fmt(v); labels[i].style.opacity = seg(t, .6 + i * .1, 1 + i * .1); });
+      } else {
+        const pts = data.map((dd, i) => [xw * i + xw / 2, Y(dd.value)]);
+        const path = document.createElementNS(ns, "path"); path.setAttribute("d", "M" + pts.map(p => p.join(",")).join(" L")); path.setAttribute("fill", "none"); path.setAttribute("stroke", "var(--accent)"); path.setAttribute("stroke-width", 6); path.setAttribute("stroke-linecap", "round"); path.setAttribute("stroke-linejoin", "round"); sv.appendChild(path);
+        const len = path.getTotalLength(); path.style.strokeDasharray = len;
+        const dots = pts.map(p => { const c = document.createElementNS(ns, "circle"); c.setAttribute("cx", p[0]); c.setAttribute("cy", p[1]); c.setAttribute("r", 9); c.setAttribute("fill", "var(--accent)"); c.setAttribute("stroke", "var(--bg0)"); c.setAttribute("stroke-width", 4); sv.appendChild(c); return c; });
+        upd = t => { const p = eio(seg(t, .6, 2.4)); path.style.strokeDashoffset = len * (1 - p); dots.forEach((c, i) => { const on = seg(p, i / Math.max(1, n - 1) - .02, i / Math.max(1, n - 1) + .04); c.style.opacity = on; labels[i].setAttribute("y", pts[i][1] - 22); labels[i].textContent = fmt(data[i].value); labels[i].style.opacity = on; }); };
+      }
+    } else if (kind === "donut") {
+      area.style.display = "flex"; area.style.alignItems = "center"; area.style.justifyContent = "center"; area.style.gap = px(70);
+      const ns = "http://www.w3.org/2000/svg", sv = document.createElementNS(ns, "svg"); sv.setAttribute("viewBox", "-110 -110 220 220"); sv.style.cssText = `width:${px(420)};height:${px(420)};transform:rotate(-90deg)`; area.appendChild(sv);
+      const tot = data.reduce((a, b) => a + b.value, 0) || 1, R = 84, C = 2 * Math.PI * R, cols = ["var(--accent)", "var(--accent2)", "#7c8cff", "#36c2a8", "#ffb340", "#9aa3b8"];
+      const bg = document.createElementNS(ns, "circle"); bg.setAttribute("r", R); bg.setAttribute("fill", "none"); bg.setAttribute("stroke", "rgba(127,127,127,.14)"); bg.setAttribute("stroke-width", 26); sv.appendChild(bg);
+      let acc = 0; const arcs = data.map((dd, i) => { const c = document.createElementNS(ns, "circle"); c.setAttribute("r", R); c.setAttribute("fill", "none"); c.setAttribute("stroke", cols[i % cols.length]); c.setAttribute("stroke-width", 26); c.setAttribute("stroke-dasharray", `0 ${C}`); c.setAttribute("transform", `rotate(${acc / tot * 360})`); acc += dd.value; sv.appendChild(c); return c; });
+      const leg = el("div", "", "", area); leg.style.display = "grid"; leg.style.gap = px(18);
+      const lis = data.map((dd, i) => { const r = el("div", "", `<span style="display:inline-block;width:${px(18)};height:${px(18)};border-radius:50%;background:${cols[i % cols.length]};margin-right:${px(14)}"></span>${esc(dd.label)} <b style="margin-left:${px(10)}">${fmt(dd.value)}</b>`, leg); r.style.fontSize = px(28); return r; });
+      upd = t => { data.forEach((dd, i) => { const p = eo(seg(t, .6 + i * .15, 1.8 + i * .15)); arcs[i].setAttribute("stroke-dasharray", `${C * dd.value / tot * p - 2} ${C}`); reveal(lis[i], seg(t, .8 + i * .15, 1.3 + i * .15), "left", 14); }); };
+    }
+    return { update(t) { reveal(eb, seg(t, .05, .5)); reveal(hd, seg(t, .15, .8)); reveal(area, seg(t, .3, .9), "scale"); note.style.opacity = seg(t, 1.5, 2); upd(t); } };
+  },
+  process(sc) {
+    const steps = sc.steps || [], n = steps.length, box = el("div", "safe");
+    const hd = sc.title ? el("div", "title grad", esc(sc.title), box) : null; if (hd) { hd.style.textAlign = "center"; fit(hd, 66, 34); }
+    const ns = "http://www.w3.org/2000/svg", sv = document.createElementNS(ns, "svg"); sv.style.cssText = "position:absolute;left:0;right:0;top:" + (hd ? "18%" : "0") + ";bottom:0;width:100%;height:" + (hd ? "82%" : "100%") + ";overflow:visible"; box.appendChild(sv);
+    const Wd = 1000, Hd = sc.loop ? 600 : 420; sv.setAttribute("viewBox", `0 0 ${Wd} ${Hd}`);
+    const pos = steps.map((_, i) => { if (sc.loop) { const a = -Math.PI / 2 + i * 2 * Math.PI / n; return [500 + 330 * Math.cos(a), 285 + 205 * Math.sin(a)]; }
+      if (PORTRAIT) return [500, 40 + i * (Hd - 80) / Math.max(1, n - 1)]; return [80 + i * 840 / Math.max(1, n - 1), 190]; });
+    if (PORTRAIT && !sc.loop) sv.setAttribute("viewBox", `0 0 ${Wd} ${Hd = 1200}`), pos.forEach((p, i) => p[1] = 60 + i * 1080 / Math.max(1, n - 1));
+    const path = document.createElementNS(ns, "path");
+    path.setAttribute("d", sc.loop ? "M500,80 A330,205 0 1,1 499.9,80" : "M" + pos.map(p => p.join(",")).join(" L"));
+    path.setAttribute("fill", "none"); path.setAttribute("stroke", "var(--accent)"); path.setAttribute("stroke-width", 5); path.setAttribute("stroke-linecap", "round"); sv.appendChild(path);
+    const base = path.cloneNode(); base.setAttribute("stroke", "rgba(127,127,127,.2)"); sv.insertBefore(base, path);
+    const len = path.getTotalLength(); path.style.strokeDasharray = len;
+    const nodes = steps.map((s, i) => { const o = typeof s === "string" ? { title: s } : s, g = document.createElementNS(ns, "g");
+      const c = document.createElementNS(ns, "circle"); c.setAttribute("cx", pos[i][0]); c.setAttribute("cy", pos[i][1]); c.setAttribute("r", 30); c.setAttribute("fill", "var(--bg0)"); c.setAttribute("stroke", "rgba(127,127,127,.4)"); c.setAttribute("stroke-width", 4); g.appendChild(c);
+      const nt = document.createElementNS(ns, "text"); nt.setAttribute("x", pos[i][0]); nt.setAttribute("y", pos[i][1] + 8); nt.setAttribute("text-anchor", "middle"); nt.setAttribute("font-size", 22); nt.setAttribute("font-weight", 600); nt.setAttribute("fill", "var(--ink)"); nt.textContent = i + 1; g.appendChild(nt);
+      const below = sc.loop ? pos[i][1] >= 285 : !PORTRAIT;
+      const lx = PORTRAIT && !sc.loop ? pos[i][0] + 60 : pos[i][0], anchor = PORTRAIT && !sc.loop ? "start" : "middle";
+      const t1 = document.createElementNS(ns, "text"); t1.setAttribute("x", lx); t1.setAttribute("y", PORTRAIT && !sc.loop ? pos[i][1] + 2 : pos[i][1] + (below ? 76 : -52)); t1.setAttribute("text-anchor", anchor); t1.setAttribute("font-size", 30); t1.setAttribute("font-weight", 600); t1.setAttribute("fill", "var(--ink)"); t1.textContent = o.title; g.appendChild(t1);
+      if (o.body) { const t2 = document.createElementNS(ns, "text"); t2.setAttribute("x", lx); t2.setAttribute("y", +t1.getAttribute("y") + 32); t2.setAttribute("text-anchor", anchor); t2.setAttribute("font-size", 20); t2.setAttribute("fill", "var(--muted)"); t2.textContent = o.body; g.appendChild(t2); }
+      sv.appendChild(g); return { g, c }; });
+    return { update(t, d) {
+      reveal(hd, seg(t, .1, .7)); const p = eio(seg(t, .6, Math.max(1.6, d - 1)));
+      path.style.strokeDashoffset = len * (1 - p);
+      nodes.forEach((o, i) => { const at = n > 1 ? i / (n - (sc.loop ? 0 : 1)) : 0, on = seg(p, at - .01, at + .05);
+        o.g.style.opacity = .35 + .65 * seg(t, .3 + i * .08, .7 + i * .08);
+        o.c.setAttribute("fill", on > .5 ? "var(--accent)" : "var(--bg0)"); o.c.setAttribute("stroke", on > .5 ? "var(--accent)" : "rgba(127,127,127,.4)");
+        o.c.setAttribute("r", 30 + 6 * Math.exp(-Math.pow((p - at) * 18, 2))); });
+    } };
+  },
+  image(sc) {
+    const frame = el("div", "abs"); const inset = sc.full ? 0 : (PORTRAIT ? 6 : 8);
+    if (sc.full) frame.dataset.bleed = 1;
+    const CAPS = document.body.classList.contains("caps");
+    Object.assign(frame.style, { left: inset + "%", right: inset + "%", top: (sc.full ? 0 : 11) + "%", bottom: (sc.full ? 0 : (sc.title ? (CAPS ? 32 : 22) : (CAPS ? 22 : 12))) + "%", borderRadius: sc.full ? "0" : px(+THEME_RADIUS()), overflow: "hidden", boxShadow: sc.full ? "none" : `0 ${px(40)} ${px(100)} rgba(0,0,0,.45), 0 0 0 1px var(--line)`, background: "#111" });
+    // layers: [{src, depth}] -> parallax (depth 0 = far/slow, 1 = near/fast). Without layers: one image with a Ken Burns move.
+    const layers = (sc.layers && sc.layers.length ? sc.layers : [{ src: sc.src, depth: 0, pending: sc.pending }]).map((ly, k) => {
+      if (ly.pending || sc.pending && k === 0 && !sc.layers) { const pd = el("div", "abs pending", `<div><b>AI IMAGE PENDING</b>${esc(ly.pending || sc.pending)}</div>`, frame); pd.style.inset = "0"; return { img: pd, d: 0, still: true }; }
+      const im = el("img", "abs", null, frame); im.src = asset(ly.src);
+      Object.assign(im.style, { inset: "0", width: "100%", height: "100%", objectFit: k ? "contain" : (sc.fit || "cover"), objectPosition: ly.focus || sc.focus || "center", transformOrigin: sc.origin || "50% 50%" });
+      return { img: im, d: ly.depth ?? k / Math.max(1, (sc.layers || []).length - 1) }; });
+    const shade = sc.title && sc.full ? el("div", "abs", "", frame) : null;                // keep a title readable over a full-bleed image
+    if (shade) Object.assign(shade.style, { inset: "0", background: "linear-gradient(180deg, transparent 45%, rgba(0,0,0,.55))" });
+    const cap = sc.title ? el("div", "abs title", esc(sc.title)) : null;
+    if (cap) { Object.assign(cap.style, { left: "8%", right: "8%", bottom: sc.full ? (CAPS ? "25%" : "16%") : (CAPS ? "22%" : "7%"), textAlign: "center", color: sc.full ? "#fff" : "", textShadow: sc.full ? "0 2px 30px rgba(0,0,0,.65)" : "" }); fit(cap, sc.full ? 76 : 54, 30); }
+    return { update(t, d) { const p = seg(t, 0, d), m = sc.move || "in";
+      layers.forEach(o => { if (o.still) return; const amp = .5 + o.d * 1.6;
+        const s = (m === "out" ? 1.1 - .1 * p : 1 + .1 * p) + o.d * .04, dx = (m === "left" ? 3 - 6 * p : m === "right" ? -3 + 6 * p : 0) * amp, dy = (m === "up" ? 2 - 4 * p : 0) * amp;
+        o.img.style.transform = `scale(${s}) translate(${dx}%, ${dy}%)`; });
+      reveal(frame, seg(t, 0, .7), "scale"); reveal(cap, seg(t, .5, 1.1)); } };
+  },
+  section(sc) {                                                  // chapter card: giant number + title (Bold Signal style)
+    const box = el("div", "safe"); box.style.display = "flex"; box.style.flexDirection = PORTRAIT ? "column" : "row"; box.style.alignItems = PORTRAIT ? "flex-start" : "center"; box.style.justifyContent = PORTRAIT ? "center" : "flex-start"; box.style.gap = px(PORTRAIT ? 20 : 70);
+    const num = el("div", "title accentgrad", esc(sc.number ?? "01"), box); Object.assign(num.style, { fontSize: px(PORTRAIT ? 300 : 360), lineHeight: ".85", letterSpacing: "-.06em", flex: "none" });
+    const col = el("div", "", "", box); col.style.flex = PORTRAIT ? "none" : "1"; col.style.minWidth = "0"; col.style.width = PORTRAIT ? "100%" : "";
+    const bar = el("div", "", "", col); Object.assign(bar.style, { height: px(6), width: px(120), background: "var(--accent)", marginBottom: px(30), transformOrigin: "left" });
+    const eb = sc.eyebrow ? el("div", "eyebrow", esc(sc.eyebrow), col) : null;
+    const tt = el("div", "title grad", esc(sc.title || ""), col); tt.style.marginTop = px(eb ? 18 : 0); fit(tt, PORTRAIT ? 100 : 110, 44); const ws = words(tt);
+    const sb = sc.sub ? el("div", "sub", esc(sc.sub), col) : null; if (sb) sb.style.marginTop = px(24);
+    return { update(t) { reveal(num, seg(t, 0, .8), "left", 60); num.textContent = count(sc.number ?? "01", seg(t, .05, .9));
+      bar.style.transform = `scaleX(${eo(seg(t, .4, 1))})`; reveal(eb, seg(t, .5, 1)); ws.forEach((w, i) => reveal(w, seg(t, .55 + i * .06, 1.15 + i * .06), "right", 30)); reveal(sb, seg(t, 1.1, 1.7)); } };
+  },
+  logo(sc) {                                                     // logo sting: mark scales in behind a light sweep, then the tagline
+    const box = el("div", "safe center");
+    const src = sc.src || (THEME.brand && THEME.brand.logo);
+    const wrap = el("div", "", "", box); Object.assign(wrap.style, { position: "relative", overflow: "hidden", padding: px(20) });
+    const mark = src ? el("img", "", null, wrap) : el("div", "title", esc(sc.name || (THEME.brand && THEME.brand.name) || SPEC.title || ""), wrap);
+    if (src) { mark.src = asset(src); mark.style.height = px(sc.height || (PORTRAIT ? 120 : 140)); mark.style.display = "block"; } else fit(mark, 140, 60);
+    const sweep = el("div", "abs", "", wrap); Object.assign(sweep.style, { top: "-20%", bottom: "-20%", width: "30%", background: "linear-gradient(100deg, transparent, rgba(255,255,255,.55), transparent)", mixBlendMode: "overlay" });
+    const tg = sc.tagline ? el("div", "sub", esc(sc.tagline), box) : null; if (tg) tg.style.marginTop = px(40);
+    return { update(t) { const p = seg(t, .1, 1.1); mark.style.opacity = clamp(p * 1.6); mark.style.transform = `scale(${.8 + .2 * back(p)})`; mark.style.filter = `drop-shadow(0 0 ${px(40 * (1 - Math.abs(p - .7)))} var(--glow))`;
+      sweep.style.left = (-40 + 180 * eio(seg(t, .7, 1.8))) + "%"; reveal(tg, seg(t, 1.3, 2)); } };
+  },
+  timeline(sc) {                                                 // milestones along a line
+    const items = (sc.items || []).map(o => typeof o === "string" ? { title: o } : o), n = items.length, box = el("div", "safe"); box.style.display = "flex"; box.style.flexDirection = "column";
+    const hd = sc.title ? el("div", "title grad", esc(sc.title), box) : null; if (hd) { fit(hd, 64, 34); hd.style.marginBottom = px(40); hd.style.textAlign = PORTRAIT ? "left" : "center"; }
+    const lane = el("div", "", "", box); Object.assign(lane.style, { flex: "1", minHeight: "0", position: "relative", display: "grid", gridTemplateColumns: PORTRAIT ? "1fr" : `repeat(${n}, 1fr)`, gridTemplateRows: PORTRAIT ? `repeat(${n}, 1fr)` : "1fr", alignItems: "center" });
+    const line = el("div", "abs", "", lane), fill = el("div", "abs", "", lane);
+    const L = PORTRAIT ? { left: px(23), top: "4%", bottom: "4%", width: px(4) } : { left: "4%", right: "4%", top: "50%", height: px(4), marginTop: px(-2) };
+    Object.assign(line.style, L, { background: "rgba(127,127,127,.25)" }); Object.assign(fill.style, L, { background: "var(--accent)", transformOrigin: PORTRAIT ? "top" : "left" });
+    const cells = items.map((o, i) => { const c = el("div", "", "", lane); Object.assign(c.style, { position: "relative", display: "flex", flexDirection: PORTRAIT ? "row" : "column", alignItems: PORTRAIT ? "center" : "center", gap: px(18), textAlign: PORTRAIT ? "left" : "center", height: "100%", justifyContent: "center" });
+      const up = !PORTRAIT && i % 2 === 0;
+      const dot = el("div", "", "", c); Object.assign(dot.style, { width: px(50), height: px(50), borderRadius: "50%", background: "var(--bg0)", border: `${px(5)} solid var(--accent)`, flex: "none", order: PORTRAIT ? 0 : 1, zIndex: 1 });
+      const tx = el("div", "", (o.when ? `<div class="eyebrow" style="letter-spacing:.12em">${esc(o.when)}</div>` : "") + `<div class="title" style="font-size:${px(PORTRAIT ? 40 : 34)};margin-top:${px(8)}">${esc(o.title || "")}</div>` + (o.body ? `<div style="font-size:${px(21)};color:var(--muted);margin-top:${px(8)};line-height:1.35">${esc(o.body)}</div>` : ""), c);
+      if (!PORTRAIT) Object.assign(tx.style, { order: up ? 0 : 2, height: "38%", display: "flex", flexDirection: "column", justifyContent: up ? "flex-end" : "flex-start", padding: "0 " + px(10) });
+      if (!PORTRAIT) { const spacer = el("div", "", "", c); Object.assign(spacer.style, { order: up ? 2 : 0, height: "38%" }); }
+      return { c: tx, dot }; });
+    return { update(t, d) { reveal(hd, seg(t, .1, .7)); const p = eio(seg(t, .5, Math.max(1.8, d - 1.2)));
+      fill.style.transform = PORTRAIT ? `scaleY(${p})` : `scaleX(${p})`;
+      cells.forEach((o, i) => { const at = (i + .5) / n, on = seg(p, at - .08, at); reveal(o.c, on, PORTRAIT ? "left" : "rise", 20); o.dot.style.background = on > .9 ? "var(--accent)" : "var(--bg0)"; o.dot.style.transform = `scale(${.6 + .4 * back(on)})`; }); } };
+  },
+  split(sc) {
+    const box = el("div", "safe"); box.style.display = "flex"; box.style.flexDirection = PORTRAIT ? "column" : (sc.side === "left" ? "row-reverse" : "row"); box.style.gap = px(70); box.style.alignItems = "center";
+    const tx = el("div", "", "", box); tx.style.flex = "1";
+    const eb = sc.eyebrow ? el("div", "eyebrow", esc(sc.eyebrow), tx) : null;
+    const hd = el("div", "title grad", esc(sc.title || ""), tx); hd.style.marginTop = px(eb ? 18 : 0); fit(hd, PORTRAIT ? 80 : 84, 40);
+    const bd = sc.body ? el("div", "sub", esc(sc.body), tx) : null; if (bd) bd.style.marginTop = px(24);
+    const fr = el("div", "", "", box); Object.assign(fr.style, { flex: PORTRAIT ? "none" : "0 0 52%", width: PORTRAIT ? "100%" : "auto", aspectRatio: sc.ratio || "16/10", borderRadius: px(26), overflow: "hidden", boxShadow: `0 ${px(40)} ${px(90)} rgba(0,0,0,.45), 0 0 0 1px var(--line)`, background: "#111" });
+    const img = sc.pending ? el("div", "pending", `<div><b>AI IMAGE PENDING</b>${esc(sc.pending)}</div>`, fr) : el("img", "", null, fr); if (!sc.pending) img.src = asset(sc.src);
+    Object.assign(img.style, { width: "100%", height: "100%", objectFit: sc.fit || "cover", objectPosition: sc.focus || "top left" });
+    return { update(t, d) { reveal(eb, seg(t, .1, .6)); reveal(hd, seg(t, .2, .9)); reveal(bd, seg(t, .6, 1.3)); reveal(fr, seg(t, .3, 1.1), sc.side === "left" ? "left" : "right", 40); img.style.transform = `scale(${1.04 - .04 * seg(t, 0, d)})`; } };
+  },
+  bento(sc) {
+    const box = el("div", "safe"); box.style.display = "flex"; box.style.flexDirection = "column";
+    const hd = sc.title ? el("div", "title grad", esc(sc.title), box) : null; if (hd) { fit(hd, 60, 32); hd.style.marginBottom = px(26); }
+    const grid = el("div", "", "", box); const cols = sc.cols || (PORTRAIT ? 2 : 4);
+    Object.assign(grid.style, { flex: "1", display: "grid", gap: px(18), gridTemplateColumns: `repeat(${cols}, 1fr)`, gridAutoRows: "1fr" });
+    const tiles = (sc.tiles || []).map((tl, i) => { const [cw, rh] = String(tl.size || "1x1").split("x").map(Number);
+      const c = el("div", "card tile", "", grid); Object.assign(c.style, { gridColumn: `span ${Math.min(cols, cw || 1)}`, gridRow: `span ${rh || 1}`, padding: px(30), position: "relative", overflow: "hidden",
+        background: tl.accent ? "linear-gradient(150deg, color-mix(in srgb, var(--accent) 38%, transparent), var(--card))" : "var(--card)" });
+      if (tl.label) el("div", "", esc(tl.label), c).style.cssText = `font-size:${px(18)};font-weight:600;color:var(--accent2)`;
+      const bot = el("div", "push", "", c);
+      if (tl.value) { const v = el("div", "title accentgrad", esc(tl.value), bot); v.style.cssText += `;font-size:${px(rh > 1 ? 120 : 76)}`; c._v = v; }
+      if (tl.title) el("div", "title", esc(tl.title), bot).style.cssText += `;font-size:${px(rh > 1 ? 56 : cw > 1 ? 44 : 32)};margin-top:${px(8)}`;
+      if (tl.body) el("div", "", esc(tl.body), bot).style.cssText = `font-size:${px(20)};color:var(--muted);margin-top:${px(10)};line-height:1.4`;
+      return { c, tl }; });
+    return { update(t) { reveal(hd, seg(t, .1, .7)); tiles.forEach((o, i) => { reveal(o.c, seg(t, .4 + i * .12, 1.1 + i * .12), "pop"); if (o.c._v) o.c._v.textContent = count(o.tl.value, seg(t, .5 + i * .12, 1.8 + i * .12)); }); } };
+  },
+  compare(sc) {
+    const box = el("div", "safe"); box.style.display = "flex"; box.style.flexDirection = "column";
+    const hd = sc.title ? el("div", "title grad", esc(sc.title), box) : null; if (hd) { hd.style.textAlign = "center"; fit(hd, 62, 32); hd.style.marginBottom = px(34); }
+    const row = el("div", "", "", box); Object.assign(row.style, { flex: "1", display: "grid", gridTemplateColumns: PORTRAIT ? "1fr" : "1fr 1fr", gap: px(26), alignContent: "center", alignItems: "stretch" });
+    const sides = [sc.left || {}, sc.right || {}].map((s, k) => { const c = el("div", "card", "", row); c.style.padding = px(48);
+      if (k === 1) c.style.background = "linear-gradient(150deg, color-mix(in srgb, var(--accent) 30%, transparent), var(--card))";
+      el("div", "eyebrow", esc(s.label || (k ? "After" : "Before")), c);
+      el("div", "title", esc(s.title || ""), c).style.cssText += `;font-size:${px(52)};margin-top:${px(14)};margin-bottom:${px(10)}`;
+      const its = (s.items || []).map(it => { const r = el("div", "", `<span style="color:${k ? "var(--accent2)" : "var(--muted)"};margin-right:${px(14)}">${k ? "✓" : "–"}</span>${esc(it)}`, c); r.style.cssText = `font-size:${px(32)};margin-top:${px(22)}`; return r; });
+      return { c, its }; });
+    return { update(t) { reveal(hd, seg(t, .1, .6)); sides.forEach((s, k) => { reveal(s.c, seg(t, .3 + k * .5, 1 + k * .5), k ? "right" : "left", 30); s.its.forEach((r, i) => reveal(r, seg(t, .8 + k * .5 + i * .15, 1.3 + k * .5 + i * .15))); }); } };
+  },
+  end(sc) {
+    const box = el("div", "safe center");
+    const lg = (sc.logo !== false && THEME.brand && THEME.brand.logo) ? el("img", "", null, box) : null; if (lg) { lg.src = asset(THEME.brand.logo); lg.style.height = px(70); lg.style.marginBottom = px(46); }
+    const tt = el("div", "title grad", esc(sc.title || ""), box); fit(tt, PORTRAIT ? 100 : 120, 48); const ws = words(tt);
+    const sb = sc.sub ? el("div", "sub", esc(sc.sub), box) : null; if (sb) sb.style.marginTop = px(26);
+    const cta = sc.cta ? el("div", "", esc(sc.cta), box) : null;
+    if (cta) Object.assign(cta.style, { marginTop: px(46), padding: px(18) + " " + px(38), borderRadius: px(999), background: "var(--accent)", color: "#fff", fontSize: px(28), fontWeight: 600, boxShadow: `0 ${px(16)} ${px(40)} var(--glow)` });
+    return { update(t) { reveal(lg, seg(t, 0, .6), "scale"); ws.forEach((w, i) => reveal(w, seg(t, .3 + i * .06, .9 + i * .06), "rise", 34)); reveal(sb, seg(t, .9, 1.5)); reveal(cta, seg(t, 1.3, 1.9), "pop"); } };
+  },
+  backdrop(sc) { return { update() {} }; },                    // for screen scenes: background only (video composited by the renderer)
+};
+
+// ---------- public API
+window.setSpec = async spec => {
+  SPEC = spec; THEME = spec.theme; W = spec.width; H = spec.height; U = Math.min(W, H) / 1080; PORTRAIT = H > W * 1.1;
+  const r = document.documentElement.style; r.setProperty("--W", W + "px"); r.setProperty("--H", H + "px"); r.setProperty("--u", U + "px");
+  Object.entries(THEME.colors || {}).forEach(([k, v]) => r.setProperty("--" + k, v));
+  LOOK = Object.assign({}, THEME.look || {}, spec.look || {});
+  const FAM = { sans: '"Display"', heavy: '"Display"', serif: '"Editorial"', fraunces: '"Fraunces"', condensed: '"Condensed"', grotesk: '"Grotesk"', mono: '"Mono"', hand: '"Hand"', pixel: '"Pixel"', chunky: '"Chunky"' };
+  const ty = THEME.type || {}, disp = ty.display || "sans";
+  r.setProperty("--font-display", FAM[disp] || FAM.sans); r.setProperty("--font-body", FAM[ty.body] || FAM.sans); r.setProperty("--font-eyebrow", FAM[ty.eyebrow] || FAM[ty.body] || FAM.sans);
+  r.setProperty("--title-weight", ty.weight ?? ({ serif: 400, condensed: 400, heavy: 800, grotesk: 700, fraunces: 500, mono: 500, hand: 700, pixel: 400, chunky: 800 }[disp] || 600));
+  r.setProperty("--title-case", ty.case || (disp === "condensed" ? "uppercase" : "none"));
+  r.setProperty("--title-track", ty.tracking || ({ serif: "-.01em", condensed: "0", mono: "-.02em", heavy: "-.04em", hand: "0", pixel: ".02em", chunky: "-.035em" }[disp] || "-.03em"));
+  r.setProperty("--title-lh", ty.leading || ({ serif: 1.0, condensed: .95, hand: 1.0, pixel: .9 }[disp] || 1.02));
+  if (disp === "serif") { r.setProperty("--font-em", '"Editorial"'); r.setProperty("--em-weight", 400); }
+  if (disp === "fraunces") { r.setProperty("--font-em", '"Fraunces"'); r.setProperty("--em-weight", 500); }
+  if (["condensed", "mono", "grotesk", "heavy", "hand", "pixel", "chunky"].includes(disp)) { r.setProperty("--font-em", "var(--font-display)"); r.setProperty("--em-style", "normal"); r.setProperty("--em-weight", "inherit"); }
+  r.setProperty("--radius", LOOK.radius ?? 28);
+  document.body.classList.toggle("lb", !!LOOK.letterbox);
+  ["flat", "outline", "solid", "brutal", "paper", "clay", "glow", "sketch"].forEach(k => document.body.classList.toggle("cards-" + k, LOOK.cards === k));
+  ["shadow", "misreg", "glow", "chroma", "outline", "chrome"].forEach(k => document.body.classList.toggle("text-" + k, LOOK.text === k));
+  document.body.classList.toggle("flat-title", ["shadow", "misreg", "glow", "chroma", "outline"].includes(LOOK.text));
+  if (LOOK.tape) r.setProperty("--tape", LOOK.tape);
+  BASE_MOTION = MOTIONS.includes(spec.motion || THEME.motion) ? (spec.motion || THEME.motion) : "smooth"; MOTION = BASE_MOTION;
+  if (LOOK.bg === "plain" || LOOK.bg === "paper") $("bg").style.background = LOOK.bg === "paper" ? "var(--bg0)" : "linear-gradient(180deg, var(--bg0), var(--bg1))";
+  if (THEME.mode === "light") document.body.classList.add("light");
+  document.body.classList.toggle("caps", !!spec.captions); document.body.classList.toggle("portrait", PORTRAIT);
+  const b = $("brand"); b.innerHTML = "";
+  if (spec.brand_mark !== false && THEME.brand) {
+    if (THEME.brand.logo) { const i = document.createElement("img"); i.src = asset(THEME.brand.logo); b.appendChild(i); }
+    if (THEME.brand.name) { const s = document.createElement("span"); s.textContent = THEME.brand.name; b.appendChild(s); }
+  }
+  await document.fonts.ready; await Promise.all([...document.images].map(i => i.complete ? 1 : new Promise(r => { i.onload = i.onerror = r; })));
+  return true;
+};
+window.renderFrame = (i, t) => {
+  const sc = SPEC.scenes[i];
+  if (CUR !== i) { $("scene").innerHTML = ""; const B = SCENES[sc.type] || SCENES.backdrop; BUILT = B(sc); CUR = i; }
+  const d = sc.dur; CURT = t; MOTION = MOTIONS.includes(sc.motion) ? sc.motion : BASE_MOTION; field(t + i * 7, sc); fx(t + i * 7);
+  const quiet = ["title", "end"].includes(sc.type);
+  $("brand").style.opacity = quiet ? 0 : .9 * seg(t, .2, .8);
+  $("chapter").textContent = sc.chapter || ""; $("chapter").style.opacity = sc.chapter ? seg(t, .2, .8) : 0;
+  BUILT.update(t, d);
+  return document.images.length ? Promise.all([...document.images].map(im => im.complete ? 1 : new Promise(r => { im.onload = im.onerror = r; }))).then(() => true) : true;
+};
+window.qa = i => {                                           // overflow / safe-area problems in scene i (rendered at its end state)
+  const sc = SPEC.scenes[i]; window.renderFrame(i, sc.dur - .05); const out = [];
+  const mx = W * .04, my = H * .04;
+  $("scene").querySelectorAll("*").forEach(e => { if (!e.childElementCount && !(e.textContent || "").trim()) return;
+    const r = e.getBoundingClientRect(); if (r.width < 2 || getComputedStyle(e).opacity === "0") return;
+    const texty = !e.childElementCount || /(title|sub|eyebrow|badge)/.test(e.className);
+    if (texty && !e.closest("svg") && e.scrollWidth > e.clientWidth + 2 && getComputedStyle(e).overflow !== "hidden" && e.clientWidth > 0) out.push(`text overflows its box: "${(e.textContent || "").trim().slice(0, 40)}"`);
+    if (document.body.classList.contains("caps") && texty && !e.closest("[data-bleed]") && r.bottom > H * (PORTRAIT ? .745 : .80)) out.push(`sits in the caption zone (captions will cover it): "${(e.textContent || e.tagName).trim().slice(0, 40)}"`);
+    if (r.left < mx - 1 || r.right > W - mx + 1 || r.top < my - 1 || r.bottom > H - my + 1) if (!e.closest("[data-bleed]") && !(sc.type === "image" && sc.full)) out.push(`outside the safe area: "${(e.textContent || e.tagName).trim().slice(0, 40)}"`); });
+  return [...new Set(out)].slice(0, 8);
+};
+window.ready = true;
+</script>
+</body>
+</html>

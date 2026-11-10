@@ -1,0 +1,15 @@
+{
+  "title": "Filmlux in numbers",
+  "format": "16:9",
+  "theme": "newsroom",
+  "voice": {"name": "en-US-EmmaNeural", "rate": "-4%"},
+  "music": {"mood": "minimal"},
+  "captions": "narration",
+  "scenes": [
+    {"type": "title", "eyebrow": "Filmlux · Level 2", "title": "One folder, <em>many</em> kinds of video", "sub": "What is inside, counted", "say": "Filmlux is one folder that makes many kinds of video. Here is what is inside."},
+    {"type": "stat", "eyebrow": "Building blocks", "value": "17", "label": "scene types", "sub": "Source: SPEC.md in this folder", "say": "Seventeen scene types, from titles and charts to screen recordings and custom code."},
+    {"type": "chart", "kind": "bar", "title": "Choices for every <em>video</em>", "data": [["Scene types", 17], ["Voices", 13], ["Themes", 9], ["Style packs", 7], ["Music moods", 5]], "note": "Source: studio.py packs, themes, voices and moods", "say": "Thirteen voices, nine themes, seven style packs and five music moods."},
+    {"type": "timeline", "title": "How it <em>grew</em>", "items": [{"when": "Level 1", "title": "Agent folder", "body": "Brief, packs, QA"}, {"when": "Level 2", "title": "Studio app", "body": "Looks, AI images"}, {"when": "Next", "title": "Your ideas", "body": "New packs"}], "say": "It started as an agent folder, and now has a studio app, new looks and optional AI images."},
+    {"type": "end", "title": "Your <em>numbers</em>, told well", "sub": "Drop your data in the inbox", "say": "Drop your data in the inbox, and tell its story well."}
+  ]
+}

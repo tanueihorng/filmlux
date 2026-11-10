@@ -1,0 +1,28 @@
+{
+  "title": "Orbit 2.0 launch teaser",
+  "format": "16:9",
+  "theme": "navy",
+  "voice": {"name": "en-US-AvaNeural", "rate": "-4%"},
+  "music": {"mood": "corporate", "level_db": -27},
+  "captions": "narration",
+  "scenes": [
+    {"type": "title", "eyebrow": "Orbit · Version 2.0", "title": "From scattered notes to a <em>shared plan</em>",
+     "say": "Introducing Orbit, version two. From scattered notes, to a shared plan."},
+    {"type": "kinetic", "lines": ["See every project.", "Share every update.", "<em>Ship</em> together."],
+     "say": "See every project. Share every update. And ship together."},
+    {"type": "bento", "title": "Four tools, <em>one workspace</em>", "tiles": [
+      {"label": "Boards", "title": "Every project, one view", "body": "Tasks, owners and deadlines for the whole team.", "size": "2x2", "accent": true},
+      {"label": "Assistant", "title": "Ask what's blocked, and why", "size": "2x1"},
+      {"label": "Updates", "title": "Weekly notes, written for you"},
+      {"label": "Inbox", "title": "Comments become tasks"}],
+     "say": "Four tools work as one: boards, the assistant, updates and the inbox."},
+    {"type": "process", "title": "The team's weekly loop", "loop": true,
+     "steps": ["Plan", "Assign", "Build", "Review", "Share", "Learn"],
+     "say": "Together, they follow the team's weekly loop, from planning the work to learning from every release."},
+    {"type": "compare", "title": "What changes", "left": {"title": "Before", "items": ["Scattered documents", "Status meetings", "Lost comments"]},
+     "right": {"title": "With Orbit", "items": ["One view of every project", "Updates written for you", "Every comment tracked"]},
+     "say": "No more scattered documents and lost comments. Just one view, automatic updates, and every comment tracked."},
+    {"type": "end", "title": "See it in <em>Orbit</em>", "sub": "Version 2.0 · available now", "cta": "Open Orbit",
+     "say": "Orbit. Plan together, ship together."}
+  ]
+}

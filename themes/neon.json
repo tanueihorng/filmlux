@@ -1,0 +1,49 @@
+{
+  "name": "Neon tech (dark)",
+  "mode": "dark",
+  "about": "Cyber/tech energy: near-black, cyan and magenta, condensed uppercase titles, mono labels, perspective grid, scanlines and glitch entrances. For hype, AI, security.",
+  "colors": {
+    "bg0": "#07070f",
+    "bg1": "#020205",
+    "bg2": "#141030",
+    "ink": "#f2f4ff",
+    "muted": "rgba(220,226,255,.62)",
+    "accent": "#ff2bd6",
+    "accent2": "#22e4ff",
+    "card": "rgba(120,140,255,.07)",
+    "line": "rgba(34,228,255,.22)",
+    "glow": "rgba(255,43,214,.22)"
+  },
+  "type": {
+    "display": "condensed",
+    "eyebrow": "mono",
+    "body": "grotesk"
+  },
+  "look": {
+    "bg": "horizon",
+    "scan": 0.1,
+    "glitch": true,
+    "grain": 0.05,
+    "cards": "outline",
+    "radius": 6
+  },
+  "brand": {
+    "name": "",
+    "logo": ""
+  },
+  "caption": {
+    "style": "pop",
+    "chip": [
+      34,
+      228,
+      255
+    ],
+    "ink": [
+      255,
+      255,
+      255
+    ],
+    "font": "anton-400.woff2"
+  },
+  "imagegen": "synthwave neon tech illustration, dark background, glowing cyan and magenta light, crisp geometric forms, futuristic, no text"
+}

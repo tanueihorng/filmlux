@@ -1,0 +1,48 @@
+{
+  "title": "New vertical clip",
+  "format": "9:16",
+  "theme": "neon",
+  "caption_style": "pop",
+  "voice": {
+    "name": "en-US-AvaNeural",
+    "rate": "-4%"
+  },
+  "music": {
+    "mood": "upbeat"
+  },
+  "captions": "narration",
+  "scenes": [
+    {
+      "type": "kinetic",
+      "lines": [
+        "Stop.",
+        "Searching.",
+        "<em>Ask</em>."
+      ],
+      "say": "Stop searching. Just ask."
+    },
+    {
+      "type": "stat",
+      "eyebrow": "Every week",
+      "value": "5 hrs",
+      "label": "back for every AM",
+      "say": "Replace with the one number that matters, and where it comes from."
+    },
+    {
+      "type": "bullets",
+      "heading": "How it works",
+      "items": [
+        "Ask in plain words",
+        "Get the answer",
+        "Act on it"
+      ],
+      "say": "Ask in plain words, get the answer, and act on it."
+    },
+    {
+      "type": "end",
+      "title": "Try it <em>today</em>",
+      "cta": "Open the app",
+      "say": "Try it today."
+    }
+  ]
+}

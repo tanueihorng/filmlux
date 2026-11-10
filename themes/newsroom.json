@@ -1,0 +1,51 @@
+{
+  "name": "Newsroom data (light)",
+  "mode": "light",
+  "about": "Editorial data journalism: newsprint white, serif headlines, thin rules, restrained blue accent. Charts and numbers first.",
+  "colors": {
+    "bg0": "#fbfaf7",
+    "bg1": "#f2f0ea",
+    "bg2": "#ffffff",
+    "ink": "#121212",
+    "muted": "rgba(18,18,18,.6)",
+    "accent": "#1f5fbf",
+    "accent2": "#1f5fbf",
+    "card": "#ffffff",
+    "line": "rgba(18,18,18,.12)",
+    "glow": "rgba(31,95,191,0)"
+  },
+  "type": {
+    "display": "serif",
+    "eyebrow": "sans"
+  },
+  "look": {
+    "bg": "paper",
+    "glow": false,
+    "cards": "flat",
+    "radius": 4
+  },
+  "brand": {
+    "name": "",
+    "logo": ""
+  },
+  "caption": {
+    "style": "bar",
+    "fill": [
+      255,
+      255,
+      255,
+      240
+    ],
+    "chip": [
+      31,
+      95,
+      191
+    ],
+    "ink": [
+      18,
+      18,
+      18
+    ]
+  },
+  "imagegen": "editorial newspaper illustration, fine ink line drawing with flat muted colour, off-white newsprint, restrained blue accent, no text"
+}

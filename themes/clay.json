@@ -1,0 +1,59 @@
+{
+  "name": "Soft clay",
+  "mode": "light",
+  "about": "Friendly soft 3D: pastel lavender, puffy clay cards with soft inner light, chunky rounded type. Spring motion, zoom cuts. For onboarding, HR, wellbeing and friendly product tours.",
+  "colors": {
+    "bg0": "#ece6ff",
+    "bg1": "#e0d8fb",
+    "bg2": "#f7f4ff",
+    "ink": "#2a2346",
+    "muted": "rgba(42,35,70,.64)",
+    "accent": "#7b5cff",
+    "accent2": "#ff8fb1",
+    "card": "#f6f2ff",
+    "line": "rgba(42,35,70,.08)",
+    "glow": "rgba(123,92,255,.18)"
+  },
+  "type": {
+    "display": "chunky",
+    "eyebrow": "sans"
+  },
+  "look": {
+    "bg": "aurora",
+    "aurora": [
+      "#c9b8ff",
+      "#ffc4d8",
+      "#b8e7ff",
+      "#ffe6b8"
+    ],
+    "aurora_alpha": 0.5,
+    "cards": "clay",
+    "radius": 44
+  },
+  "caption": {
+    "style": "glass",
+    "fill": [
+      255,
+      255,
+      255,
+      220
+    ],
+    "chip": [
+      123,
+      92,
+      255
+    ],
+    "ink": [
+      42,
+      35,
+      70
+    ]
+  },
+  "motion": "spring",
+  "transition": "zoom",
+  "imagegen": "soft clay 3D render, claymorphism, pastel lavender pink and baby blue, rounded puffy shapes, soft studio lighting, cute, no text",
+  "brand": {
+    "name": "",
+    "logo": ""
+  }
+}

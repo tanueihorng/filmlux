@@ -1,0 +1,51 @@
+{
+  "name": "Aurora glass (dark)",
+  "mode": "dark",
+  "about": "Colourful drifting aurora blobs behind frosted-glass cards. Friendly, modern, optimistic: AI assistants, product updates, internal launches.",
+  "colors": {
+    "bg0": "#0d0b24",
+    "bg1": "#06051a",
+    "bg2": "#1b1550",
+    "ink": "#ffffff",
+    "muted": "rgba(255,255,255,.7)",
+    "accent": "#a77bff",
+    "accent2": "#5ee0ff",
+    "card": "rgba(255,255,255,.09)",
+    "line": "rgba(255,255,255,.18)",
+    "glow": "rgba(167,123,255,.25)"
+  },
+  "type": {
+    "display": "heavy"
+  },
+  "look": {
+    "bg": "aurora",
+    "aurora": [
+      "#7c5cff",
+      "#ff5ca8",
+      "#22c3ee",
+      "#2de2a6"
+    ],
+    "aurora_alpha": 0.34,
+    "glow": false,
+    "radius": 34
+  },
+  "brand": {
+    "name": "",
+    "logo": ""
+  },
+  "caption": {
+    "style": "glass",
+    "fill": [
+      20,
+      16,
+      50,
+      140
+    ],
+    "chip": [
+      94,
+      224,
+      255
+    ]
+  },
+  "imagegen": "soft glassmorphism 3D render, iridescent frosted glass shapes, violet, pink and cyan gradients, gentle studio light, clean dark background, no text"
+}

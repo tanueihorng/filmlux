@@ -1,0 +1,89 @@
+{
+  "title": "New illustrated explainer",
+  "format": "16:9",
+  "theme": "warm",
+  "voice": {
+    "name": "en-US-EmmaNeural",
+    "rate": "-4%"
+  },
+  "music": {
+    "mood": "calm"
+  },
+  "captions": "narration",
+  "scenes": [
+    {
+      "type": "image",
+      "src": "assets/gen/01_hook.png",
+      "gen": {
+        "prompt": "Replace: the hook image, subject on the right third, calm empty space on the left"
+      },
+      "full": true,
+      "title": "A <em>hook</em> title",
+      "move": "in",
+      "say": "Replace with the hook."
+    },
+    {
+      "type": "split",
+      "src": "assets/gen/02_problem.png",
+      "gen": {
+        "prompt": "Replace: illustrate the problem"
+      },
+      "eyebrow": "The problem",
+      "title": "Replace with the problem",
+      "body": "One short sentence.",
+      "say": "Replace with the problem."
+    },
+    {
+      "type": "split",
+      "src": "assets/gen/03_idea.png",
+      "gen": {
+        "prompt": "Replace: illustrate the idea"
+      },
+      "side": "left",
+      "eyebrow": "The idea",
+      "title": "Replace with the idea",
+      "body": "One short sentence.",
+      "say": "Replace with the idea."
+    },
+    {
+      "type": "image",
+      "full": true,
+      "move": "left",
+      "title": "The <em>moment</em> it clicks",
+      "layers": [
+        {
+          "src": "assets/gen/04_bg.png",
+          "gen": {
+            "prompt": "Replace: a wide background scene, no main subject"
+          },
+          "depth": 0
+        },
+        {
+          "src": "assets/gen/04_fg.png",
+          "gen": {
+            "prompt": "Replace: the main subject alone, centred",
+            "cutout": true
+          },
+          "depth": 1
+        }
+      ],
+      "say": "Replace with the turning point."
+    },
+    {
+      "type": "process",
+      "title": "Three steps",
+      "steps": [
+        "Step one",
+        "Step two",
+        "Step three"
+      ],
+      "say": "Replace with the takeaway."
+    },
+    {
+      "type": "end",
+      "title": "Replace with the close",
+      "cta": "Call to action",
+      "say": "Replace with the call to action."
+    }
+  ]
+}

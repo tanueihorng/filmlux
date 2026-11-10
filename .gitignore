@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Render outputs and caches (regenerate with studio.py)
+renders/
+.cache/
+*.mp4
+!examples/sample_footage/*.mp4
+
+# Personal work in progress: keep only the READMEs
+projects/*
+!projects/README.md
+inbox/*
+!inbox/README.md
+
+# Local / OS
+.env
+*.log
+Thumbs.db
+.DS_Store
+
+# Local archive (never pushed)
+_archive/

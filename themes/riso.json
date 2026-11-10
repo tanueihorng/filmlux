@@ -1,0 +1,58 @@
+{
+  "name": "Risograph print",
+  "mode": "light",
+  "about": "Two-ink print zine: off-white paper, fluoro pink and blue, halftone dots, slight misregistration, grain. Mask reveals, wipes. For culture, stories, community and research.",
+  "colors": {
+    "bg0": "#f4efe4",
+    "bg1": "#ece5d6",
+    "bg2": "#fbf8f1",
+    "ink": "#1d2a6b",
+    "muted": "rgba(29,42,107,.70)",
+    "accent": "#ff48b0",
+    "accent2": "#0078bf",
+    "card": "rgba(255,255,255,.55)",
+    "line": "rgba(29,42,107,.25)",
+    "glow": "rgba(255,72,176,.10)"
+  },
+  "type": {
+    "display": "grotesk",
+    "body": "grotesk",
+    "eyebrow": "mono",
+    "tracking": "-.035em"
+  },
+  "look": {
+    "bg": "halftone",
+    "halftone_alpha": 0.2,
+    "grain": 0.14,
+    "glow": false,
+    "cards": "outline",
+    "radius": 4,
+    "text": "misreg"
+  },
+  "caption": {
+    "style": "glass",
+    "fill": [
+      250,
+      246,
+      238,
+      225
+    ],
+    "chip": [
+      255,
+      72,
+      176
+    ],
+    "ink": [
+      29,
+      42,
+      107
+    ]
+  },
+  "motion": "mask",
+  "transition": "wipe",
+  "imagegen": "risograph print illustration, two spot inks fluorescent pink and blue, halftone texture, slight misregistration, off-white paper, no text",
+  "brand": {
+    "name": "",
+    "logo": ""
+  }
+}

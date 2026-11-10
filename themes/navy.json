@@ -1,0 +1,42 @@
+{
+  "name": "Navy",
+  "mode": "dark",
+  "colors": {
+    "bg0": "#0b1530",
+    "bg1": "#050912",
+    "bg2": "#18295a",
+    "ink": "#ffffff",
+    "muted": "rgba(255,255,255,.68)",
+    "accent": "#FF3B5C",
+    "accent2": "#ff7d93",
+    "card": "rgba(255,255,255,.06)",
+    "line": "rgba(255,255,255,.12)",
+    "glow": "rgba(255,59,92,.26)"
+  },
+  "brand": {
+    "name": "",
+    "logo": ""
+  },
+  "caption": {
+    "fill": [
+      12,
+      20,
+      40,
+      150
+    ],
+    "chip": [
+      255,
+      98,
+      118
+    ],
+    "style": "glass"
+  },
+  "about": "The default look: deep navy, crimson accent, Inter Display with italic serif accents, drifting particles, glass cards.",
+  "type": {
+    "display": "sans"
+  },
+  "look": {
+    "bg": "dots"
+  },
+  "imagegen": "clean premium 3D illustration, deep navy background, soft red rim light, minimal, generous negative space, no text"
+}

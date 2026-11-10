@@ -1,0 +1,53 @@
+{
+  "name": "Cinematic (dark)",
+  "mode": "dark",
+  "about": "Film look: deep black, warm highlights, serif display type, letterbox bars, film grain and drifting light leaks. For brand films and vision openers.",
+  "colors": {
+    "bg0": "#120e0b",
+    "bg1": "#050403",
+    "bg2": "#2a1d14",
+    "ink": "#f5ece0",
+    "muted": "rgba(245,236,224,.66)",
+    "accent": "#e8b46a",
+    "accent2": "#f2cf98",
+    "card": "rgba(255,240,220,.05)",
+    "line": "rgba(255,240,220,.12)",
+    "glow": "rgba(232,180,106,.18)"
+  },
+  "type": {
+    "display": "serif",
+    "eyebrow": "sans"
+  },
+  "look": {
+    "bg": "plain",
+    "grain": 0.09,
+    "vignette": 0.55,
+    "letterbox": true,
+    "leak": 0.2,
+    "cards": "flat"
+  },
+  "brand": {
+    "name": "",
+    "logo": ""
+  },
+  "caption": {
+    "style": "glass",
+    "fill": [
+      10,
+      8,
+      6,
+      150
+    ],
+    "chip": [
+      232,
+      180,
+      106
+    ],
+    "ink": [
+      245,
+      236,
+      224
+    ]
+  },
+  "imagegen": "cinematic film still, anamorphic, warm golden-hour light, deep shadows, shallow depth of field, subtle film grain, moody and elegant, no text"
+}

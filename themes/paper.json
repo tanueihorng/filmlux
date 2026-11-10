@@ -1,0 +1,47 @@
+{
+  "name": "Paper (light)",
+  "mode": "light",
+  "colors": {
+    "bg0": "#f3f5fa",
+    "bg1": "#e7ebf3",
+    "bg2": "#ffffff",
+    "ink": "#0b1220",
+    "muted": "rgba(11,18,32,.62)",
+    "accent": "#2457ff",
+    "accent2": "#4f7bff",
+    "card": "rgba(255,255,255,.85)",
+    "line": "rgba(11,18,32,.10)",
+    "glow": "rgba(36,87,255,.16)"
+  },
+  "brand": {
+    "name": "",
+    "logo": ""
+  },
+  "caption": {
+    "fill": [
+      255,
+      255,
+      255,
+      215
+    ],
+    "chip": [
+      36,
+      87,
+      255
+    ],
+    "ink": [
+      11,
+      18,
+      32
+    ],
+    "style": "glass"
+  },
+  "about": "Neutral light: soft grey-white with a blue accent. Bright, friendly, good for how-tos.",
+  "type": {
+    "display": "sans"
+  },
+  "look": {
+    "bg": "dots"
+  },
+  "imagegen": "bright clean flat illustration, white background, blue accent, simple shapes, plenty of white space, no text"
+}

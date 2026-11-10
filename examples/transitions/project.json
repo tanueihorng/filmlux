@@ -1,0 +1,148 @@
+{
+ "title": "Filmlux transitions",
+ "format": "16:9",
+ "theme": "aurora",
+ "voice": null,
+ "music": {
+  "mood": "upbeat",
+  "level_db": -24
+ },
+ "captions": "none",
+ "scenes": [
+  {
+   "type": "title",
+   "eyebrow": "Filmlux · transitions",
+   "title": "From one scene <em>to the next</em>",
+   "sub": "Names follow Remotion's presentations",
+   "dur": 2.6
+  },
+  {
+   "transition": "fade",
+   "dur": 2.2,
+   "transition_timing": "ease",
+   "type": "title",
+   "eyebrow": "transition",
+   "title": "<em>fade</em>",
+   "sub": "Cross-dissolve"
+  },
+  {
+   "transition": "slide",
+   "dur": 2.2,
+   "transition_timing": "spring",
+   "type": "stat",
+   "eyebrow": "transition: slide",
+   "value": "02",
+   "label": "Pushes the old scene out"
+  },
+  {
+   "transition": "wipe:from-top-left",
+   "dur": 2.2,
+   "transition_timing": "ease",
+   "type": "kinetic",
+   "lines": [
+    "Wipe.",
+    "<em>A soft edge sweeps across</em>."
+   ]
+  },
+  {
+   "transition": "flip",
+   "dur": 2.2,
+   "transition_timing": "ease",
+   "type": "title",
+   "eyebrow": "transition",
+   "title": "<em>flip</em>",
+   "sub": "Turns edge-on"
+  },
+  {
+   "transition": "clockwipe",
+   "dur": 2.2,
+   "transition_timing": "ease",
+   "type": "stat",
+   "eyebrow": "transition: clockwipe",
+   "value": "05",
+   "label": "A clock hand sweeps round"
+  },
+  {
+   "transition": "iris",
+   "dur": 2.2,
+   "transition_timing": "ease",
+   "type": "kinetic",
+   "lines": [
+    "Iris.",
+    "<em>A circle opens</em>."
+   ]
+  },
+  {
+   "transition": "cube",
+   "dur": 2.2,
+   "transition_timing": "spring",
+   "type": "title",
+   "eyebrow": "transition",
+   "title": "<em>cube</em>",
+   "sub": "Faces of a turning cube"
+  },
+  {
+   "transition": "zoom",
+   "dur": 2.2,
+   "transition_timing": "ease",
+   "type": "stat",
+   "eyebrow": "transition: zoom",
+   "value": "08",
+   "label": "Push in through"
+  },
+  {
+   "transition": "dip",
+   "dur": 2.2,
+   "transition_timing": "ease",
+   "type": "kinetic",
+   "lines": [
+    "Dip.",
+    "<em>Dip to black</em>."
+   ]
+  },
+  {
+   "transition": "flash",
+   "dur": 2.2,
+   "transition_timing": "ease",
+   "type": "title",
+   "eyebrow": "transition",
+   "title": "<em>flash</em>",
+   "sub": "Flash of light"
+  },
+  {
+   "transition": "blur",
+   "dur": 2.2,
+   "transition_timing": "ease",
+   "type": "stat",
+   "eyebrow": "transition: blur",
+   "value": "11",
+   "label": "Blur out, blur in"
+  },
+  {
+   "transition": "glitch",
+   "dur": 2.2,
+   "transition_timing": "ease",
+   "type": "kinetic",
+   "lines": [
+    "Glitch.",
+    "<em>Torn scanlines</em>."
+   ]
+  },
+  {
+   "transition": "none",
+   "dur": 2.2,
+   "transition_timing": "ease",
+   "type": "title",
+   "eyebrow": "transition",
+   "title": "<em>none</em>",
+   "sub": "A hard cut"
+  },
+  {
+   "type": "end",
+   "title": "Choose your <em>cut</em>",
+   "cta": "SPEC.md > Motion and transitions",
+   "dur": 2.6,
+   "transition": "iris"
+  }
+ ]
+}

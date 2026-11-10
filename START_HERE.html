@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Filmlux</title>
+<link rel="icon" type="image/svg+xml" href="assets/brand/filmlux-favicon.svg">
+<meta name="description" content="Filmlux: videos, made by your agent. Make a high-quality video with your coding agent: pick a style, voice and music, write a brief, drop your files, and let the agent produce it.">
+<style>
+@font-face { font-family: "D"; font-weight: 400; src: url("assets/fonts/InterDisplay-Regular.ttf"); }
+@font-face { font-family: "D"; font-weight: 500; src: url("assets/fonts/InterDisplay-Medium.ttf"); }
+@font-face { font-family: "D"; font-weight: 600; src: url("assets/fonts/InterDisplay-SemiBold.ttf"); }
+@font-face { font-family: "IS"; font-style: italic; font-weight: 400; src: url("assets/fonts/instrument-serif-400-italic.woff2"); }
+@font-face { font-family: "S"; font-style: italic; font-weight: 600; src: url("assets/fonts/fraunces-latin-600-italic.woff2"); }
+:root { color-scheme: dark; --bg: #0b0b0d; --card: #141416; --ink: #f5f5f7; --muted: #a1a1a6; --line: #2a2a2e; --accent: #ff5a3c; --on-accent: #140806; --soft: #3a1710; --chip: #1f1f23; --code: #111318; }
+:root[data-theme="light"] { color-scheme: light; --bg: #f5f5f7; --card: #fff; --ink: #1d1d1f; --muted: #6e6e73; --line: #e3e3e8; --accent: #d23a1c; --on-accent: #fff; --soft: #fde9e4; --chip: #f0f0f3; --code: #111318; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; scroll-padding-top: 70px; }
+body { font-family: "D", "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+em { font-family: "S", Georgia, serif; font-style: italic; font-weight: 600; color: var(--accent); }
+a { color: var(--accent); }
+nav { position: sticky; top: 0; z-index: 9; background: color-mix(in srgb, var(--bg) 85%, transparent); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+nav .in { max-width: 1160px; margin: 0 auto; padding: 12px 20px; display: flex; gap: 6px; align-items: center; overflow-x: auto; }
+nav .brand { display: flex; align-items: center; gap: 9px; margin-right: 14px; white-space: nowrap; color: var(--ink); text-decoration: none; padding: 0; }
+nav .brand img { width: 26px; height: 26px; border-radius: 7px; } nav .brand b { font-size: 18px; letter-spacing: -.02em; } nav .brand b i { font-family: "IS", Georgia, serif; font-weight: 400; color: var(--accent); font-size: 1.12em; letter-spacing: 0; }
+.kick { display: inline-flex; align-items: center; gap: 10px; font-size: 13px !important; letter-spacing: .14em; text-transform: uppercase; color: var(--accent) !important; font-weight: 600; margin: 0 0 18px !important; } nav a { color: var(--muted); text-decoration: none; font-size: 14px; padding: 6px 10px; border-radius: 8px; white-space: nowrap; }
+nav a:hover { background: var(--chip); color: var(--ink); }
+#theme { margin-left: auto; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 8px; padding: 5px 10px; font: inherit; font-size: 13px; cursor: pointer; }
+main { max-width: 1160px; margin: 0 auto; padding: 0 20px 90px; }
+.hero { padding: 72px 0 36px; }
+.hero h1 { font-size: clamp(40px, 6vw, 72px); line-height: 1.02; letter-spacing: -.035em; font-weight: 600; max-width: 880px; }
+.hero p { font-size: clamp(18px, 2vw, 22px); color: var(--muted); margin-top: 18px; max-width: 760px; }
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 34px; }
+.step { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 24px; }
+.step .n { width: 34px; height: 34px; border-radius: 50%; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; font-weight: 600; }
+.step h3 { margin-top: 14px; font-size: 21px; letter-spacing: -.01em; } .step p { color: var(--muted); margin-top: 6px; font-size: 15.5px; }
+section { padding-top: 64px; }
+h2 { font-size: clamp(28px, 4vw, 42px); letter-spacing: -.025em; line-height: 1.08; font-weight: 600; }
+.lead { color: var(--muted); font-size: 18px; margin-top: 8px; max-width: 780px; }
+.grid { display: grid; gap: 18px; margin-top: 24px; }
+.g3 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); } .g2 { grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); }
+@media (max-width: 520px) { .g2 { grid-template-columns: 1fr; } }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 24px; overflow: hidden; }
+.card .pad { padding: 20px 22px 22px; }
+.card h3 { font-size: 22px; letter-spacing: -.015em; } .card p { color: var(--muted); font-size: 15.5px; margin-top: 6px; }
+.pick { cursor: pointer; transition: box-shadow .2s, transform .2s; } .pick:hover { transform: translateY(-2px); }
+.pick.on { box-shadow: 0 0 0 3px var(--accent); }
+.shots { position: relative; aspect-ratio: 16/9; background: #0b1530; }
+.shots img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .6s; }
+.shots img.on { opacity: 1; }
+.tag { display: inline-block; font-size: 12.5px; padding: 3px 10px; border-radius: 99px; background: var(--chip); color: var(--muted); margin: 10px 6px 0 0; }
+.row { display: flex; gap: 14px; align-items: center; padding: 14px 18px; border-top: 1px solid var(--line); }
+.row:first-child { border-top: 0; } .row .nm { font-weight: 600; min-width: 210px; } .row .ds { color: var(--muted); font-size: 14.5px; flex: 1; }
+.row audio { height: 36px; width: 230px; flex: none; }
+@media (max-width: 700px) { .row { flex-wrap: wrap; } .row audio { width: 100%; } .row .nm { min-width: 0; } }
+.empty { padding: 22px; color: var(--muted); }
+form { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 18px; margin-top: 24px; }
+@media (max-width: 760px) { form { grid-template-columns: 1fr; } }
+label { display: block; font-size: 14px; font-weight: 600; } label small { font-weight: 400; color: var(--muted); }
+input, select, textarea { width: 100%; margin-top: 6px; padding: 11px 13px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font: inherit; font-size: 15px; }
+textarea { min-height: 92px; resize: vertical; } .full { grid-column: 1 / -1; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+.btn { border: 0; border-radius: 999px; padding: 13px 22px; font: inherit; font-weight: 600; font-size: 15px; cursor: pointer; background: var(--accent); color: var(--on-accent); }
+.btn.alt { background: var(--chip); color: var(--ink); }
+pre { background: var(--code); color: #e6e9f2; border-radius: 16px; padding: 18px; overflow-x: auto; font-size: 13.5px; margin-top: 16px; white-space: pre-wrap; }
+.note { margin-top: 12px; color: var(--muted); font-size: 14.5px; }
+.ok { color: #12935f; font-weight: 600; }
+video { width: 100%; border-radius: 22px; display: block; background: #000; margin-top: 22px; }
+.faq details { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px 20px; margin-top: 10px; }
+.faq summary { cursor: pointer; font-weight: 600; } .faq p { color: var(--muted); margin-top: 8px; }
+code { background: var(--chip); padding: 1px 6px; border-radius: 6px; font-size: .92em; }
+</style>
+</head>
+<body>
+<nav><div class="in"><a class="brand" href="#how"><img src="assets/brand/filmlux-mark.svg" alt=""><b>Film<i>lux</i></b></a>
+  <a href="#how">How it works</a><a href="#styles">Styles</a><a href="#motion">Motion</a><a href="#voices">Voices</a><a href="#music">Music</a><a href="#brief">Brief</a><a href="#example">Example</a><a href="#faq">FAQ</a>
+  <button id="theme" type="button">◐</button></div></nav>
+<main>
+  <div class="hero" id="how">
+    <p class="kick">Filmlux · videos, made by your agent</p>
+    <h1>Make a <em>high-quality</em> video with your coding agent.</h1>
+    <p>Pick a style, a voice and music here, describe what you need, drop your files in, and let the agent produce it. You get a story, natural voiceover, music, captions, versions and quality checks, and no video editor.</p>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><h3>Choose and brief</h3><p>Browse the styles, voices and music below. Fill in the brief and save <code>brief.json</code> into <code>inbox/</code>. You can skip this; the agent will ask you instead.</p></div>
+      <div class="step"><div class="n">2</div><h3>Drop your files</h3><p>Put anything useful in <code>inbox/</code>: a doc, deck, data (CSV/XLSX), images, logo, screen recordings (MP4).</p></div>
+      <div class="step"><div class="n">3</div><h3>Ask your agent</h3><p>Open this folder in your coding agent (Codex, Claude Code, Gemini CLI, Cursor…) and say: <b>"Read AGENTS.md and make my video."</b> It confirms a brief and a script with you, shows previews, then renders.</p></div>
+    </div>
+    <div class="step" style="margin-top:16px;display:flex;gap:18px;align-items:center;flex-wrap:wrap"><div style="flex:1;min-width:260px"><h3 style="margin-top:0">Prefer buttons? Open Filmlux Studio</h3><p>Run <code>python studio.py app</code>. Run <code>python studio.py shortcut</code> once to get a <b>Filmlux</b> icon on your Desktop; it works even where <code>.bat</code> files are blocked. It opens a local page where you can create projects, upload files to the inbox, preview stills and audio, render, and compare versions side by side, and copy ready-made prompts for your agent. It uses the same commands as the agent, so you can switch between the two at any time.</p></div></div>
+  </div>
+
+  <section id="styles">
+    <h2>Pick a style</h2>
+    <p class="lead">Each style pack is a recipe: a story shape, scene types and default music. Click one to use it in your brief.</p>
+    <div class="grid g3" id="packs"></div>
+    <h3 style="margin-top:34px;font-size:22px">Themes</h3>
+    <div class="grid g3" id="themes"></div>
+  </section>
+
+  <section id="voices">
+    <h2>Hear the voices</h2>
+    <p class="lead">Natural neural voices. Listen and pick one. The narration text is sent to Microsoft's speech service, so keep personal data out of it.</p>
+    <div class="card grid" style="gap:0;margin-top:24px" id="voicelist"></div>
+  </section>
+
+  <section id="music">
+    <h2>Hear the music</h2>
+    <p class="lead">Original, royalty-free beds made by the studio. They sit quietly under the voice and duck automatically when it speaks. Or bring your own licensed track.</p>
+    <div class="card grid" style="gap:0;margin-top:24px" id="moodlist"></div>
+  </section>
+
+  <section id="brief">
+    <h2>Write your brief</h2>
+    <p class="lead">Two minutes here saves a round of questions. Save it into the studio's <code>inbox/</code> folder as <code>brief.json</code>.</p>
+    <form id="f" onsubmit="return false">
+      <label class="full">Video title<input name="title" placeholder="e.g. Release 2: Campaigns in one click"></label>
+      <label class="full">What is it for? <small>(the one thing it must achieve)</small><textarea name="purpose" placeholder="e.g. Make account managers aware of the new campaign feature and how to start one."></textarea></label>
+      <label>Who will watch?<input name="audience" placeholder="e.g. Account managers, new to the tool"></label>
+      <label>Where will it be shown?<input name="channel" placeholder="e.g. Teams, town hall screen, LinkedIn"></label>
+      <label class="full">Key messages <small>(up to 3, one per line)</small><textarea name="messages" placeholder="One view of every account&#10;Campaigns in a few clicks&#10;Every reply tracked"></textarea></label>
+      <label>Call to action<input name="cta" placeholder="e.g. Open the portal and start a campaign"></label>
+      <label>Length<select name="length"><option>about 30 s</option><option selected>about 60 s</option><option>about 90 s</option><option>2–3 min</option><option>3–5 min</option></select></label>
+      <label>Format<select name="format"><option value="16:9">Landscape 16:9</option><option value="9:16">Vertical 9:16 (phone / social)</option><option value="1:1">Square 1:1</option><option value="4:5">Portrait 4:5</option></select></label>
+      <label>Style pack<select name="pack"><option value="motion_promo">Motion promo</option><option value="explainer">Explainer</option><option value="release_film">Release film (screen recordings)</option><option value="social_vertical">Social vertical (9:16)</option><option value="data_story">Data story</option><option value="cinematic_brand">Cinematic brand film</option><option value="ai_illustrated">AI-illustrated explainer</option><option value="kinetic_type">Kinetic type</option><option value="tech_architecture">Tech architecture</option><option value="whiteboard_explainer">Whiteboard explainer</option><option value="handmade_story">Handmade story</option><option value="retro_hype">Retro hype</option></select></label>
+      <label>Theme<select name="theme"><option value="navy">Navy (default)</option><option value="midnight">Midnight (neutral dark)</option><option value="paper">Paper (light)</option><option value="swiss">Swiss editorial (light)</option><option value="newsroom">Newsroom data (light)</option><option value="warm">Warm grain (light)</option><option value="cinema">Cinematic (dark)</option><option value="aurora">Aurora glass (dark)</option><option value="neon">Neon tech (dark)</option><option value="brutal">Neo-brutalist (light)</option><option value="riso">Risograph print (light)</option><option value="collage">Paper collage (light)</option><option value="blueprint">Blueprint (dark)</option><option value="whiteboard">Whiteboard (light)</option><option value="chrome">Y2K chrome (dark)</option><option value="vhs">Retro VHS (dark)</option><option value="bauhaus">Bauhaus geometric (light)</option><option value="clay">Soft clay (light)</option><option value="terminal">Terminal (dark)</option></select></label>
+      <label>Motion <small>(how things move)</small><select name="motion"><option value="">The theme's own (recommended)</option><option value="smooth">Smooth</option><option value="snappy">Snappy spring</option><option value="spring">Spring (playful bounce)</option><option value="bouncy">Bouncy</option><option value="heavy">Heavy</option><option value="mask">Mask reveal (editorial)</option><option value="typewriter">Typewriter</option><option value="stopmotion">Stop-motion (hand-made)</option><option value="focus">Focus pull (cinematic)</option><option value="flip">Flip</option><option value="slam">Slam</option><option value="gentle">Gentle</option><option value="glitch">Glitch</option></select></label>
+      <label>Voice<select name="voice" id="voicesel"><option value="">No voice</option></select></label>
+      <label>Voice speed<select name="rate"><option value="-8%">Calm (−8 %)</option><option value="-4%" selected>Comfortable (−4 %)</option><option value="+0%">Brisk (0 %)</option></select></label>
+      <label>Music<select name="music" id="moodsel"><option value="none">No music</option></select></label>
+      <label>Captions<select name="captions"><option value="narration">Burn in the narration</option><option value="none">No captions</option></select></label>
+      <label>Caption style<select name="caption_style"><option value="">Theme default</option><option value="glass">Glass (calm, centred)</option><option value="bar">Lower-third bar (editorial)</option><option value="pop">Pop: big words, the spoken word lit (social)</option></select></label>
+      <label>AI images <small>(your agent or any image app can draw them)</small><select name="ai_images"><option value="no">No: only my files and the studio's graphics</option><option value="yes">Yes, where I have no visuals</option></select></label>
+      <label class="full">Files you'll put in inbox/ <small>(and what they are)</small><textarea name="files" placeholder="deck.pptx: release slides&#10;demo.mp4: screen recording of creating a campaign&#10;results.csv: weekly replies"></textarea></label>
+      <label class="full">Anything to avoid? <small>(sensitive data, brand rules)</small><textarea name="avoid" placeholder="e.g. No customer names; use test data only"></textarea></label>
+    </form>
+    <div class="actions"><button class="btn" id="save" type="button">Save brief.json</button><button class="btn alt" id="copy" type="button">Copy the prompt for your agent</button></div>
+    <p class="note" id="savemsg"></p>
+    <pre id="preview"></pre>
+  </section>
+
+  <section id="motion">
+    <h2>Motion and transitions</h2>
+    <p class="lead">Every theme moves in its own way, and you can change it. <b>Motion</b> is how things arrive: real spring physics (as in Remotion), mask reveals, typewriter, stop-motion, focus pulls, slams. <b>Transitions</b> are how one scene becomes the next: fade, slide, wipe, flip, clock wipe, iris, cube, zoom, flash, glitch and more. Ask your agent for one, or set <code>"motion"</code> and <code>"transition"</code> in <code>project.json</code>.</p>
+    <div class="grid g2">
+      <div class="card"><video controls preload="metadata" style="margin:0;border-radius:0" src="examples/motion_styles/renders/motion_styles_v1.mp4"></video><div class="pad"><h3>13 motion styles</h3><p>smooth · snappy · spring · bouncy · heavy · mask · typewriter · stop-motion · focus · flip · slam · gentle · glitch</p></div></div>
+      <div class="card"><video controls preload="metadata" style="margin:0;border-radius:0" src="examples/transitions/renders/transitions_v1.mp4"></video><div class="pad"><h3>13 transitions</h3><p>fade · slide · wipe · flip · clock wipe · iris · cube · zoom · dip · flash · blur · glitch · cut</p></div></div>
+    </div>
+  </section>
+
+  <section id="example">
+    <h2>Examples, made with this studio</h2>
+    <p class="lead">Each one is a single <code>project.json</code> in <code>examples/</code>. Copy one, change the words, and render.</p>
+    <div class="grid g2">
+      <div class="card"><video controls preload="metadata" style="margin:0;border-radius:0" src="examples/launch_teaser/renders/launch_teaser_v1.mp4"></video><div class="pad"><h3>Motion promo · Navy</h3><p>40 s, Ava's voice, corporate music, glass captions.</p></div></div>
+      <div class="card"><video controls preload="metadata" style="margin:0;border-radius:0" src="examples/studio_data_story/renders/studio_data_story_v1.mp4"></video><div class="pad"><h3>Data story · Newsroom</h3><p>Serif headlines, bar chart, timeline, lower-third captions, Emma's voice.</p></div></div>
+      <div class="card" style="display:flex;gap:0"><video controls preload="metadata" style="margin:0;border-radius:0;width:46%;aspect-ratio:9/16;object-fit:cover" src="examples/studio_vertical_neon/renders/studio_vertical_neon_v1.mp4"></video><div class="pad"><h3>Social vertical · Neon</h3><p>9:16, glitch titles, perspective grid, pop captions word by word, Andrew's voice, upbeat music.</p></div></div>
+    </div>
+  </section>
+
+  <section id="faq" class="faq">
+    <h2>FAQ</h2>
+    <details><summary>What do I need installed?</summary><p>Windows or macOS, Python 3.10+, and Microsoft Edge or Google Chrome. Then, in this folder:</p>
+      <ul style="color:var(--muted);margin:8px 0 0 20px">
+        <li><b>Windows:</b> <code>pip install -r requirements.txt</code>, then <code>python studio.py check</code></li>
+        <li><b>macOS</b> (Terminal): <code>python3 -m pip install -r requirements.txt</code>, then <code>python3 studio.py check</code></li>
+      </ul>
+      <p>The agent does this for you. On macOS, type <code>python3</code> wherever these pages say <code>python</code>.</p></details>
+    <details><summary>Does it work on a Mac?</summary><p>Yes. Everything runs the same on macOS, using Chrome or Edge for Mac. Run <code>python3 studio.py shortcut</code> once to get a <b>Filmlux</b> icon on your Desktop: double-click it to open the app, and keep the Terminal window it opens running while you use the app.</p></details>
+    <details><summary>Does it need the internet?</summary><p>Only for the voice, the first time each line is spoken (Microsoft's speech service). Lines are cached after that. Everything else runs offline on your machine.</p></details>
+    <details><summary>Can it use my screen recordings, slides or data?</summary><p>Yes. Screen recordings become zooming, highlighted demo scenes (release film). Slides and screenshots become image or split scenes. CSV/XLSX numbers become animated charts, using your real figures only.</p></details>
+    <details><summary>How do I change something after the first version?</summary><p>Just tell the agent what you'd like, as a viewer would: "too fast here", "bigger title", "calmer voice". It re-renders as v2, v3 and so on, and never overwrites.</p></details>
+    <details><summary>Is the music safe to use?</summary><p>Yes. It is synthesised by the studio, so there is nothing to license. The fonts are SIL Open Font License. Bring your own licensed track if you prefer.</p></details>
+    <details><summary>Can it make pictures when I have none?</summary><p>Optionally. Your agent can generate illustrations if it has an image tool; otherwise paste the prompts into any image app. The studio writes the exact prompts (in the theme's style, with no text, logos or real people), shows placeholders until the images exist, and checks them afterwards. See <code>IMAGEGEN.md</code>. It is off unless you say yes.</p></details>
+    <details><summary>Can it do something the scene library doesn't?</summary><p>Yes. The agent can write a custom HTML scene (any design, animated by time, GSAP supported) for a hero moment. See <code>SPEC.md</code> → <code>html</code>.</p></details>
+  </section>
+</main>
+<script src="assets/gallery/manifest.js"></script>
+<script>
+const M = window.MANIFEST || { packs: {}, themes: [], voices: [], moods: [] };
+const PACKS = {
+  motion_promo: ["Motion promo", "Bold kinetic type, bento grids, a strong CTA.", ["Launches", "Teasers", "Social"], "20–60 s"],
+  explainer: ["Explainer", "Calm and clear: processes, real-data charts, before/after.", ["How it works", "Results", "Training"], "60–150 s"],
+  release_film: ["Release film", "Your screen recordings, with a smooth camera, callouts and branded chapters.", ["Product walkthroughs", "What's new"], "2–5 min"],
+  social_vertical: ["Social vertical", "Phone-first 9:16: hook in two seconds, big pop captions, one idea per screen.", ["Mobile comms", "Stories", "Events"], "15–45 s"],
+  data_story: ["Data story", "Your real numbers as a story: headline finding, hero stat, charts with a message, next steps.", ["KPI updates", "Results", "Research"], "45–120 s"],
+  cinematic_brand: ["Cinematic brand film", "Letterbox, film grain, light leaks, serif type, slow dissolves. Emotional and premium.", ["Vision", "Milestones", "Town halls"], "30–90 s"],
+  kinetic_type: ["Kinetic type", "The words are the visuals: punchy lines that slam, mask and snap in on the beat. Works muted.", ["Manifestos", "Announcements", "Openers"], "20–60 s"],
+  tech_architecture: ["Tech architecture", "How a system works: blueprint look, your diagrams, data flows typed on line by line.", ["Architecture", "Platforms", "Engineering"], "60–120 s"],
+  whiteboard_explainer: ["Whiteboard explainer", "Hand-lettered titles and sketchy cards that write themselves on. Friendly and clear.", ["Training", "How-tos", "Policies"], "60–120 s"],
+  handmade_story: ["Handmade story", "Cut-paper collage or two-ink risograph print, with stop-motion movement. Human, not corporate.", ["Culture", "Team spotlights", "Community"], "45–90 s"],
+  retro_hype: ["Retro hype", "VHS tape or Y2K chrome, with glitch and zoom cuts on the beat.", ["Events", "Throwbacks", "Gaming"], "20–45 s"],
+  ai_illustrated: ["AI-illustrated", "Words but no visuals? Your agent (or any image app) makes consistent illustrations; the studio animates them with parallax.", ["Concepts", "Onboarding", "Stories"], "45–90 s"],
+};
+const THEME_NAMES = { navy: "Navy", midnight: "Midnight", paper: "Paper", swiss: "Swiss editorial", newsroom: "Newsroom data", warm: "Warm grain", cinema: "Cinematic", aurora: "Aurora glass", neon: "Neon tech", brutal: "Neo-brutalist", riso: "Risograph print", collage: "Paper collage", blueprint: "Blueprint", whiteboard: "Whiteboard", chrome: "Y2K chrome", vhs: "Retro VHS", bauhaus: "Bauhaus geometric", clay: "Soft clay", terminal: "Terminal" };
+const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+// theme toggle
+(() => { const r = document.documentElement, t = store.get("vs-theme"); if (t) r.dataset.theme = t;
+  document.getElementById("theme").onclick = () => { const dark = r.dataset.theme ? r.dataset.theme === "dark" : true; r.dataset.theme = dark ? "light" : "dark"; store.set("vs-theme", r.dataset.theme); }; })();
+const F = document.getElementById("f");
+// packs gallery
+const packsEl = document.getElementById("packs");
+Object.entries(PACKS).forEach(([k, [name, desc, tags, len]]) => {
+  const shots = (M.packs[k] || []).map((f, i) => `<img src="assets/gallery/${f}" alt="${name} sample ${i + 1}"${i ? "" : ' class="on"'}>`).join("");
+  const c = document.createElement("div"); c.className = "card pick"; c.dataset.pack = k;
+  c.innerHTML = `<div class="shots">${shots || '<div class="empty" style="color:#9aa">Run <code>python studio.py samples</code> to build previews</div>'}</div><div class="pad"><h3>${name}</h3><p>${desc}</p>${tags.map(t => `<span class="tag">${t}</span>`).join("")}<span class="tag">${len}</span></div>`;
+  c.onclick = () => { F.pack.value = k; mark(); update(); document.getElementById("brief").scrollIntoView(); };
+  packsEl.appendChild(c);
+});
+setInterval(() => document.querySelectorAll(".shots").forEach(s => { const im = [...s.querySelectorAll("img")]; if (im.length < 2) return; const i = im.findIndex(x => x.classList.contains("on")); im[i].classList.remove("on"); im[(i + 1) % im.length].classList.add("on"); }), 2600);
+function mark() { document.querySelectorAll(".pick").forEach(c => c.classList.toggle("on", c.dataset.pack === F.pack.value)); }
+// themes
+const thEl = document.getElementById("themes");
+(M.themes.length ? M.themes : []).forEach(f => { const k = f.replace(/^theme_|\.jpg$/g, ""); const c = document.createElement("div"); c.className = "card pick"; c.dataset.theme = k;
+  c.innerHTML = `<div class="shots"><img class="on" src="assets/gallery/${f}" alt="${k} theme"></div><div class="pad"><h3>${THEME_NAMES[k] || k}</h3></div>`;
+  c.onclick = () => { F.theme.value = k; update(); document.querySelectorAll(".card[data-theme]").forEach(x => x.classList.toggle("on", x.dataset.theme === k)); }; thEl.appendChild(c); });
+// voices + moods
+const vl = document.getElementById("voicelist"), vs = document.getElementById("voicesel");
+if (!M.voices.length) vl.innerHTML = '<div class="empty">Run <code>python studio.py samples</code> (needs internet once) to hear the voices.</div>';
+M.voices.forEach((v, i) => { vl.insertAdjacentHTML("beforeend", `<div class="row"><div class="nm">${v.name.replace("Neural", "")}${i === 0 ? ' <span class="tag" style="margin:0">default</span>' : ""}</div><div class="ds">${v.desc}</div><audio controls preload="none" src="assets/samples/${v.file}"></audio></div>`);
+  vs.insertAdjacentHTML("beforeend", `<option value="${v.name}"${i === 0 ? " selected" : ""}>${v.name.replace("Neural", "")}</option>`); });
+if (!M.voices.length) ["en-US-AvaNeural", "en-US-AndrewNeural", "en-GB-SoniaNeural", "en-SG-LunaNeural"].forEach((n, i) => vs.insertAdjacentHTML("beforeend", `<option value="${n}"${i ? "" : " selected"}>${n.replace("Neural", "")}</option>`));
+const ml = document.getElementById("moodlist"), ms = document.getElementById("moodsel");
+M.moods.forEach((m, i) => { ml.insertAdjacentHTML("beforeend", `<div class="row"><div class="nm">${m.name}</div><div class="ds">${m.desc}</div><audio controls preload="none" src="assets/samples/${m.file}"></audio></div>`);
+  ms.insertAdjacentHTML("beforeend", `<option value="${m.name}"${m.name === "corporate" ? " selected" : ""}>${m.name}</option>`); });
+if (!M.moods.length) { ml.innerHTML = '<div class="empty">Run <code>python studio.py samples</code> to hear the moods.</div>'; ["calm", "corporate", "upbeat", "cinematic", "minimal"].forEach(n => ms.insertAdjacentHTML("beforeend", `<option${n === "corporate" ? " selected" : ""}>${n}</option>`)); }
+// brief
+function brief() {
+  const d = Object.fromEntries(new FormData(F).entries());
+  return { title: d.title, purpose: d.purpose, audience: d.audience, channel: d.channel,
+    key_messages: (d.messages || "").split("\n").map(s => s.trim()).filter(Boolean), call_to_action: d.cta, length: d.length,
+    format: d.format, pack: d.pack, theme: d.theme, voice: d.voice ? { name: d.voice, rate: d.rate } : null,
+    music: d.music === "none" ? "none" : { mood: d.music }, captions: d.captions, caption_style: d.caption_style || null, motion: d.motion || null, ai_images: d.ai_images === "yes",
+    files: (d.files || "").split("\n").map(s => s.trim()).filter(Boolean), avoid: d.avoid, made_with: "START_HERE.html" };
+}
+const PROMPT = "Read AGENTS.md. My brief is in inbox/brief.json and my files are in inbox/. Ask me anything that's missing, then make my video.";
+const PROMPT_AI = " You may generate illustrations with your image tool where I have no visuals (follow IMAGEGEN.md).";
+function update() { const b = brief(); document.getElementById("preview").textContent = JSON.stringify(b, null, 2); store.set("vs-brief", JSON.stringify(Object.fromEntries(new FormData(F).entries()))); mark(); }
+try { const saved = JSON.parse(store.get("vs-brief") || "null"); if (saved) Object.entries(saved).forEach(([k, v]) => { if (F[k]) F[k].value = v; }); } catch (e) {}
+F.addEventListener("input", update); F.addEventListener("change", update); update();
+document.getElementById("save").onclick = async () => {
+  const text = JSON.stringify(brief(), null, 2), msg = document.getElementById("savemsg");
+  try {
+    if (window.showSaveFilePicker) {
+      const h = await showSaveFilePicker({ suggestedName: "brief.json", types: [{ description: "JSON", accept: { "application/json": [".json"] } }] });
+      const w = await h.createWritable(); await w.write(text); await w.close();
+      msg.innerHTML = '<span class="ok">Saved.</span> Make sure it is in the studio\'s <code>inbox/</code> folder, then ask your agent.'; return;
+    }
+  } catch (e) { if (e && e.name === "AbortError") return; }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type: "application/json" })); a.download = "brief.json"; a.click();
+  msg.innerHTML = 'Downloaded <code>brief.json</code>. Move it into the studio\'s <code>inbox/</code> folder, then ask your agent.';
+};
+document.getElementById("copy").onclick = async () => { const msg = document.getElementById("savemsg");
+  const P = PROMPT + (F.ai_images.value === "yes" ? PROMPT_AI : "");
+  try { await navigator.clipboard.writeText(P); msg.innerHTML = '<span class="ok">Copied:</span> ' + P; }
+  catch (e) { msg.textContent = P; } };
+</script>
+</body>
+</html>

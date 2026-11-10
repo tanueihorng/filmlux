@@ -1,0 +1,64 @@
+{
+  "title": "New retro teaser",
+  "format": "9:16",
+  "theme": "vhs",
+  "caption_style": "pop",
+  "voice": {
+    "name": "en-US-AndrewNeural",
+    "rate": "+0%"
+  },
+  "music": {
+    "mood": "upbeat"
+  },
+  "captions": "narration",
+  "scenes": [
+    {
+      "type": "kinetic",
+      "lines": [
+        "Press <em>play</em>."
+      ],
+      "say": "Replace with one short sentence for this scene.",
+      "dur": 2.5
+    },
+    {
+      "type": "section",
+      "number": "01",
+      "eyebrow": "Level",
+      "title": "The <em>launch</em>",
+      "transition": "glitch"
+    },
+    {
+      "type": "bullets",
+      "eyebrow": "Inside",
+      "heading": "What's new",
+      "items": [
+        {
+          "title": "Feature one"
+        },
+        {
+          "title": "Feature two"
+        },
+        {
+          "title": "Feature three"
+        }
+      ],
+      "say": "Replace with one short sentence for this scene.",
+      "transition": "cut"
+    },
+    {
+      "type": "stat",
+      "eyebrow": "High score",
+      "value": "10x",
+      "label": "replace with your number",
+      "say": "Replace with one short sentence for this scene.",
+      "transition": "flash"
+    },
+    {
+      "type": "end",
+      "title": "See you <em>there</em>",
+      "cta": "Replace with date or link",
+      "say": "Replace with one short sentence for this scene.",
+      "transition": "glitch"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "name": "Paper collage",
+  "mode": "light",
+  "about": "Handmade cut-paper: warm kraft paper, taped cards at slight angles, a hand-lettered accent, grain and stop-motion movement. For stories, culture, onboarding and anything that should feel human.",
+  "colors": {
+    "bg0": "#e9dcc4",
+    "bg1": "#dfcfb2",
+    "bg2": "#f3e9d6",
+    "ink": "#2a2219",
+    "muted": "rgba(42,34,25,.68)",
+    "accent": "#d2452f",
+    "accent2": "#2f6f73",
+    "card": "#fffaf0",
+    "line": "rgba(42,34,25,.18)",
+    "glow": "rgba(210,69,47,.10)"
+  },
+  "type": {
+    "display": "fraunces",
+    "body": "sans",
+    "eyebrow": "hand"
+  },
+  "look": {
+    "bg": "paper",
+    "grain": 0.18,
+    "vignette": 0.14,
+    "glow": false,
+    "cards": "paper",
+    "radius": 6,
+    "tape": "rgba(240,214,120,.78)"
+  },
+  "caption": {
+    "style": "glass",
+    "fill": [
+      255,
+      250,
+      240,
+      225
+    ],
+    "chip": [
+      210,
+      69,
+      47
+    ],
+    "ink": [
+      42,
+      34,
+      25
+    ]
+  },
+  "motion": "stopmotion",
+  "transition": "slide:from-bottom",
+  "imagegen": "cut paper collage illustration, torn paper edges, vintage photo cutouts, kraft paper texture, warm muted colours, handmade, no text",
+  "brand": {
+    "name": "",
+    "logo": ""
+  }
+}

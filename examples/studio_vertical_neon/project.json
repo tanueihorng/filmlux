@@ -1,0 +1,19 @@
+{
+  "title": "Filmlux vertical teaser",
+  "format": "9:16",
+  "theme": "neon",
+  "caption_style": "pop",
+  "voice": {"name": "en-US-AndrewNeural", "rate": "+0%"},
+  "music": {"mood": "upbeat"},
+  "captions": "narration",
+  "scenes": [
+    {"type": "kinetic", "lines": ["No editor.", "No timeline.", "Just <em>ask</em>."], "say": "No editor. No timeline. Just ask your agent."},
+    {"type": "section", "number": "07", "eyebrow": "Style packs", "title": "Pick a <em>recipe</em>", "say": "Pick one of seven style packs."},
+    {"type": "bento", "title": "Then it <em>builds</em>", "cols": 2, "tiles": [
+      {"label": "Voice", "title": "Natural narration", "size": "2x1", "accent": true},
+      {"label": "Music", "title": "Ducked under it"},
+      {"label": "Captions", "title": "Word by word"}], "say": "It writes the script, adds a natural voice, music and captions."},
+    {"type": "stat", "eyebrow": "Looks", "value": "9", "label": "themes to choose from", "say": "Nine looks, from Swiss grid to neon."},
+    {"type": "end", "title": "Make your <em>video</em>", "cta": "Open Filmlux", "say": "Make your next video with Filmlux."}
+  ]
+}

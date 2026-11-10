@@ -1,0 +1,80 @@
+{
+  "title": "New release film",
+  "format": "16:9",
+  "theme": "navy",
+  "voice": {
+    "name": "en-US-AvaNeural",
+    "rate": "-4%"
+  },
+  "music": {
+    "mood": "calm"
+  },
+  "captions": "narration",
+  "scenes": [
+    {
+      "type": "title",
+      "eyebrow": "Release 1",
+      "title": "Release name, <em>promise</em>",
+      "say": "Here's what's new in this release, and how to use it."
+    },
+    {
+      "type": "process",
+      "title": "The journey",
+      "loop": true,
+      "steps": [
+        "Explore",
+        "Understand",
+        "Act",
+        "Follow up"
+      ],
+      "say": "We'll follow one user through four steps."
+    },
+    {
+      "type": "title",
+      "chapter": "01 · EXPLORE",
+      "eyebrow": "Step one",
+      "title": "Explore",
+      "sub": "One line on what this step does.",
+      "say": "Step one. Explore."
+    },
+    {
+      "type": "screen",
+      "src": "assets/REPLACE_recording.mp4",
+      "a": 0.0,
+      "b": 6.0,
+      "speed": 1.0,
+      "est": 0.8,
+      "cam": [
+        [
+          0,
+          0.5,
+          0.5,
+          1.0
+        ],
+        [
+          1.2,
+          0.6,
+          0.4,
+          1.3
+        ]
+      ],
+      "callouts": [
+        [
+          1.0,
+          3.5,
+          0.55,
+          0.3,
+          0.8,
+          0.38
+        ]
+      ],
+      "say": "Describe the one action the viewer sees here."
+    },
+    {
+      "type": "end",
+      "title": "Try it in <em>the product</em>",
+      "cta": "Open the product",
+      "say": "Close with where to find it."
+    }
+  ]
+}

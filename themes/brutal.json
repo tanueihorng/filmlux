@@ -1,0 +1,56 @@
+{
+  "name": "Neo-brutalist",
+  "mode": "light",
+  "about": "Loud and honest: cream paper, black ink, thick outlines, hard offset shadows, chunky grotesk type, one hot colour. Snappy motion, push cuts. For launches, internal campaigns, hot takes.",
+  "colors": {
+    "bg0": "#f6f1e7",
+    "bg1": "#efe7d6",
+    "bg2": "#fffaf0",
+    "ink": "#111111",
+    "muted": "rgba(17,17,17,.66)",
+    "accent": "#ff4d2e",
+    "accent2": "#3a5bff",
+    "card": "#ffe45c",
+    "line": "#111111",
+    "glow": "rgba(0,0,0,0)"
+  },
+  "type": {
+    "display": "chunky",
+    "body": "grotesk",
+    "eyebrow": "mono"
+  },
+  "look": {
+    "bg": "grid",
+    "grid": 90,
+    "glow": false,
+    "cards": "brutal",
+    "radius": 14,
+    "text": "shadow"
+  },
+  "caption": {
+    "style": "bar",
+    "fill": [
+      17,
+      17,
+      17,
+      240
+    ],
+    "chip": [
+      255,
+      228,
+      92
+    ],
+    "ink": [
+      255,
+      255,
+      255
+    ]
+  },
+  "motion": "snappy",
+  "transition": "push",
+  "imagegen": "neo-brutalist flat illustration, thick black outlines, flat bright yellow, orange and blue fills, hard offset shadows, cream background, no text",
+  "brand": {
+    "name": "",
+    "logo": ""
+  }
+}

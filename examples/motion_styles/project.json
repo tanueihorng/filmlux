@@ -1,0 +1,143 @@
+{
+ "title": "Filmlux motion styles",
+ "format": "16:9",
+ "theme": "navy",
+ "voice": null,
+ "music": {
+  "mood": "upbeat",
+  "level_db": -24
+ },
+ "captions": "none",
+ "scenes": [
+  {
+   "type": "title",
+   "eyebrow": "Filmlux · motion styles",
+   "title": "Thirteen ways to <em>arrive</em>",
+   "sub": "Set \"motion\" on a theme, a project or a scene",
+   "dur": 3.2
+  },
+  {
+   "type": "title",
+   "motion": "smooth",
+   "transition": "fade",
+   "eyebrow": "motion: smooth",
+   "dur": 3.0,
+   "title": "Things arrive <em>smooth</em>",
+   "sub": "Eased, with a soft blur"
+  },
+  {
+   "type": "title",
+   "motion": "snappy",
+   "transition": "fade",
+   "eyebrow": "motion: snappy",
+   "dur": 3.0,
+   "title": "Things arrive <em>snappy</em>",
+   "sub": "Spring 20/200: quick, minimal bounce"
+  },
+  {
+   "type": "title",
+   "motion": "spring",
+   "transition": "fade",
+   "eyebrow": "motion: spring",
+   "dur": 3.0,
+   "title": "Things arrive <em>spring</em>",
+   "sub": "Spring 10/100: Remotion's default"
+  },
+  {
+   "type": "title",
+   "motion": "bouncy",
+   "transition": "fade",
+   "eyebrow": "motion: bouncy",
+   "dur": 3.0,
+   "title": "Things arrive <em>bouncy</em>",
+   "sub": "Spring damping 8: playful"
+  },
+  {
+   "type": "title",
+   "motion": "heavy",
+   "transition": "fade",
+   "eyebrow": "motion: heavy",
+   "dur": 3.0,
+   "title": "Things arrive <em>heavy</em>",
+   "sub": "Spring 15/80, mass 2: weighty"
+  },
+  {
+   "type": "title",
+   "motion": "mask",
+   "transition": "fade",
+   "eyebrow": "motion: mask",
+   "dur": 3.0,
+   "title": "Things arrive <em>mask</em>",
+   "sub": "Rises from behind a line"
+  },
+  {
+   "type": "title",
+   "motion": "typewriter",
+   "transition": "fade",
+   "eyebrow": "motion: typewriter",
+   "dur": 3.0,
+   "title": "Things arrive <em>typewriter</em>",
+   "sub": "Typed on, letter by letter"
+  },
+  {
+   "type": "title",
+   "motion": "stopmotion",
+   "transition": "fade",
+   "eyebrow": "motion: stopmotion",
+   "dur": 3.0,
+   "title": "Things arrive <em>stopmotion</em>",
+   "sub": "On twos, with a hand-made boil"
+  },
+  {
+   "type": "title",
+   "motion": "focus",
+   "transition": "fade",
+   "eyebrow": "motion: focus",
+   "dur": 3.0,
+   "title": "Things arrive <em>focus</em>",
+   "sub": "A cinematic focus pull"
+  },
+  {
+   "type": "title",
+   "motion": "flip",
+   "transition": "fade",
+   "eyebrow": "motion: flip",
+   "dur": 3.0,
+   "title": "Things arrive <em>flip</em>",
+   "sub": "Tips up towards you"
+  },
+  {
+   "type": "title",
+   "motion": "slam",
+   "transition": "fade",
+   "eyebrow": "motion: slam",
+   "dur": 3.0,
+   "title": "Things arrive <em>slam</em>",
+   "sub": "Drops in and lands"
+  },
+  {
+   "type": "title",
+   "motion": "gentle",
+   "transition": "fade",
+   "eyebrow": "motion: gentle",
+   "dur": 3.0,
+   "title": "Things arrive <em>gentle</em>",
+   "sub": "Slow and calm"
+  },
+  {
+   "type": "title",
+   "motion": "glitch",
+   "transition": "fade",
+   "eyebrow": "motion: glitch",
+   "dur": 3.0,
+   "title": "Things arrive <em>glitch</em>",
+   "sub": "RGB split on arrival"
+  },
+  {
+   "type": "end",
+   "title": "Pick your <em>motion</em>",
+   "cta": "python studio.py motion",
+   "dur": 3.2
+  }
+ ]
+}

@@ -1,0 +1,79 @@
+{
+  "title": "New whiteboard explainer",
+  "format": "16:9",
+  "theme": "whiteboard",
+  "voice": {
+    "name": "en-US-AvaNeural",
+    "rate": "-6%"
+  },
+  "music": {
+    "mood": "calm",
+    "level_db": -30
+  },
+  "captions": "narration",
+  "scenes": [
+    {
+      "type": "title",
+      "eyebrow": "How to",
+      "title": "How do I <em>get started</em>?",
+      "sub": "Replace with the topic",
+      "say": "Replace with one short sentence for this scene."
+    },
+    {
+      "type": "bullets",
+      "eyebrow": "Why it matters",
+      "heading": "Three things to know",
+      "items": [
+        {
+          "title": "Point one",
+          "body": "…"
+        },
+        {
+          "title": "Point two",
+          "body": "…"
+        },
+        {
+          "title": "Point three",
+          "body": "…"
+        }
+      ],
+      "say": "Replace with one short sentence for this scene."
+    },
+    {
+      "type": "process",
+      "title": "The <em>steps</em>",
+      "steps": [
+        "Open",
+        "Check",
+        "Submit",
+        "Confirm"
+      ],
+      "say": "Replace with one short sentence for this scene."
+    },
+    {
+      "type": "compare",
+      "title": "Do and <em>don't</em>",
+      "left": {
+        "title": "Don't",
+        "items": [
+          "…",
+          "…"
+        ]
+      },
+      "right": {
+        "title": "Do",
+        "items": [
+          "…",
+          "…"
+        ]
+      },
+      "say": "Replace with one short sentence for this scene."
+    },
+    {
+      "type": "end",
+      "title": "Questions? <em>Ask</em>",
+      "cta": "Replace with where to get help",
+      "say": "Replace with one short sentence for this scene."
+    }
+  ]
+}

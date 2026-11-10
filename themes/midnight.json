@@ -1,0 +1,42 @@
+{
+  "name": "Midnight (neutral)",
+  "mode": "dark",
+  "colors": {
+    "bg0": "#0d0d12",
+    "bg1": "#000000",
+    "bg2": "#1b1b28",
+    "ink": "#f5f5f7",
+    "muted": "rgba(245,245,247,.62)",
+    "accent": "#7c6cff",
+    "accent2": "#b3a8ff",
+    "card": "rgba(255,255,255,.055)",
+    "line": "rgba(255,255,255,.10)",
+    "glow": "rgba(124,108,255,.24)"
+  },
+  "brand": {
+    "name": "",
+    "logo": ""
+  },
+  "caption": {
+    "fill": [
+      14,
+      14,
+      22,
+      160
+    ],
+    "chip": [
+      179,
+      168,
+      255
+    ],
+    "style": "glass"
+  },
+  "about": "Neutral dark: midnight blue with a violet accent. Brand-free version of the default look.",
+  "type": {
+    "display": "sans"
+  },
+  "look": {
+    "bg": "dots"
+  },
+  "imagegen": "clean minimal 3D illustration, midnight blue background, soft violet light, generous negative space, no text"
+}

@@ -1,0 +1,54 @@
+{
+  "name": "Y2K chrome",
+  "mode": "dark",
+  "about": "Early-2000s future: liquid chrome titles, iridescent aurora, glossy glass cards, heavy display type. Slam entrances, zoom cuts. For hype reels, events and product reveals.",
+  "colors": {
+    "bg0": "#120c26",
+    "bg1": "#06040f",
+    "bg2": "#2a1a5c",
+    "ink": "#f6f4ff",
+    "muted": "rgba(230,226,255,.68)",
+    "accent": "#7cf5ff",
+    "accent2": "#ff7ce5",
+    "card": "rgba(255,255,255,.08)",
+    "line": "rgba(255,255,255,.18)",
+    "glow": "rgba(124,245,255,.22)"
+  },
+  "type": {
+    "display": "heavy",
+    "eyebrow": "mono"
+  },
+  "look": {
+    "bg": "aurora",
+    "aurora": [
+      "#7cf5ff",
+      "#ff7ce5",
+      "#8b5cff",
+      "#c0ff7c"
+    ],
+    "radius": 34,
+    "text": "chrome",
+    "grain": 0.05
+  },
+  "caption": {
+    "style": "pop",
+    "chip": [
+      124,
+      245,
+      255
+    ],
+    "ink": [
+      255,
+      255,
+      255
+    ],
+    "font": "inter-800.woff2"
+  },
+  "motion": "slam",
+  "transition": "zoom",
+  "imagegen": "Y2K liquid chrome 3D render, iridescent holographic surfaces, glossy, floating abstract shapes, purple and cyan, no text",
+  "brand": {
+    "name": "",
+    "logo": ""
+  }
+}

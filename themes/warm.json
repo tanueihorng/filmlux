@@ -1,0 +1,53 @@
+{
+  "name": "Warm grain (light)",
+  "mode": "light",
+  "about": "Cream paper, soft grain, Fraunces serif headings and terracotta accent. Human, tactile, calm: culture, HR, onboarding, stories.",
+  "colors": {
+    "bg0": "#f3ebdd",
+    "bg1": "#ebe0cd",
+    "bg2": "#faf5ec",
+    "ink": "#2b2118",
+    "muted": "rgba(43,33,24,.64)",
+    "accent": "#c4572f",
+    "accent2": "#d9774f",
+    "card": "rgba(255,252,246,.8)",
+    "line": "rgba(43,33,24,.12)",
+    "glow": "rgba(196,87,47,.12)"
+  },
+  "type": {
+    "display": "fraunces",
+    "eyebrow": "sans",
+    "tracking": "-.02em"
+  },
+  "look": {
+    "bg": "plain",
+    "grain": 0.12,
+    "vignette": 0.12,
+    "cards": "solid",
+    "radius": 22
+  },
+  "brand": {
+    "name": "",
+    "logo": ""
+  },
+  "caption": {
+    "style": "glass",
+    "fill": [
+      255,
+      250,
+      242,
+      220
+    ],
+    "chip": [
+      196,
+      87,
+      47
+    ],
+    "ink": [
+      43,
+      33,
+      24
+    ]
+  },
+  "imagegen": "warm risograph-style illustration, cream paper texture, terracotta, ochre and deep green palette, soft grain, friendly and human, no text"
+}

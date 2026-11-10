@@ -1,0 +1,63 @@
+{
+  "title": "New promo",
+  "format": "16:9",
+  "theme": "navy",
+  "voice": {
+    "name": "en-US-AvaNeural",
+    "rate": "-4%"
+  },
+  "music": {
+    "mood": "upbeat"
+  },
+  "captions": "narration",
+  "scenes": [
+    {
+      "type": "kinetic",
+      "lines": [
+        "Line one.",
+        "Line <em>two</em>.",
+        "Line three."
+      ],
+      "say": "Replace with a hook of eight to twelve words."
+    },
+    {
+      "type": "title",
+      "eyebrow": "Product · Launch",
+      "title": "Product name, <em>promise</em>",
+      "say": "Introducing the product, and the promise it makes."
+    },
+    {
+      "type": "bento",
+      "title": "What you get",
+      "tiles": [
+        {
+          "label": "Feature one",
+          "title": "Benefit in four words",
+          "size": "2x2",
+          "accent": true
+        },
+        {
+          "label": "Feature two",
+          "title": "Benefit in four words",
+          "size": "2x1"
+        },
+        {
+          "label": "Feature three",
+          "title": "Benefit"
+        },
+        {
+          "label": "Feature four",
+          "title": "Benefit"
+        }
+      ],
+      "say": "Say the four features as one sentence the viewer will remember."
+    },
+    {
+      "type": "end",
+      "title": "Try it <em>today</em>",
+      "sub": "Where to find it",
+      "cta": "Call to action",
+      "say": "Close with the call to action."
+    }
+  ]
+}
