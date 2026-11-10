@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Filmlux Bento Poster</title>
+<style>
+@font-face{font-family:IDsp;src:url(../../fonts/InterDisplay-Regular.ttf);font-weight:400}
+@font-face{font-family:IDsp;src:url(../../fonts/InterDisplay-Medium.ttf);font-weight:500}
+@font-face{font-family:IDsp;src:url(../../fonts/InterDisplay-SemiBold.ttf);font-weight:600}
+@font-face{font-family:Mono;src:url(../../fonts/jetbrains-mono-500.woff2)}
+:root{--navy:#00195F;--deep:#000B2E;--tile:#0A1F66;--cream:#FBEDDB;--coral:#FB4E44;--muted:rgba(251,237,219,.62);--ink-muted:rgba(0,25,95,.62)}
+*{box-sizing:border-box;margin:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--deep)}
+body{font-family:IDsp,system-ui,sans-serif;color:var(--cream);-webkit-font-smoothing:antialiased;padding:44px;
+  display:grid;gap:18px;grid-template-columns:repeat(6,1fr);grid-template-rows:1.1fr 1fr 1fr .62fr;
+  grid-template-areas:
+   "hero hero hero themes motion motion"
+   "hero hero hero agents agents packs"
+   "looks looks looks looks voice voice"
+   "cmd cmd beam cta cta cta"}
+.t{border-radius:34px;padding:34px 36px;position:relative;overflow:hidden;display:flex;flex-direction:column;background:var(--tile)}
+.cream{background:var(--cream);color:var(--navy)}
+.coral{background:var(--coral);color:var(--cream)}
+.eyebrow{font-size:19px;font-weight:600;letter-spacing:.02em;color:var(--coral)}
+.coral .eyebrow{color:var(--cream);opacity:.8}
+.big{font-size:118px;font-weight:600;letter-spacing:-.05em;line-height:.9}
+.h{font-size:36px;font-weight:600;letter-spacing:-.025em;line-height:1.05}
+.p{font-size:19px;font-weight:500;line-height:1.3;color:var(--muted)}
+.cream .p{color:var(--ink-muted)}
+.coral .p{color:rgba(251,237,219,.86)}
+.grow{flex:1}
+
+/* hero */
+.hero{grid-area:hero;background:radial-gradient(120% 90% at 0% 100%,rgba(251,78,68,.34),transparent 55%),linear-gradient(160deg,#08227A,var(--navy) 55%,#001247);padding:52px 56px}
+.hero .logo{width:440px;align-self:flex-start;margin-left:-6px}
+.hero h1{font-size:96px;font-weight:600;letter-spacing:-.045em;line-height:.98;margin-top:auto}
+.hero h1 em{font-style:normal;color:var(--coral)}
+.hero .p{font-size:27px;margin-top:20px;max-width:820px}
+.beamglow{position:absolute;right:-90px;top:-40px;width:480px;opacity:.10;transform:rotate(-8deg)}
+
+.themes{grid-area:themes}
+.themes .big{color:var(--coral)}
+.motion{grid-area:motion}
+.motion svg{position:absolute;right:28px;top:30px;width:250px;height:150px}
+.agents{grid-area:agents}
+.chips{display:flex;flex-wrap:nowrap;gap:8px;margin-top:auto}
+.chip{font-size:16.5px;font-weight:600;padding:8px 13px;white-space:nowrap;border-radius:999px;background:var(--navy);color:var(--cream)}
+.chip.o{background:transparent;color:var(--navy);box-shadow:inset 0 0 0 2px rgba(0,25,95,.25)}
+.packs{grid-area:packs}
+
+.looks{grid-area:looks;padding:0;background:#000}
+.mosaic{position:absolute;inset:0;display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(2,1fr);gap:6px;transform:rotate(-4deg) scale(1.16);transform-origin:center}
+.mosaic img{width:100%;height:100%;object-fit:cover;border-radius:10px}
+.looks .veil{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,11,46,.97) 0%,rgba(0,11,46,.9) 40%,rgba(0,11,46,.15) 72%,rgba(0,11,46,0) 100%)}
+.looks .cap{position:relative;padding:34px 36px;display:flex;flex-direction:column;height:100%;max-width:560px}
+
+.voice{grid-area:voice}
+.wave{display:flex;align-items:center;gap:7px;height:80px;margin:auto 0 18px}
+.wave i{display:block;width:9px;border-radius:9px;background:var(--coral)}
+.cmd{grid-area:cmd;background:#000615;justify-content:center}
+.cmd code{font-family:Mono,monospace;font-size:27px;color:var(--cream)}
+.cmd code b{color:var(--coral);font-weight:500}
+.beam{grid-area:beam;align-items:center;justify-content:center}
+.beam img{width:78%}
+.cta{grid-area:cta;justify-content:center}
+.cta .h{font-size:46px}
+.cta .url{font-family:Mono,monospace;font-size:22px;margin-top:14px;color:var(--cream);opacity:.92}
+</style></head>
+<body>
+
+<section class="t hero">
+  <img class="beamglow" src="../filmlux-campaign-logo-set/projector-mark.png" alt="">
+  <img class="logo" src="../filmlux-campaign-logo-set/logo-for-dark-recoloured.png" alt="filmlux">
+  <h1>Videos, made<br>by <em>your agent.</em></h1>
+  <p class="p">Drop your docs in. Get a narrated, captioned film out.</p>
+</section>
+
+<section class="t cream themes">
+  <div class="eyebrow">Looks</div>
+  <div class="grow"></div>
+  <div class="big">19</div>
+  <div class="h" style="margin-top:6px">themes</div>
+</section>
+
+<section class="t motion">
+  <svg viewBox="0 0 250 150" fill="none">
+    <line x1="0" y1="52" x2="250" y2="52" stroke="rgba(251,237,219,.22)" stroke-width="2" stroke-dasharray="5 7"/>
+    <path d="M4 146 C 40 146, 52 20, 84 26 S 118 70, 140 58 S 172 46, 190 52 S 230 53, 248 52" stroke="#FB4E44" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="248" cy="52" r="9" fill="#FBEDDB"/>
+  </svg>
+  <div class="eyebrow">Motion</div>
+  <div class="grow"></div>
+  <div class="big">13</div>
+  <div class="h" style="margin-top:6px">motion styles <span style="color:var(--muted);font-weight:500">+ 13 transitions</span></div>
+</section>
+
+<section class="t cream agents">
+  <div class="eyebrow">Model-agnostic</div>
+  <div class="h" style="margin-top:10px">Works with any agent.</div>
+  <div class="chips">
+    <span class="chip">Codex</span><span class="chip">Claude Code</span><span class="chip">Gemini CLI</span><span class="chip o">Cursor</span><span class="chip o">Copilot</span>
+  </div>
+</section>
+
+<section class="t coral packs">
+  <div class="eyebrow">Ready-made</div>
+  <div class="grow"></div>
+  <div class="big">12</div>
+  <div class="h" style="margin-top:6px">packs</div>
+</section>
+
+<section class="t looks">
+  <div class="mosaic">
+    <img src="../../gallery/theme_aurora.jpg"><img src="../../gallery/theme_brutal.jpg"><img src="../../gallery/theme_riso.jpg"><img src="../../gallery/theme_blueprint.jpg"><img src="../../gallery/theme_chrome.jpg"><img src="../../gallery/theme_clay.jpg">
+    <img src="../../gallery/theme_vhs.jpg"><img src="../../gallery/theme_collage.jpg"><img src="../../gallery/theme_bauhaus.jpg"><img src="../../gallery/theme_whiteboard.jpg"><img src="../../gallery/theme_neon.jpg"><img src="../../gallery/theme_terminal.jpg">
+  </div>
+  <div class="veil"></div>
+  <div class="cap">
+    <div class="eyebrow">Every look, ready</div>
+    <div class="h" style="font-size:54px;margin-top:auto">From brief<br>to <span style="color:var(--coral)">final cut.</span></div>
+    <p class="p" style="margin-top:12px;color:rgba(251,237,219,.8)">Explainers, launches, data stories, social clips.</p>
+  </div>
+</section>
+
+<section class="t voice">
+  <div class="eyebrow">Sound</div>
+  <div class="wave" id="wave"></div>
+  <div class="h">Voice, music, captions.</div>
+  <p class="p" style="margin-top:6px">Neural voices, mood music, word-by-word captions.</p>
+</section>
+
+<section class="t cmd">
+  <code><b>$</b> python studio.py render</code>
+  <p class="p" style="margin-top:12px">Renders on your own machine.</p>
+</section>
+
+<section class="t cream beam">
+  <img src="../filmlux-campaign-logo-set/projector-mark.png" alt="">
+</section>
+
+<section class="t coral cta">
+  <div class="h">Open the folder. Say <span style="white-space:nowrap">“make my video.”</span></div>
+  <div class="url">github.com/tanueihorng/filmlux</div>
+</section>
+
+<script>
+const w=document.getElementById('wave');
+for(let i=0;i<40;i++){const h=14+Math.abs(Math.sin(i*.55)*Math.cos(i*.21))*64+(i%3)*4;const b=document.createElement('i');b.style.height=h+'px';b.style.opacity=.45+.55*Math.abs(Math.sin(i*.3));w.appendChild(b)}
+</script>
+</body></html>

@@ -25,6 +25,12 @@
 
 You don't need a video editor or any design skills.
 
+## At a glance
+
+<p align="center">
+  <img src="assets/brand/poster/filmlux-bento-poster.png" alt="Filmlux at a glance: videos made by your agent, 19 themes, 13 motion styles and 13 transitions, 12 packs, works with Codex, Claude Code, Gemini CLI, Cursor and Copilot, voice, music and captions, renders on your own machine" width="100%">
+</p>
+
 ## See it in action
 
 Everything below was made by Filmlux itself, from plain `project.json` files and without a video editor. The source projects are in `examples/`.
@@ -177,7 +183,7 @@ Renders land in `projects/<name>/renders/<name>_vN.mp4`, next to an `.srt` subti
   <img src="docs/readme/brand-sheet.png" alt="Filmlux brand sheet: the wordmark on navy and on cream, the f monogram, and the navy, cream and coral colours" width="100%">
 </p>
 
-The Filmlux mark is a small projector throwing light (*lux*) into an **f**. Logo files for light and dark backgrounds, and the rules for using them, are in [`assets/brand/BRAND.md`](assets/brand/BRAND.md).
+The Filmlux mark is a small projector throwing light (*lux*) into an **f**. Logo files for light and dark backgrounds, and the rules for using them, are in [`assets/brand/BRAND.md`](assets/brand/BRAND.md). The announcement poster above is in [`assets/brand/poster/`](assets/brand/poster/) (PNG at 1080p and 4K, plus the HTML source to edit the wording).
 
 ## Notes
 

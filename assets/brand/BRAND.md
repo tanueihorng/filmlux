@@ -24,6 +24,8 @@ The Filmlux mark is a small projector throwing light (*lux*) into an **f**.
 | `filmlux-favicon.svg` | Browser tab icon: the beam on navy, readable at 16 px |
 | `filmlux-mark-bare.svg` | Coral beam as a vector, transparent background |
 | `filmlux-brand-campaign-20261110.png` | Campaign poster |
+| `poster/filmlux-bento-poster.png`, `poster/filmlux-bento-poster@2x.png` | 16:9 bento announcement poster (1920×1080 and 3840×2160) |
+| `poster/filmlux-bento-poster.html` | Poster source: edit the text, then re-render with a headless browser at 1920×1080 |
 
 ## Rules
 
