@@ -15,7 +15,7 @@
   <img src="docs/readme/hero-reel.gif" alt="A montage of Filmlux renders: a wipe transition, snappy motion, a data card and a vertical social clip" width="720">
 </p>
 
-**An AI-agent-ready folder for making high-quality videos.** Point any coding agent (Codex, Claude Code, Gemini CLI, Cursor, GitHub Copilot or any other coding agent) at this folder, tell it what you need, drop in your files, and it produces a finished video:
+**Filmlux is a video engine your coding agent drives.** Point any coding agent (Codex, Claude Code, Gemini CLI, Cursor, GitHub Copilot or any other) at it, tell it what you need and drop in your files. The agent directs; Filmlux renders. You get a finished video with:
 - a story
 - natural voiceover
 - original music
