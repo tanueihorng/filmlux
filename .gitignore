@@ -5,10 +5,12 @@ __pycache__/
 venv/
 
 # Render outputs and caches (regenerate with studio.py)
-renders/
+**/renders/*
 .cache/
 *.mp4
 !examples/sample_footage/*.mp4
+# ...except the example videos that START_HERE.html plays
+!examples/*/renders/*_v1.mp4
 
 # Personal work in progress: keep only the READMEs
 projects/*
