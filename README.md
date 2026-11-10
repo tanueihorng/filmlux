@@ -173,19 +173,11 @@ Renders land in `projects/<name>/renders/<name>_vN.mp4`, next to an `.srt` subti
 
 ## Brand
 
-<img src="docs/readme/logo-set.jpg" alt="Filmlux logo set: the wordmark on navy and on cream, the projector beam, and the f monogram" width="360" align="right">
+<p align="center">
+  <img src="docs/readme/brand-sheet.png" alt="Filmlux brand sheet: the wordmark on navy and on cream, the f monogram, and the navy, cream and coral colours" width="100%">
+</p>
 
-The Filmlux mark is a small projector throwing light (*lux*) into an **f**.
-
-| | Colour | Hex | Used for |
-|---|---|---|---|
-| <img src="docs/readme/swatch-00195F.svg" alt="" width="36" height="18"> | Navy | `#00195F` | backgrounds, the wordmark on light |
-| <img src="docs/readme/swatch-FBEDDB.svg" alt="" width="36" height="18"> | Cream | `#FBEDDB` | the wordmark on dark, light backgrounds |
-| <img src="docs/readme/swatch-FB4E44.svg" alt="" width="36" height="18"> | Coral | `#FB4E44` | the beam, accents |
-
-Logo files for light and dark backgrounds are in `assets/brand/`; see [BRAND.md](assets/brand/BRAND.md).
-
-<br clear="right">
+The Filmlux mark is a small projector throwing light (*lux*) into an **f**. Logo files for light and dark backgrounds, and the rules for using them, are in [`assets/brand/BRAND.md`](assets/brand/BRAND.md).
 
 ## Notes
 
