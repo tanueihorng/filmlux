@@ -2,7 +2,7 @@
 
 These rules come from building a product walkthrough over seven versions, each driven by one sentence of feedback from real viewers and stakeholders. They apply to any video this studio makes.
 
-**How to read this playbook.** Each section gives defaults that reliably produce a good film. They are a floor, not a ceiling. Depart from any of them when the idea is stronger for it, and tell the user what you changed and why. The only things that never bend are the hard rules in `AGENTS.md` §2 and the scorecard in §7: whatever the style, the result has to pass it.
+**How to read this playbook.** Each section gives defaults that reliably produce a good film. In **guided** mode (the default; `"mode"` in `project.json`) follow them as written. In **creative** mode they are a floor, not a ceiling: depart from any of them when the idea is stronger for it, and tell the user what you changed and why. In both modes the hard rules in `AGENTS.md` §2 and the scorecard in §7 never bend: whatever the style, the result has to pass them.
 
 ## 1. Story first
 

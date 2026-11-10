@@ -2,7 +2,7 @@
 
   python studio.py check                         is this machine ready? (packages, browser, voice, fonts)
   python studio.py app                           open the local Studio app in your browser (projects, inbox upload, previews, renders, compare)
-  python studio.py new <name> [--pack P] [--theme T] [--format F]   create projects/<name>/ from a pack (python studio.py packs)
+  python studio.py new <name> [--pack P] [--theme T] [--format F] [--mode guided|creative]   create projects/<name>/ from a pack (python studio.py packs)
   python studio.py plan <project>                fitted timeline: every scene's start, length, voice length
   python studio.py stills <project> [t1,t2,...]  preview frames (default: one per scene) + a sheet, in <temp>/video_studio/stills
   python studio.py audio <project>               the whole soundtrack as a wav (voice + music), ~1 min
@@ -91,7 +91,7 @@ def cmd_new(a):
     shutil.copytree(src, dst)
     for d in ("assets", "renders"):
         (dst / d).mkdir(exist_ok=True)
-    if a.theme or a.format:
+    if a.theme or a.format or a.mode:
         pj = dst / "project.json"; spec = json.loads(pj.read_text(encoding="utf-8"))
         if a.theme:
             if not (ROOT / "themes" / f"{a.theme}.json").exists():
@@ -99,6 +99,8 @@ def cmd_new(a):
             spec["theme"] = a.theme
         if a.format:
             spec["format"] = a.format
+        if a.mode:
+            spec["mode"] = a.mode
         pj.write_text(json.dumps(spec, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"created {dst}  (pack: {a.pack}). Edit brief.md, script.md and project.json, then: python studio.py plan {a.name}")
 
@@ -183,7 +185,9 @@ def cmd_qa(a):
     for lvl, where, msg in issues:
         print(f"  {lvl:5s} {where}: {msg}")
     ne, nw = sum(l == "ERROR" for l, _, _ in issues), sum(l == "WARN" for l, _, _ in issues)
-    print("no issues" if not issues else f"{ne} error(s), {nw} warning(s)" + ("  (errors block the render; warnings are craft advice: fix them or keep them on purpose)" if nw else ""))
+    mode = getattr(p, "mode", "guided")
+    print("no issues" if not issues else f"{ne} error(s), {nw} warning(s)  [{mode} mode]" + ("  (errors block the render; warnings are craft advice: fix them or keep them on purpose)" if nw else "")
+          + ("  (guided mode: every craft check must pass; set \"mode\": \"creative\" in project.json to allow deliberate exceptions)" if ne and mode == "guided" else ""))
 
 
 def cmd_render(a):
@@ -301,7 +305,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sp = ap.add_subparsers(dest="cmd", required=True)
     sp.add_parser("check").set_defaults(f=cmd_check)
-    n = sp.add_parser("new"); n.add_argument("name"); n.add_argument("--pack", default="motion_promo"); n.add_argument("--theme"); n.add_argument("--format", choices=["16:9", "9:16", "1:1", "4:5"]); n.set_defaults(f=cmd_new)
+    n = sp.add_parser("new"); n.add_argument("name"); n.add_argument("--pack", default="motion_promo"); n.add_argument("--theme"); n.add_argument("--format", choices=["16:9", "9:16", "1:1", "4:5"]); n.add_argument("--mode", choices=["guided", "creative"]); n.set_defaults(f=cmd_new)
     g = sp.add_parser("imagegen"); g.add_argument("project"); g.add_argument("--check", action="store_true"); g.set_defaults(f=cmd_imagegen)
     g = sp.add_parser("cutout"); g.add_argument("input"); g.add_argument("output"); g.add_argument("--key", default="")
     g.add_argument("--tolerance", type=float, default=.18); g.add_argument("--softness", type=float, default=.12); g.set_defaults(f=cmd_cutout)

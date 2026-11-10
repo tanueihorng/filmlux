@@ -67,6 +67,8 @@ Filmlux is model-agnostic. Everything runs through plain `python studio.py …` 
 
 If your agent doesn't pick up the instructions by itself, just say **"Read AGENTS.md and make my video."**
 
+**Guided or creative.** Each project picks a mode. **Guided** (the default) holds the agent to the pack's proven structure and enforces every craft check in code, so even a smaller model produces a solid video. **Creative** lets a capable agent break defaults on purpose, design custom scenes and mix looks, as long as it explains why. Both modes must pass the same quality scorecard. Set it with `python studio.py new <name> --mode creative`, in the brief builder, or as `"mode"` in `project.json`.
+
 ## Quick start: three ways in
 
 1. **Ask the agent.** Open this folder in your coding agent and say **"Read AGENTS.md and make my video."** It interviews you, asks you to drop your files into `inbox/`, confirms a brief and a script with you, shows previews, renders, then iterates (v2, v3, …).

@@ -57,6 +57,7 @@ class Project:
         self.music_db = (m or {}).get("level_db", -27.0) if m not in (None, "none") else -27.0
         self.whoosh = (m or {}).get("whoosh", True) if m not in (None, "none") else False
         self.captions = s.get("captions", "narration")          # narration | custom | none
+        self.mode = "creative" if s.get("mode") == "creative" else "guided"   # guided (default) | creative
         self.cache = self.dir / ".cache" / "voice"
         self.scenes = [dict(sc) for sc in s.get("scenes", [])]
         for sc in self.scenes:
@@ -654,6 +655,10 @@ def qa(prj: Project, fr: Frames | None = None):
         if sc["type"] not in ("screen", "html") and sc["type"] not in DEFAULT_DUR:
             issues.append(("ERROR", tag, f"unknown scene type '{sc['type']}' (see SPEC.md)"))
     issues += craft_checks(prj)
+    if prj.mode == "guided":
+        for i, sc in enumerate(prj.scenes):
+            if sc["type"] == "html":
+                issues.append(("WARN", f"scene {i + 1} (html)", "custom html scenes need \"mode\": \"creative\"; use a built-in scene type"))
     for s, e, text in prj.captions_list():
         if len(text) > 90:
             issues.append(("WARN", "caption", f"long caption ({len(text)} chars): {text[:50]}..."))
@@ -663,6 +668,8 @@ def qa(prj: Project, fr: Frames | None = None):
                 continue
             for msg in fr.stage.eval(f"qa({i})") or []:
                 issues.append(("ERROR", f"scene {i + 1} ({sc['type']})", msg))
+    if prj.mode == "guided":                       # guided: every craft warning must be fixed before rendering
+        issues = [("ERROR" if l == "WARN" else l, w, m + (" [guided mode]" if l == "WARN" else "")) for l, w, m in issues]
     return issues
 
 

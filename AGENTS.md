@@ -16,7 +16,17 @@ The standard to hit, whatever the style (calm explainer, loud teaser, hand-made 
 
 The quality loop in `PLAYBOOK.md` is how that standard was reached. Follow it.
 
-**High bar, open canvas.** This folder sets a minimum standard, not a style. The hard rules (§2) protect the viewer and the user, so always keep them. Everything else here (the packs, theme defaults, word counts, motion advice) is a **default**: it's what usually works. When an idea calls for something different, do it on purpose and tell the user why. If no scene type fits your idea, build it as an `html` scene (`SPEC.md`). The scene library is a starting kit, not a limit. A surprising, well-made film beats a safe, generic one.
+**Two modes: the user chooses** (`"mode"` in `project.json`):
+
+| | **Guided** (default) | **Creative** |
+|---|---|---|
+| Best for | Reliable results with any agent or model; first videos; "defaults are fine" | Users who want something distinctive, with a capable agent |
+| Craft defaults (§2b) | Rules: follow them | Defaults: break them on purpose and say why |
+| Look and structure | The pack's look and its **Shape**; alternatives only from `PLAYBOOK.md` §5b | Anything that fits, including new themes and mixed looks |
+| Scene types | Built-in only | Built-in plus custom `html` scenes |
+| `qa` | Every warning is an error: it must print "no issues" before rendering (the engine enforces this) | Only errors block; each warning is fixed or kept on purpose |
+
+Both modes keep the hard rules (§2) and the scorecard (`PLAYBOOK.md` §7), so the quality bar is the same; creative mode only widens the ways to reach it. **If the user doesn't choose, or you're unsure, use guided.**
 
 ## 0. First contact: run the intake (always, before touching any file)
 
@@ -45,6 +55,7 @@ Greet the user in one line. Then ask these questions, **in one message**, number
 7. **Captions:** burned-in captions of the narration (default for how-to/explainer), or none? Style: the theme's default, `glass`, `bar` (lower third) or `pop` (word by word, best for vertical/social).
 8. **Must-say messages and the call to action:** what should viewers do after watching?
 9. **AI images (optional):** "Where you have no pictures, may I generate illustrations with my image tool?" Default **no**. Only with a yes, follow `IMAGEGEN.md`.
+10. **Creative freedom:** **guided** (default: proven pack structure and look, every craft check enforced; the most reliable result) or **creative** (I may break defaults on purpose, design custom scenes and mix looks, and I'll tell you why)?
 
 Then say: **"Please drop everything you have into `inbox/`"**: briefs, docs, decks, data (CSV/XLSX), images, logos, screen recordings (MP4).
 
@@ -57,21 +68,21 @@ Then say: **"Please drop everything you have into `inbox/`"**: briefs, docs, dec
 | Step | You do | Output | Gate |
 |---|---|---|---|
 | 1. Brief | Read everything in `inbox/` (open images, probe videos, read docs and data). Run `python studio.py new <name> --pack <pack>`. Write `projects/<name>/brief.md` from `templates/brief.md` | brief.md | **User approves the brief** |
-| 2. Script, storyboard and look | Write `script.md`: scene list, on-screen text, the narration line per scene, and the visual per scene. Use `templates/storyboard.md`. Name the one moment viewers should remember. **Propose 2–3 looks** (theme + motion + caption style, one line each on why it fits); at least one may go beyond the pack's default or include a custom `html` hero moment. A worked example of this step is in `examples/launch_teaser/` | script.md | **User approves the script and picks a look** |
+| 2. Script, storyboard and look | Write `script.md`: scene list, on-screen text, the narration line per scene, and the visual per scene. Use `templates/storyboard.md`. Name the one moment viewers should remember. **Propose looks** (theme + motion + caption style, one line each on why it fits): in **guided** mode, recommend the pack's look and offer 1–2 alternatives from `PLAYBOOK.md` §5b; in **creative** mode, offer 2–3, and at least one may go beyond the defaults or include a custom `html` hero moment. A worked example (creative mode) is in `examples/launch_teaser/` | script.md | **User approves the script and picks a look** |
 | 3. Build | Write `project.json` (`SPEC.md` has every scene type and theme option). Run `python studio.py new <name> --pack <pack> --theme <theme> --format <format>` first if you haven't. Copy the assets the project uses into `projects/<name>/assets/` | project.json | none |
 | 3b. AI images (only if the user said yes) | Add `gen` prompts to image/split scenes. Run `stills` (placeholders) for layout approval, then `imagegen <name>`, generate each image with your image tool, then `imagegen <name> --check`. Open every image (`IMAGEGEN.md`) | assets/gen/*.png | **User approves the images** |
-| 4. Preview | `python studio.py plan <name>`, then `stills <name>` (open the sheet image and look), then `audio <name>` (check timing), then `qa <name>` (no ERRORs; fix each WARN or keep it on purpose), then score the draft with the scorecard (`PLAYBOOK.md` §7) | stills, wav | **Show the user the stills sheet** and any default you broke on purpose |
+| 4. Preview | `python studio.py plan <name>`, then `stills <name>` (open the sheet image and look), then `audio <name>` (check timing), then `qa <name>` (guided: must say "no issues"; creative: no ERRORs, and fix each WARN or keep it on purpose), then score the draft with the scorecard (`PLAYBOOK.md` §7) | stills, wav | **Show the user the stills sheet** and any default you broke on purpose |
 | 5. Render | `python studio.py render <name>` (run it in the background for anything over 30 s; it prints progress every 15 s) | renders/<name>_vN.mp4, .srt, contact sheet, QA | none |
 | 6. Review | Open the contact sheet. Play-check the first 10 s, every scene change and the last 10 s. Report the path, length and what you checked | | **User feedback** |
 | 7. Iterate | Change only what the feedback asks for, then re-render. **A new version is automatic** (`_v2`, `_v3`, …); never overwrite | | until approved |
 | 8. Extras | `thumb <name>` for the poster/thumbnail. The `.srt` is already written next to the video | | |
 
-## 2. Hard rules (always)
+## 2. Hard rules (always, in both modes)
 
 These protect the viewer and the user. They never limit what the film can look like.
 
 1. **Look at every result.** You can open images: open the stills sheet and contact sheet every time. Never report "done" from logs alone.
-2. **No `qa` ERRORs before a final render.** ERRORs are broken things (missing files, text overflowing its box): fix the layout, don't `--force`. WARNs are craft advice: fix them, or keep the choice on purpose and tell the user why.
+2. **No `qa` ERRORs before a final render.** ERRORs are broken things (missing files, text overflowing its box): fix the layout, don't `--force`. WARNs are craft advice. In guided mode the engine turns them into ERRORs, so fix them all; in creative mode, fix them or keep the choice on purpose and tell the user why.
 3. **Data:** charts use the user's real numbers from their files. Never invent numbers. If you must illustrate, label it `"note": "Sample data"`.
 4. **Privacy:** narration text goes to Microsoft's speech service. Keep personal data (emails, phone numbers, NRIC, customer names if the user says so) out of `say` lines. Don't upload the user's files anywhere.
 5. **Licences:** use only the studio's synthesised music, the user's licensed tracks, and fonts in `assets/fonts` (SIL OFL). No downloaded stock media unless the user provides it.
@@ -84,16 +95,17 @@ These protect the viewer and the user. They never limit what the film can look l
     Real screenshots and recordings always win. Details are in `IMAGEGEN.md`.
 7. **Ship nothing sloppy:** no clipped or overlapping text, no blank or duplicate frames, no unreadable captions, no flashing faster than three times a second.
 
-## 2b. Craft defaults (break them on purpose)
+## 2b. Craft defaults (rules in guided mode; break them on purpose in creative mode)
 
-These are what works most of the time. Start here; depart when the idea is better for it, and say so in your report ("I used three title scenes in a row as a deliberate drumbeat").
+These are what works most of the time. **Guided:** follow every one. **Creative:** start here, depart when the idea is better for it, and say so in your report ("I used three title scenes in a row as a deliberate drumbeat").
 
 - **One idea per scene.** Narration of 6–25 words per scene. On-screen text short: titles of 3–8 words, bullets of up to 5 items with 2–6 words each.
 - **The voice leads, the picture follows.** Scene length is fitted to the voice automatically; don't fight it with tiny `dur` values.
 - **Restraint with sound.** Music sits under the voice at about −27 dB and is ducked automatically. No bells, dings or "whoosh on every cut".
 - **Screen recordings:** full screen first (`est`), then ease in; zoom 1.4× or less; a callout about 1 s before every click; never cut across a click; 1.0–1.35× speed on UI steps, up to 2.5× only for waiting or typing.
-- **One coherent look** (`PLAYBOOK.md` §5b): one theme, one caption style, one image style. A deliberate shift (a flashback in `vhs`, a finale in `cinema`) is fine when the story calls for it.
-- **Use the library first, then go beyond it.** If no scene type fits, build an `html` scene in the project (`SPEC.md`). Change `engine/` only when the user wants a new capability for every future video; then add the scene type to `engine/stage/stage.html` (`SCENES`) and document it in `SPEC.md`.
+- **One coherent look** (`PLAYBOOK.md` §5b): one theme, one caption style, one image style. In creative mode, a deliberate shift (a flashback in `vhs`, a finale in `cinema`) is fine when the story calls for it.
+- **Follow the pack's Shape** (`packs/<pack>/PACK.md`) for the order of scenes; in creative mode, restructure when the story is stronger for it.
+- **Use the library first, then go beyond it.** In creative mode, if no scene type fits, build an `html` scene in the project (`SPEC.md`). Change `engine/` only when the user wants a new capability for every future video; then add the scene type to `engine/stage/stage.html` (`SCENES`) and document it in `SPEC.md`.
 
 ## 3. Commands (run from this folder)
 

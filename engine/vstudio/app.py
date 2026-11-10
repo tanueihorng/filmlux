@@ -225,6 +225,8 @@ class Handler(BaseHTTPRequestHandler):
                     args += ["--theme", data["theme"]]
                 if data.get("format"):
                     args += ["--format", data["format"]]
+                if data.get("mode") in ("guided", "creative"):
+                    args += ["--mode", data["mode"]]
                 r = subprocess.run(args, cwd=ROOT, capture_output=True, text=True, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
                 return self.send_json({"ok": r.returncode == 0, "id": name, "out": (r.stdout + r.stderr).strip()}, 200 if r.returncode == 0 else 400)
             if path == "/api/run":

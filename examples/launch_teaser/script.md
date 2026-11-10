@@ -1,6 +1,6 @@
 # Script and storyboard: Orbit 2.0 launch teaser
 
-> **Worked example: one good way, not the template.** It shows the thinking behind `project.json` in this folder: the outline, the look options offered to the user, the script, the scorecard and the defaults broken on purpose.
+> **Worked example (creative mode): one good way, not the template.** It shows the thinking behind `project.json` in this folder: the outline, the look options offered to the user, the script, the scorecard and the defaults broken on purpose.
 
 ## 1. Outline (the story in one breath)
 
@@ -49,5 +49,7 @@ The user picked A for the town hall. Option C would be the social cut-down.
 | 10 | Doesn't feel like a template | ✅ The loop scene ties the features to the team's own routine |
 
 ## 5. Defaults broken on purpose
+
+This project uses `"mode": "creative"`, so `qa` warnings are advice. In guided mode the warning below would block the render until the bento text was cut.
 
 - **`qa` warns that the bento has 33 words on screen for 6.5 s.** Kept: a bento is scanned, not read, the narration names the four tools, and the small body text on the hero tile is supporting detail. A stricter cut would drop that line.

@@ -19,6 +19,7 @@ A project is a folder `projects/<name>/` containing `project.json`, plus `brief.
 
 | Field | Values | Default |
 |---|---|---|
+| `mode` | `guided`: every `qa` craft warning blocks the render and custom `html` scenes are flagged, for reliable results with any agent. `creative`: only errors block; warnings are advice the agent may override on purpose. See AGENTS.md | `guided` |
 | `format` | `16:9` (1920×1080), `9:16` (1080×1920), `1:1` (1080×1080), `4:5` (1080×1350) | `16:9` |
 | `theme` | `navy`, `midnight`, `paper`, `swiss`, `newsroom`, `warm`, `cinema`, `aurora`, `neon`, `brutal`, `riso`, `collage`, `blueprint`, `whiteboard`, `chrome`, `vhs`, `bauhaus`, `clay`, `terminal` (`python studio.py themes`), or a project-relative path to your own theme `.json` | `navy` |
 | `motion` | How elements arrive: `smooth`, `snappy`, `spring`, `bouncy`, `heavy`, `mask`, `typewriter`, `stopmotion`, `focus`, `flip`, `slam`, `gentle`, `glitch`. See **Motion and transitions** | theme's (else `smooth`) |

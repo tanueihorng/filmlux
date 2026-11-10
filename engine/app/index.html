@@ -138,6 +138,7 @@ function homeView() {
       <label>Style pack<select id="np">${opts(S.packs, "motion_promo", p => p.name.replace(/_/g, " "))}</select></label>
       <div class="row2"><label>Theme<select id="nt"><option value="">pack default</option>${opts(S.themes, "")}</select></label>
       <label>Format<select id="nf"><option value="">pack default</option><option>16:9</option><option>9:16</option><option>1:1</option><option>4:5</option></select></label></div>
+      <label>Creative freedom<select id="nm"><option value="guided">Guided: proven structure, every check enforced (recommended)</option><option value="creative">Creative: the agent may break defaults on purpose</option></select></label>
       <p class="note" id="pdesc"></p>
       <div class="btns"><button class="btn" id="mk" type="button">Create project</button></div></div>
     <div class="card pad"><h2>2 · Drop your files</h2><p>Docs, decks, CSV/XLSX, images, logos and screen recordings go into <code>inbox/</code>, where the agent reads them.</p>
@@ -159,9 +160,9 @@ function homeView() {
   </div>`;
   const desc = () => { const p = S.packs.find(x => x.name === $("#np").value); $("#pdesc").innerHTML = p ? esc(p.for) + ` <a href="#styles">See styles</a>` : ""; };
   $("#np").onchange = desc; desc();
-  $("#mk").onclick = async () => { try { const r = await api("/api/new", { name: $("#nn").value, pack: $("#np").value, theme: $("#nt").value, format: $("#nf").value }); toast("Created " + r.id); await load(); location.hash = "#p/" + r.id; } catch (e) { toast(e.message); } };
+  $("#mk").onclick = async () => { try { const r = await api("/api/new", { name: $("#nn").value, pack: $("#np").value, theme: $("#nt").value, format: $("#nf").value, mode: $("#nm").value }); toast("Created " + r.id); await load(); location.hash = "#p/" + r.id; } catch (e) { toast(e.message); } };
   dropzone(); files();
-  const brief = () => ({ purpose: $("#b_purpose").value, length: $("#b_length").value, pack: $("#np").value, theme: $("#nt").value || null, format: $("#nf").value || null,
+  const brief = () => ({ purpose: $("#b_purpose").value, length: $("#b_length").value, pack: $("#np").value, theme: $("#nt").value || null, format: $("#nf").value || null, mode: $("#nm").value,
     voice: $("#b_voice").value, music: $("#b_music").value, captions: $("#b_captions").value, must_say: $("#b_must").value, ai_images: $("#b_ai").value === "yes", saved: new Date().toISOString() });
   $("#bs").onclick = async () => { await api("/api/brief", brief()); toast("Saved inbox/brief.json"); };
   $("#bc").onclick = () => copy(`Read AGENTS.md and make my video. My brief is in inbox/brief.json and my files are in inbox/.${$("#b_ai").value === "yes" ? " You may generate illustrations with your image tool where I have no visuals (follow IMAGEGEN.md)." : ""}`);
