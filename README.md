@@ -31,6 +31,14 @@ You don't need a video editor or any design skills.
   <img src="assets/brand/poster/filmlux-bento-poster.png" alt="Filmlux at a glance: videos made by your agent, 19 themes, 13 motion styles and 13 transitions, 12 packs, works with Codex, Claude Code, Gemini CLI, Cursor and Copilot, voice, music and captions, renders on your own machine" width="100%">
 </p>
 
+## How it works
+
+<p align="center">
+  <img src="docs/readme/user-flow.gif" alt="The Filmlux flow in five steps: describe the video to your agent, approve the brief, pick a look, preview the stills, then render and iterate" width="100%">
+</p>
+
+Describe the video, approve the brief, pick a look (or let the agent choose), preview, then render and ask for changes. Every step pauses for your approval, and nothing is overwritten: each render is a new version.
+
 ## See it in action
 
 Everything below was made by Filmlux itself, from plain `project.json` files and without a video editor. The source projects are in `examples/`.
