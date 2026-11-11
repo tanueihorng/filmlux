@@ -123,6 +123,7 @@ Pick the look from the **purpose and audience**, not from habit. The table is a 
   - never zoom before the target is visible
 - **Cause and effect:** a callout about 1 s before each click. Keep the click and its result in one scene (don't cut across it), then hold 1–3 s on the result.
 - **Pace:** 1.0–1.35× on UI steps; speed up only waiting and typing.
+- **No recording? Tour screenshots.** A `screen` scene can use a still screenshot: camera moves, an animated `cursor` with `clicks`, `typing` into fields, labelled `callouts` and `toasts` make it read like a real session (`SPEC.md`). It's sharper and easier to re-time than a recording, and it never shows the user's desktop or file paths. Say it's an illustration if the steps are simulated.
 
 ## 7. The quality loop (do this every time)
 

@@ -67,6 +67,8 @@ Filmlux is model-agnostic. Everything runs through plain `python studio.py …` 
 
 If your agent doesn't pick up the instructions by itself, just say **"Read AGENTS.md and make my video."**
 
+**Your agent always knows the next step.** `python studio.py next <name>` reads the project and prints the one thing to do now, the exact command, and when to stop for your approval, so even a small local model can follow it. `qa` ends every problem with the exact fix, `stills` writes a text report for models that can't see images, and `feedback` / `score` turn each round of changes into a checklist and a before-and-after scorecard.
+
 **Guided or creative.** Each project picks a mode. **Guided** (the default) holds the agent to the pack's proven structure and enforces every craft check in code, so even a smaller model produces a solid video. **Creative** lets a capable agent break defaults on purpose, design custom scenes and mix looks, as long as it explains why. Both modes must pass the same quality scorecard. Set it with `python studio.py new <name> --mode creative`, in the brief builder, or as `"mode"` in `project.json`.
 
 ## Quick start: three ways in
@@ -180,12 +182,18 @@ tools/                 sample builder, demo app
 python studio.py app                                        the Studio app (local web page)
 python studio.py shortcut                                   Desktop icon for the app (Windows .lnk / macOS .command; once per computer)
 python studio.py check | voices | moods | packs | themes | motion
-python studio.py new <name> --pack <pack> [--theme T] [--format 9:16]
-python studio.py plan | stills | audio | qa | render | thumb <name>
+python studio.py new <name> --pack <pack> [--theme T] [--format 9:16] [--from-brief]
+python studio.py next <name>                                the one next step, the command, and when to ask you
+python studio.py approve <name> brief|script|images|stills  record your approval
+python studio.py plan | stills | audio | qa | render | thumb | score <name>
+python studio.py render <name> --draft                      quick 10 fps pacing check (not a version)
+python studio.py feedback <name> "<your notes>"             feedback for the next version, as a checklist
+python studio.py export <name> --gif | --webm               GIF or WebM of the latest render
+python studio.py vertical <name>                            a 9:16 copy of the project
 python studio.py imagegen <name> [--check]                  optional AI images
 ```
 
-Renders land in `projects/<name>/renders/<name>_vN.mp4`, next to an `.srt` subtitle file, a contact sheet and a QA report. Versions are never overwritten.
+Renders land in `projects/<name>/renders/<name>_vN.mp4`, next to an `.srt` subtitle file, a contact sheet, a QA report and a scorecard. Versions are never overwritten, and frames that didn't change are reused, so each new version renders faster. Narration uses Microsoft's online neural voices; set the voice to `local` to use the computer's own offline voice instead (private, but robotic).
 
 ## Brand
 

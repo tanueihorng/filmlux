@@ -3,6 +3,7 @@
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import re
@@ -24,6 +25,8 @@ DEFAULT_DUR = {"title": 4.5, "kinetic": 5.0, "bullets": 6.0, "stat": 4.5, "quote
 IMAGE_TYPES = ("image", "split")
 LEAD, TAIL = .35, .7          # voice starts LEAD s into its scene; TAIL s of breathing room after it
 XFADE = .4                    # default dissolve between scenes (s)
+STILL_EXT = (".png", ".jpg", ".jpeg", ".webp")   # a screen scene can tour a still screenshot instead of a video
+DRAFT_FPS = 10                                    # render --draft: a third of the frames, for checking pacing
 MOTIONS = ("smooth", "snappy", "spring", "bouncy", "heavy", "mask", "typewriter", "stopmotion", "focus", "flip", "slam", "gentle", "glitch")
 
 
@@ -63,6 +66,8 @@ class Project:
         for sc in self.scenes:
             if sc.get("src") and not re.match(r"^(https?:|data:)", sc["src"]):
                 sc["_path"] = str(self.resolve(sc["src"]))
+            if sc["type"] == "screen" and Path(str(sc.get("src", ""))).suffix.lower() in STILL_EXT:
+                sc["_still"] = True; sc["a"] = 0.0; sc["b"] = float(sc.get("dur", 6.0)); sc["speed"] = 1.0
             for ly in sc.get("layers") or []:
                 if ly.get("src") and not re.match(r"^(https?:|data:)", ly["src"]):
                     ly["_path"] = str(self.resolve(ly["src"]))
@@ -256,14 +261,22 @@ class Composer:
     """Screen-recording scenes: camera crop/zoom, callouts, framed window on the theme backdrop."""
 
     def __init__(self, prj: Project):
-        self.p = prj; self.readers = {}; self.backdrops = {}
+        self.p = prj; self.readers = {}; self.backdrops = {}; self.stills = {}
         self.accent = tuple(int(prj.theme["colors"]["accent"].lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
 
-    def frame(self, i, sc, rt, backdrop):
+    def source(self, sc, rt):
+        if sc.get("_still"):
+            if sc["_path"] not in self.stills:
+                self.stills[sc["_path"]] = Image.open(sc["_path"]).convert("RGB")
+            return self.stills[sc["_path"]]
         r = self.readers.setdefault(sc["_path"], Reader(sc["_path"]))
         est = sc.get("est", 0); play = max(0, rt - est)
         st = sc["a"] + min(play, (sc["b"] - sc["a"]) / sc.get("speed", 1.0)) * sc.get("speed", 1.0)
-        src = r.get(st); sw, sh = src.size
+        return r.get(st)
+
+    def frame(self, i, sc, rt, backdrop):
+        est = sc.get("est", 0)
+        src = self.source(sc, rt); sw, sh = src.size
         cx, cy, z = cam_at(sc, rt); z = max(1.0, z)
         cw, ch = sw / z, sh / z
         x0 = min(max(0, cx * sw - cw / 2), sw - cw); y0 = min(max(0, cy * sh - ch / 2), sh - ch)
@@ -278,8 +291,14 @@ class Composer:
         win = crop.resize((ww, wh), Image.LANCZOS)
         out = backdrop.copy()
         ox, oy = (W - ww) // 2, int((H - wh) / 2 - (H * .02 * (1 - grow) if framed and H <= W else 0))
-        # callouts (source-normalised boxes), dim outside the box inside the window
-        for t0, t1, a0, b0, a1, b1 in sc.get("callouts", []):
+        P = lambda ax, ay: ((ax * sw - x0) * k, (ay * sh - y0) * k)     # source fraction -> window pixel
+        t = rt - est
+        if sc.get("typing"):
+            win = self.typing(win, sc, t, P, src, k)
+        labels = []
+        # callouts (source-normalised boxes), dim outside the box inside the window; an optional 7th item is a label
+        for co in sc.get("callouts", []):
+            t0, t1, a0, b0, a1, b1 = co[:6]
             a = ease((rt - est - t0) / .35) * (1 - ease((rt - est - t1) / .3))
             if a <= 0:
                 continue
@@ -290,6 +309,10 @@ class Composer:
             mx, my = (X0 + X1) / 2, (Y0 + Y1) / 2; hw, hh = (X1 - X0) / 2 * g + 8, (Y1 - Y0) / 2 * g + 8
             ImageDraw.Draw(ov).rounded_rectangle([mx - hw, my - hh, mx + hw, my + hh], 14, outline=self.accent + (int(255 * a),), width=4)
             win = Image.alpha_composite(win.convert("RGBA"), ov).convert("RGB")
+            if len(co) > 6 and co[6]:
+                labels.append((str(co[6]), X0, Y0, X1, Y1, a))
+        if labels or sc.get("toasts") or sc.get("cursor"):
+            win = self.overlays(win, sc, t, P, labels)
         if framed:
             rad = int(22 * min(W, H) / 1080 * (1 - grow) + 1)
             m = Image.new("L", (ww, wh), 0); ImageDraw.Draw(m).rounded_rectangle([0, 0, ww - 1, wh - 1], rad, fill=255)
@@ -304,6 +327,76 @@ class Composer:
         if e < 1:
             out = Image.blend(backdrop, out, e)
         return out
+
+
+    # ---- walkthrough overlays: typed text, callout labels, pop-up toasts, an animated cursor with click ripples
+    def typing(self, win, sc, t, P, src, k):
+        d = ImageDraw.Draw(win); sw, sh = src.size
+        for ty in sc.get("typing", []):
+            t0 = float(ty.get("t", 0))
+            if t < t0 - 1e-6:
+                continue
+            text = str(ty.get("text", "")); n = min(len(text), int((t - t0) * float(ty.get("cps", 14))))
+            bx = ty["box"]; (X0, Y0), (X1, Y1) = P(bx[0], bx[1]), P(bx[2], bx[3])
+            bg = src.getpixel((min(sw - 1, int(bx[0] * sw) + 4), min(sh - 1, int((bx[1] + bx[3]) / 2 * sh))))
+            fg = (24, 24, 28) if .299 * bg[0] + .587 * bg[1] + .114 * bg[2] > 140 else (242, 242, 245)
+            d.rectangle([X0 + 2, Y0 + 2, X1 - 2, Y1 - 2], fill=bg)
+            px = max(9, int(float(ty.get("size", min((bx[3] - bx[1]) * sh * .48, sh * .03))) * k))
+            f = font(px, "Regular"); pad = px * .7; lines, cur = [], ""
+            for w in text[:n].split(" "):
+                cand = (cur + " " + w) if cur else w
+                if f.getlength(cand) <= (X1 - X0) - 2 * pad or not cur:
+                    cur = cand
+                else:
+                    lines.append(cur); cur = w
+            lines.append(cur)
+            lh = px * 1.4; y = (Y0 + Y1) / 2 - lh / 2 if (Y1 - Y0) < 2.4 * lh else Y0 + pad * .8
+            for ln in lines:
+                d.text((X0 + pad, y), ln, font=f, fill=fg); y += lh
+            if n < len(text) or int(t * 2) % 2 == 0:                        # caret: solid while typing, then blinks
+                cx = X0 + pad + f.getlength(lines[-1]) + 2
+                d.rectangle([cx, y - lh + px * .15, cx + max(2, px // 9), y - lh + px * 1.15], fill=self.accent)
+        return win
+
+    def overlays(self, win, sc, t, P, labels):
+        ww, wh = win.size; ov = Image.new("RGBA", (ww, wh), (0, 0, 0, 0)); d = ImageDraw.Draw(ov)
+        fpx = max(13, int(min(ww, wh * 1.6) * .017)); f = font(fpx, "Medium")
+        for text, X0, Y0, X1, Y1, a in labels:                         # light chip under (or over) the callout box
+            tw = f.getlength(text); cw, ch = tw + fpx * 2.4, fpx * 2.1
+            cx, cy = max(6, min(ww - cw - 6, X0)), Y1 + 18
+            if cy + ch > wh - 6:
+                cy = Y0 - 18 - ch
+            d.rounded_rectangle([cx, cy, cx + cw, cy + ch], ch / 2, fill=(251, 248, 242, int(240 * a)))
+            d.ellipse([cx + fpx * .7, cy + ch / 2 - fpx * .25, cx + fpx * 1.2, cy + ch / 2 + fpx * .25], fill=self.accent + (int(255 * a),))
+            d.text((cx + fpx * 1.6, cy + ch / 2), text, font=f, fill=(20, 22, 32, int(255 * a)), anchor="lm")
+        for t0, t1, text in sc.get("toasts", []):                      # dark pop-up pill, bottom centre
+            a = ease((t - t0) / .25) * (1 - ease((t - t1) / .25))
+            if a <= 0:
+                continue
+            tw = f.getlength(text); cw, ch = tw + fpx * 3.6, fpx * 2.4
+            cx, cy = (ww - cw) / 2, wh - ch - wh * .05 + (1 - a) * 12
+            d.rounded_rectangle([cx, cy, cx + cw, cy + ch], ch / 2, fill=(30, 30, 34, int(238 * a)), outline=(70, 70, 78, int(255 * a)))
+            r = fpx * .55; d.ellipse([cx + fpx * .9, cy + ch / 2 - r, cx + fpx * .9 + 2 * r, cy + ch / 2 + r], fill=self.accent + (int(255 * a),))
+            d.text((cx + fpx * 2.5, cy + ch / 2), text, font=f, fill=(244, 244, 245, int(255 * a)), anchor="lm")
+        keys = sc.get("cursor") or []
+        if keys and t >= keys[0][0]:
+            x, y = keys[-1][1:3]
+            for (ta, xa, ya), (tb, xb, yb) in zip(keys, keys[1:]):
+                if t <= tb:
+                    e = ease((t - ta) / max(1e-6, tb - ta)); x, y = xa + (xb - xa) * e, ya + (yb - ya) * e; break
+            X, Y = P(x, y); u = max(18, wh * .04) / 20
+            for c in sc.get("clicks", []):                             # ripple
+                q = (t - c) / .55
+                if 0 <= q < 1:
+                    r = (6 + 34 * q) * u * 1.4
+                    d.ellipse([X - r, Y - r, X + r, Y + r], outline=self.accent + (int(255 * (1 - q)),), width=max(2, int(3 * u)))
+            if any(0 <= t - c < .12 for c in sc.get("clicks", [])):
+                u *= .86
+            arrow = [(0, 0), (0, 16), (4, 12.5), (6.8, 18.6), (9.6, 17.4), (7, 11.6), (12, 11.6)]
+            a_ = min(1, (t - keys[0][0]) / .25)
+            d.polygon([(X + 2 * u + ax * u, Y + 3 * u + ay * u) for ax, ay in arrow], fill=(0, 0, 0, int(90 * a_)))
+            d.polygon([(X + ax * u, Y + ay * u) for ax, ay in arrow], fill=(255, 255, 255, int(255 * a_)), outline=(16, 18, 28, int(255 * a_)), width=max(1, int(1.6 * u)))
+        return Image.alpha_composite(win.convert("RGBA"), ov).convert("RGB")
 
 
 # ---------------------------------------------------------------- captions
@@ -635,15 +728,17 @@ def qa(prj: Project, fr: Frames | None = None):
                 issues.append(("ERROR", tag, f"layer file not found: {ly.get('src')}"))
         say = sc.get("say", "")
         if say and len(say.split()) > 30:
-            issues.append(("WARN", tag, f"narration line has {len(say.split())} words; keep it under ~25 (split the scene)"))
+            nw = len(say.split()); k = math.ceil(nw / 20)
+            issues.append(("WARN", tag, f"narration line has {nw} words; keep it under ~25 -> fix: split it into {k} scenes of about {nw // k} words each"))
         if say and re.search(r"\b[\w.]+@[\w.]+\b|\b\d{8,}\b", say):
             issues.append(("WARN", tag, "narration looks like it contains an email or long number (it is sent to the speech service)"))
         if sc["type"] == "screen":
             for k in sc.get("cam", []):
-                if k[3] > 1.5:
-                    issues.append(("WARN", tag, f"camera zoom {k[3]} > 1.5 loses context; keep it <= 1.4"))
+                lim = 2.0 if sc.get("_still") else 1.5          # sharp hi-res screenshots can take a closer look
+                if k[3] > lim:
+                    issues.append(("WARN", tag, f"camera zoom {k[3]} > {lim} loses context -> fix: set that key's zoom to {1.8 if sc.get('_still') else 1.4}"))
             if sc.get("speed", 1) > 1.5 and not sc.get("fast_ok"):
-                issues.append(("WARN", tag, f"speed {sc.get('speed')}x: fine for waiting/typing, too fast for UI steps"))
+                issues.append(("WARN", tag, f"speed {sc.get('speed')}x: fine for waiting/typing, too fast for UI steps -> fix: set \"speed\": 1.2, or \"fast_ok\": true if it only shows waiting or typing"))
         if sc.get("transition") and str(sc["transition"]).partition(":")[0] not in TRANSITIONS:
             issues.append(("WARN", tag, f"unknown transition '{sc['transition']}' (using dissolve); choose from: {', '.join(TRANSITIONS)}"))
         if sc.get("motion") and sc["motion"] not in MOTIONS:
@@ -651,17 +746,18 @@ def qa(prj: Project, fr: Frames | None = None):
         if sc["type"] == "logo" and not (sc.get("src") or sc.get("name") or (self_brand := prj.theme.get("brand") or {}).get("logo") or self_brand.get("name")):
             issues.append(("WARN", tag, "logo scene has no logo: set scene 'src' / 'name', or theme brand.logo (it falls back to the project title)"))
         if sc["dur"] > 14 and sc["type"] not in ("screen", "html"):
-            issues.append(("WARN", tag, f"{sc['dur']:.1f}s on one static scene; split it"))
+            issues.append(("WARN", tag, f"{sc['dur']:.1f}s on one static scene -> fix: split it into {math.ceil(sc['dur'] / 7)} scenes with one idea each"))
         if sc["type"] not in ("screen", "html") and sc["type"] not in DEFAULT_DUR:
             issues.append(("ERROR", tag, f"unknown scene type '{sc['type']}' (see SPEC.md)"))
     issues += craft_checks(prj)
+    issues += placeholder_checks(prj)
     if prj.mode == "guided":
         for i, sc in enumerate(prj.scenes):
             if sc["type"] == "html":
                 issues.append(("WARN", f"scene {i + 1} (html)", "custom html scenes need \"mode\": \"creative\"; use a built-in scene type"))
     for s, e, text in prj.captions_list():
         if len(text) > 90:
-            issues.append(("WARN", "caption", f"long caption ({len(text)} chars): {text[:50]}..."))
+            issues.append(("WARN", "caption", f"long caption ({len(text)} chars): {text[:50]}... -> fix: shorten that scene's say line, or set \"caption\" to a version under 72 characters"))
     if fr is not None:
         for i, sc in enumerate(prj.scenes):
             if sc["type"] in ("screen", "html"):
@@ -711,13 +807,15 @@ def craft_checks(prj: Project):
             continue
         n = _onscreen_words(sc)
         if n > max(16, 4 * sc.get("dur", 5)):
-            out.append(("WARN", tag, f"{n} words on screen for {sc.get('dur', 5):.1f}s; viewers read about 3 words a second (cut words or give it more time)"))
+            d_ = sc.get("dur", 5)
+            out.append(("WARN", tag, f"{n} words on screen for {d_:.1f}s; viewers read about 3 words a second -> fix: cut to {max(4, int(3 * d_ - 3))} words, or set \"dur\": {math.ceil(n / 3 + 1)}"))
         if i >= 2 and sc_[i - 1]["type"] == sc_[i - 2]["type"] == sc["type"]:
-            out.append(("WARN", tag, f"third '{sc['type']}' scene in a row; vary the scene type unless the repetition is the point"))
+            alt = next(x for x in ("bullets", "stat", "image", "quote", "split") if x != sc["type"])
+            out.append(("WARN", tag, f"third '{sc['type']}' scene in a row; vary the scene type unless the repetition is the point -> fix: make this one a '{alt}' scene"))
     loud = [i + 1 for i, sc in enumerate(sc_) if i > 0 and
             str(sc.get("transition") or prj.spec.get("transition") or "").partition(":")[0] in LOUD_TRANSITIONS]
     if len(loud) > 3:
-        out.append(("WARN", "transitions", f"{len(loud)} loud transitions (scenes {', '.join(map(str, loud))}); they land harder on 2-3 key moments"))
+        out.append(("WARN", "transitions", f"{len(loud)} loud transitions (scenes {', '.join(map(str, loud))}); they land harder on 2-3 key moments -> fix: keep {', '.join(map(str, loud[:2]))} and set the others to \"fade\""))
     c = prj.theme.get("colors", {})
     ink = [_contrast(c.get("ink"), c.get(k)) for k in ("bg0", "bg1")]
     if all(x is not None and x < 4.5 for x in ink):
@@ -725,6 +823,57 @@ def craft_checks(prj: Project):
     acc = [_contrast(c.get("accent"), c.get(k)) for k in ("bg0", "bg1")]
     if all(x is not None and x < 2.2 for x in acc):
         out.append(("WARN", "theme", f"accent colour barely stands out from the background ({min(acc):.1f}:1)"))
+    return out
+
+
+PLACEHOLDER = re.compile(r"\b(replace|placeholder|lorem|benefit in|feature (one|two|three|four)|line (one|two|three)|call to action|product name|"
+                         r"where to find it|say the|close with|your (headline|title) here|video title)\b", re.I)
+_STARTER_TEXT = None
+
+
+def _starter_strings():
+    """Every instruction-like string in the packs' starter projects (template text that must be replaced)."""
+    global _STARTER_TEXT
+    if _STARTER_TEXT is None:
+        found = set()
+        def walk(v):
+            if isinstance(v, str):
+                if PLACEHOLDER.search(re.sub(r"<[^>]+>", "", v)):
+                    found.add(v.strip())
+            elif isinstance(v, dict):
+                for x in v.values():
+                    walk(x)
+            elif isinstance(v, list):
+                for x in v:
+                    walk(x)
+        for f in (ROOT / "packs").glob("*/starter/project.json"):
+            try:
+                walk(json.loads(f.read_text(encoding="utf-8")).get("scenes", []))
+            except (OSError, ValueError):
+                pass
+        _STARTER_TEXT = found
+    return _STARTER_TEXT
+
+
+def placeholder_checks(prj: Project):
+    """Template text from a pack starter that was never replaced (a common slip for any agent)."""
+    out, starter = [], _starter_strings()
+    for i, sc in enumerate(prj.scenes):
+        left = []
+        def walk(v, key=""):
+            if key.startswith("_") or key in ("type", "src", "gen"):
+                return
+            if isinstance(v, str) and v.strip() in starter:
+                left.append(v.strip())
+            elif isinstance(v, dict):
+                for kk, x in v.items():
+                    walk(x, kk)
+            elif isinstance(v, list):
+                for x in v:
+                    walk(x)
+        walk(sc)
+        for v in left[:3]:
+            out.append(("WARN", f"scene {i + 1} ({sc['type']})", f"starter template text is still here: \"{v[:60]}\" -> fix: replace it with your own words (or delete the field)"))
     return out
 
 
@@ -768,8 +917,51 @@ def stills(prj: Project, times=None, outdir=None):
         sheet(paths, outdir / "_stills_sheet.jpg")
     finally:
         fr.close()
+    report, problems = stills_report(prj, times, paths, outdir / "stills_report.txt")
     print("stills ->", outdir)
+    print(f"  sheet:  {outdir / '_stills_sheet.jpg'}  (open it and look)")
+    print(f"  report: {report}  ({'no image problems found' if not problems else str(problems) + ' image problem(s): read it'})")
     return outdir
+
+
+def stills_report(prj: Project, times, paths, out):
+    """A text description of every still plus pixel checks (blank, near-duplicate, very low contrast), so an agent
+    that cannot open images still gets a usable check. It does not replace looking at the sheet."""
+    lines, prev, problems = [f"Stills report: {prj.title} ({prj.W}x{prj.H}, {prj.total:.1f}s)", ""], None, 0
+    caps = prj.captions_list()
+    for T, p in zip(times, paths):
+        i, sc, rt = prj.scene_at(min(T, prj.total - .01))
+        g = np.asarray(Image.open(p).convert("L").resize((320, int(320 * prj.H / prj.W))), np.float32)
+        notes = []
+        if g.std() < 4:
+            notes.append("PROBLEM: looks blank (almost one flat colour)")
+        elif np.percentile(g, 98) - np.percentile(g, 2) < 40:
+            notes.append("PROBLEM: very low contrast, text may be hard to read")
+        if prev is not None and prev[1] != i and np.abs(g - prev[0]).mean() < 1.5:     # two different scenes that look the same
+            notes.append("PROBLEM: looks the same as the previous scene's still")
+        prev = (g, i); problems += len(notes)
+        words = []
+        def walk(v, key=""):
+            if key in _TEXT_SKIP or key.startswith("_"):
+                return
+            if isinstance(v, str):
+                words.append(re.sub(r"<[^>]+>", "", v))
+            elif isinstance(v, dict):
+                for kk, x in v.items():
+                    walk(x, kk)
+            elif isinstance(v, list):
+                for x in v:
+                    walk(x)
+        walk(sc)
+        cap = next((c for s, e, c in caps if s <= T <= e), "")
+        shown = " | ".join(w for w in words if w.strip())[:300] or f"(no text: {sc.get('src', 'visual')})"
+        lines += [f"{p.name}  scene {i + 1}/{len(prj.scenes)} ({sc['type']}), {rt:.1f}s into a {sc['dur']:.1f}s scene",
+                  f"  on screen: {shown}",
+                  f"  caption:   {cap[:120] or '(none)'}",
+                  f"  narration: {(sc.get('say') or '(none)')[:160]}"] + [f"  {n}" for n in notes] + [""]
+    lines.append("No image problems found." if not problems else f"{problems} image problem(s) found: fix them, then run stills again.")
+    out.write_text("\n".join(lines), encoding="utf-8")
+    return out, problems
 
 
 def sheet(paths, out, cols=4):
@@ -795,20 +987,56 @@ def srt(prj: Project, out: Path):
 
 
 def _chunk(job):
-    """Worker: render frames [n0, n1) of a project to JPEGs (each worker has its own headless browser)."""
-    folder, n0, n1, outdir = job
+    """Worker: render the given frame numbers of a project into the frame cache (each worker has its own headless browser)."""
+    folder, ns, keys, outdir, fps = job
     prj = Project(Path(folder)).prepare(synth=False); fr = Frames(prj); cache = {}
     try:
-        for n in range(n0, n1):
-            compose(fr, n / FPS, cache).save(Path(outdir) / f"f{n:06d}.jpg", quality=95, subsampling=0)
+        for n, key in zip(ns, keys):
+            compose(fr, n / fps, cache).save(Path(outdir) / f"{key}.jpg", quality=95, subsampling=0)
     finally:
         fr.close()
-    return n1 - n0
+    return len(ns)
 
 
-def render(prj: Project, force=False, crf=18, workers=None):
+def _engine_sig():
+    h = hashlib.sha1()
+    for f in (STAGE, Path(__file__)):
+        h.update(f.read_bytes())
+    return h.hexdigest()[:12]
+
+
+def frame_keys(prj: Project, fps, N):
+    """One key per frame: everything that frame depends on (its scene, the time in it, the previous scene during a
+    transition, the captions on screen, the theme and the engine code). Unchanged frames keep their key, so a new
+    version only redraws the scenes that changed."""
+    base = json.dumps({"theme": prj.theme, "W": prj.W, "H": prj.H, "brand": prj.spec.get("brand_mark", True), "title": prj.title,
+                       "engine": _engine_sig()}, sort_keys=True, default=str)
+    def spec(sc):
+        d = {k: v for k, v in sc.items() if not k.startswith("_") or k in ("_path", "_hold", "_still", "_pending")}
+        d["dur"] = round(sc["dur"], 4)
+        if sc.get("_path") and Path(sc["_path"]).exists():
+            d["_mtime"] = Path(sc["_path"]).stat().st_mtime
+        return json.dumps(d, sort_keys=True, default=str)
+    specs = [spec(sc) for sc in prj.scenes]
+    caps = prj.captions_list()
+    pop = prj.pop_list() if prj.theme.get("caption", {}).get("style") == "pop" else None
+    keys = []
+    for n in range(N):
+        T = n / fps; i, sc, rt = prj.scene_at(T)
+        parts = [base, str(i), specs[i], f"{rt:.4f}"]
+        if i > 0 and rt < xfade_len(sc, prj):
+            parts.append(specs[i - 1])
+        if pop is not None:
+            parts.append(json.dumps([[round(a - T, 3), round(b - T, 3), [[w, round(x - T, 3), round(y - T, 3)] for w, x, y in ch]]
+                                     for a, b, ch in pop if a - 1 <= T <= b + 1]))
+        else:
+            parts.append(json.dumps([[round(s - T, 3), round(e - T, 3), c] for s, e, c in caps if s - 1 <= T <= e + 1]))
+        keys.append(hashlib.sha1("|".join(parts).encode()).hexdigest()[:24])
+    return keys
+
+
+def render(prj: Project, force=False, crf=18, workers=None, draft=False):
     import os
-    import shutil
     from multiprocessing import Pool
     fr = Frames(prj)
     try:
@@ -817,35 +1045,48 @@ def render(prj: Project, force=False, crf=18, workers=None):
         fr.close()
     for lvl, where, msg in issues:
         print(f"  {lvl:5s} {where}: {msg}")
-    if any(l == "ERROR" for l, _, _ in issues) and not force:
+    if any(l == "ERROR" for l, _, _ in issues) and not force and not draft:
         raise SystemExit("QA errors above. Fix them (or pass --force) before rendering.")
-    N = round(prj.total * FPS)
-    tmp = WORK / "frames" / prj.dir.name
-    shutil.rmtree(tmp, ignore_errors=True); tmp.mkdir(parents=True)
+    fps = DRAFT_FPS if draft else FPS
+    N = round(prj.total * fps)
+    keys = frame_keys(prj, fps, N)
+    tmp = WORK / "framecache" / prj.dir.name / str(fps); tmp.mkdir(parents=True, exist_ok=True)
+    first = {}
+    for n, k in enumerate(keys):
+        if k not in first and not (tmp / f"{k}.jpg").exists():
+            first[k] = n
+    todo = sorted(first.values())
+    missing = set(first)
     workers = workers or int(os.environ.get("VS_WORKERS", "2"))   # 2 is the sweet spot: browser screenshots share one compositor, more just stall
-    size = max(30, math.ceil(N / (workers * 2)))      # few big chunks: each chunk pays a browser start-up
-    jobs = [(str(prj.dir), a, min(N, a + size), str(tmp)) for a in range(0, N, size)]
-    print(f"render: {N} frames with {workers} parallel browser(s)", flush=True)
-    done = 0
-    with Pool(workers) as pool:
-        for k in pool.imap_unordered(_chunk, jobs):
-            done += k
-            print(f"  frames {done}/{N}", flush=True)
-    try:
+    print(f"render{' (draft, ' + str(fps) + ' fps)' if draft else ''}: {N} frames; {sum(1 for k in keys if k not in missing)} reused from "
+          f"earlier renders, {len(todo)} to draw with {workers} parallel browser(s)", flush=True)
+    if todo:
+        size = max(30, math.ceil(len(todo) / (workers * 2)))       # few big chunks: each chunk pays a browser start-up
+        jobs = [(str(prj.dir), todo[a:a + size], [keys[n] for n in todo[a:a + size]], str(tmp), fps) for a in range(0, len(todo), size)]
+        done = 0
+        with Pool(min(workers, len(jobs))) as pool:
+            for k in pool.imap_unordered(_chunk, jobs):
+                done += k
+                print(f"  frames {done}/{len(todo)}", flush=True)
+    if draft:
+        dd = prj.dir / "renders" / "drafts"; dd.mkdir(parents=True, exist_ok=True)
+        out = dd / (re.sub(r"[^A-Za-z0-9]+", "_", prj.dir.name).strip("_") + "_draft.mp4")
+    else:
         out = prj.next_out()
+    try:
         c = av.open(str(out), "w", options={"movflags": "+faststart"})
         codec, opts = h264_encoder()
-        vs = c.add_stream(codec, rate=FPS); vs.width, vs.height, vs.pix_fmt = prj.W, prj.H, "yuv420p"
-        vs.options = opts(crf)
+        vs = c.add_stream(codec, rate=fps); vs.width, vs.height, vs.pix_fmt = prj.W, prj.H, "yuv420p"
+        vs.options = opts(26 if draft else crf)
         ast = c.add_stream("aac", rate=SR); ast.layout = "stereo"; ast.bit_rate = 192000
         thumbs = []
         print(f"encode -> {out}", flush=True)
         for n in range(N):
-            img = Image.open(tmp / f"f{n:06d}.jpg").convert("RGB")
-            vf = av.VideoFrame.from_image(img); vf.pts, vf.time_base = n, Fraction(1, FPS)
+            img = Image.open(tmp / f"{keys[n]}.jpg").convert("RGB")
+            vf = av.VideoFrame.from_image(img); vf.pts, vf.time_base = n, Fraction(1, fps)
             for pk in vs.encode(vf):
                 c.mux(pk)
-            if n % (FPS * 3) == FPS:
+            if n % (fps * 3) == fps:
                 thumbs.append(img.resize((480, int(480 * prj.H / prj.W))))
         for pk in vs.encode():
             c.mux(pk)
@@ -859,8 +1100,16 @@ def render(prj: Project, force=False, crf=18, workers=None):
         for pk in ast.encode():
             c.mux(pk)
         c.close()
-    finally:
-        shutil.rmtree(tmp, ignore_errors=True)
+    except BaseException:                                 # never leave a half-written version behind
+        out.unlink(missing_ok=True)
+        raise
+    keep = set(keys)                                      # keep only this render's frames: the cache never grows past one film
+    for f in tmp.glob("*.jpg"):
+        if f.stem not in keep:
+            f.unlink(missing_ok=True)
+    if draft:
+        print(f"draft: {out}  ({prj.total:.1f}s at {fps} fps; for checking pacing only, QA not enforced)")
+        return out
     cs = out.with_suffix(".contact.jpg")
     if thumbs:
         w, h = thumbs[0].size; cols = 6
@@ -870,6 +1119,11 @@ def render(prj: Project, force=False, crf=18, workers=None):
         S.save(cs, quality=85)
     srt(prj, out.with_suffix(".srt"))
     (out.with_suffix(".qa.txt")).write_text("\n".join(f"{l} {w}: {m}" for l, w, m in issues) or "no issues", encoding="utf-8")
+    try:
+        from .workflow import save_score
+        save_score(prj, out, issues)
+    except Exception as e:                                # the score is a helper; never fail a finished render over it
+        print(f"  (score not saved: {e})")
     print(f"done: {out}  ({prj.total:.1f}s)\n  contact sheet: {cs}\n  subtitles: {out.with_suffix('.srt')}")
     return out
 

@@ -66,6 +66,8 @@ def hat(d=.08, seed=1):
     return shape(n, 7000, "hp") * np.exp(-t * 60)
 
 
+PLUCK_TOP = 67   # highest pluck note (MIDI G4). Above this a decaying sine reads as a bell or chime.
+
 MOODS = {
     # chords (MIDI), seconds per chord, arpeggio step (s), pad brightness, extras
     "calm":      dict(prog=[[45, 57, 64, 69, 71, 76], [42, 54, 61, 66, 69, 73], [38, 50, 57, 62, 66, 69], [40, 52, 59, 64, 68, 71]],
@@ -103,7 +105,9 @@ def bed(total, mood="calm", t0=0.0, t1=None, level_db=-27.0, seed=5):
         if m["step"]:
             k = int(round(bar / m["step"]))
             for q in range(k):
-                note = ch[1 + (q * 2 + q // 4) % (len(ch) - 1)] + (12 if mood == "upbeat" and q % 4 == 3 else 0)
+                note = ch[1 + (q * 2 + q // 4) % (len(ch) - 1)]
+                while note > PLUCK_TOP:                          # high plucks ring like bells: keep them in the warm middle
+                    note -= 12
                 pl = shape(pluck(midi(note), 1.4), 1600 if mood == "calm" else 2600) * (.75 + .25 * rng.random())
                 put(st + q * m["step"], pl, .022 if mood == "calm" else .028, -.4 + (q % 4) * .27)
         if m["beat"]:

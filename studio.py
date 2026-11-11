@@ -2,12 +2,22 @@
 
   python studio.py check                         is this machine ready? (packages, browser, voice, fonts)
   python studio.py app                           open the local Studio app in your browser (projects, inbox upload, previews, renders, compare)
-  python studio.py new <name> [--pack P] [--theme T] [--format F] [--mode guided|creative]   create projects/<name>/ from a pack (python studio.py packs)
+  python studio.py new <name> [--pack P] [--theme T] [--format F] [--mode guided|creative] [--from-brief]
+                                                 create projects/<name>/ from a pack (--from-brief applies inbox/brief.json)
+  python studio.py next <project>                the one next step: what to do, the command to run, when to stop for the user
+  python studio.py approve <project> <gate>      record the user's approval: brief | script | images | stills
   python studio.py plan <project>                fitted timeline: every scene's start, length, voice length
   python studio.py stills <project> [t1,t2,...]  preview frames (default: one per scene) + a sheet, in <temp>/video_studio/stills
   python studio.py audio <project>               the whole soundtrack as a wav (voice + music), ~1 min
   python studio.py qa <project>                  layout + content checks (overflow, safe area, long lines, missing files)
-  python studio.py render <project> [--force]    full render -> projects/<name>/renders/<name>_vN.mp4 (+ .srt, contact sheet, QA)
+  python studio.py render <project> [--force] [--draft]
+                                                 full render -> projects/<name>/renders/<name>_vN.mp4 (+ .srt, contact sheet, QA, score)
+                                                 --draft: 10 fps pacing check in renders/drafts/ (fast; not a version)
+                                                 unchanged frames are reused from the previous render, so new versions are faster
+  python studio.py feedback <project> "<text>"   record the user's feedback for the next version (feedback.md, one item per line or ';')
+  python studio.py score <project>               scorecard for the current project.json, compared with the last render
+  python studio.py export <project> --gif|--webm [--width 960] [--start S] [--end S] [--fps N]   GIF / WebM of the latest render
+  python studio.py vertical <project> [--name N]  a 9:16 copy as a new project (pop captions), ready for stills
   python studio.py thumb <project> [scene]       thumbnail / poster frame PNG
   python studio.py imagegen <project> [--check]  optional AI images: list what to generate (assets/gen/REQUESTS.md) / verify them
   python studio.py motion                        list motion styles and transitions
@@ -91,8 +101,16 @@ def cmd_new(a):
     shutil.copytree(src, dst)
     for d in ("assets", "renders"):
         (dst / d).mkdir(exist_ok=True)
+    pj = dst / "project.json"; spec = json.loads(pj.read_text(encoding="utf-8")); spec["pack"] = a.pack
+    pj.write_text(json.dumps(spec, indent=2, ensure_ascii=False), encoding="utf-8")
+    if a.from_brief:
+        bf = ROOT / "inbox" / "brief.json"
+        if not bf.exists():
+            raise SystemExit("--from-brief: no inbox/brief.json yet (save one from the Studio app or START_HERE.html)")
+        from vstudio.workflow import apply_brief
+        print("  from inbox/brief.json: " + ", ".join(apply_brief(dst, bf)))
     if a.theme or a.format or a.mode:
-        pj = dst / "project.json"; spec = json.loads(pj.read_text(encoding="utf-8"))
+        spec = json.loads(pj.read_text(encoding="utf-8"))
         if a.theme:
             if not (ROOT / "themes" / f"{a.theme}.json").exists():
                 raise SystemExit(f"unknown theme '{a.theme}' (python studio.py themes)")
@@ -102,7 +120,7 @@ def cmd_new(a):
         if a.mode:
             spec["mode"] = a.mode
         pj.write_text(json.dumps(spec, indent=2, ensure_ascii=False), encoding="utf-8")
-    print(f"created {dst}  (pack: {a.pack}). Edit brief.md, script.md and project.json, then: python studio.py plan {a.name}")
+    print(f"created {dst}  (pack: {a.pack}). Next: python studio.py next {a.name}")
 
 
 def cmd_packs(_):
@@ -186,13 +204,49 @@ def cmd_qa(a):
         print(f"  {lvl:5s} {where}: {msg}")
     ne, nw = sum(l == "ERROR" for l, _, _ in issues), sum(l == "WARN" for l, _, _ in issues)
     mode = getattr(p, "mode", "guided")
+    from vstudio.workflow import record_qa
+    record_qa(p.dir, issues, mode)
     print("no issues" if not issues else f"{ne} error(s), {nw} warning(s)  [{mode} mode]" + ("  (errors block the render; warnings are craft advice: fix them or keep them on purpose)" if nw else "")
           + ("  (guided mode: every craft check must pass; set \"mode\": \"creative\" in project.json to allow deliberate exceptions)" if ne and mode == "guided" else ""))
 
 
 def cmd_render(a):
     from vstudio.render import render
-    render(proj(a.project).prepare(), force=a.force)
+    render(proj(a.project).prepare(), force=a.force, draft=a.draft)
+
+
+def cmd_next(a):
+    from vstudio.config import PY
+    from vstudio.workflow import next_step
+    next_step(proj(a.project).dir, PY)
+
+
+def cmd_approve(a):
+    from vstudio.workflow import approve
+    approve(proj(a.project).dir, a.gate)
+
+
+def cmd_feedback(a):
+    from vstudio.workflow import feedback
+    feedback(proj(a.project).dir, a.text)
+
+
+def cmd_score(a):
+    from vstudio.render import qa
+    from vstudio.workflow import score
+    p = proj(a.project).prepare()
+    score(p, qa(p))
+
+
+def cmd_export(a):
+    from vstudio.workflow import export, latest_render
+    src = Path(a.src) if a.src else latest_render(proj(a.project).dir)
+    export(src, "webm" if a.webm else "gif", a.width or (960 if a.webm else 800), a.start, a.end, a.fps or (24 if a.webm else 12))
+
+
+def cmd_vertical(a):
+    from vstudio.workflow import vertical
+    vertical(proj(a.project).dir, a.name)
 
 
 def cmd_thumb(a):
@@ -305,7 +359,14 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sp = ap.add_subparsers(dest="cmd", required=True)
     sp.add_parser("check").set_defaults(f=cmd_check)
-    n = sp.add_parser("new"); n.add_argument("name"); n.add_argument("--pack", default="motion_promo"); n.add_argument("--theme"); n.add_argument("--format", choices=["16:9", "9:16", "1:1", "4:5"]); n.add_argument("--mode", choices=["guided", "creative"]); n.set_defaults(f=cmd_new)
+    n = sp.add_parser("new"); n.add_argument("name"); n.add_argument("--pack", default="motion_promo"); n.add_argument("--theme"); n.add_argument("--format", choices=["16:9", "9:16", "1:1", "4:5"]); n.add_argument("--mode", choices=["guided", "creative"]); n.add_argument("--from-brief", action="store_true"); n.set_defaults(f=cmd_new)
+    x = sp.add_parser("next"); x.add_argument("project"); x.set_defaults(f=cmd_next)
+    x = sp.add_parser("approve"); x.add_argument("project"); x.add_argument("gate", choices=["brief", "script", "images", "stills"]); x.set_defaults(f=cmd_approve)
+    x = sp.add_parser("feedback"); x.add_argument("project"); x.add_argument("text"); x.set_defaults(f=cmd_feedback)
+    x = sp.add_parser("score"); x.add_argument("project"); x.set_defaults(f=cmd_score)
+    x = sp.add_parser("export"); x.add_argument("project"); g_ = x.add_mutually_exclusive_group(required=True); g_.add_argument("--gif", action="store_true"); g_.add_argument("--webm", action="store_true")
+    x.add_argument("--width", type=int); x.add_argument("--start", type=float, default=0.0); x.add_argument("--end", type=float); x.add_argument("--fps", type=int); x.add_argument("--src"); x.set_defaults(f=cmd_export)
+    x = sp.add_parser("vertical"); x.add_argument("project"); x.add_argument("--name"); x.set_defaults(f=cmd_vertical)
     g = sp.add_parser("imagegen"); g.add_argument("project"); g.add_argument("--check", action="store_true"); g.set_defaults(f=cmd_imagegen)
     g = sp.add_parser("cutout"); g.add_argument("input"); g.add_argument("output"); g.add_argument("--key", default="")
     g.add_argument("--tolerance", type=float, default=.18); g.add_argument("--softness", type=float, default=.12); g.set_defaults(f=cmd_cutout)
@@ -314,7 +375,7 @@ if __name__ == "__main__":
     for c, f in (("plan", cmd_plan), ("audio", cmd_audio), ("qa", cmd_qa)):
         x = sp.add_parser(c); x.add_argument("project"); x.set_defaults(f=f)
     s = sp.add_parser("stills"); s.add_argument("project"); s.add_argument("times", nargs="?"); s.set_defaults(f=cmd_stills)
-    r = sp.add_parser("render"); r.add_argument("project"); r.add_argument("--force", action="store_true"); r.set_defaults(f=cmd_render)
+    r = sp.add_parser("render"); r.add_argument("project"); r.add_argument("--force", action="store_true"); r.add_argument("--draft", action="store_true"); r.set_defaults(f=cmd_render)
     t = sp.add_parser("thumb"); t.add_argument("project"); t.add_argument("scene", nargs="?"); t.set_defaults(f=cmd_thumb)
     sp.add_parser("voices").set_defaults(f=cmd_voices); sp.add_parser("moods").set_defaults(f=cmd_moods)
     sp.add_parser("samples").set_defaults(f=cmd_samples)

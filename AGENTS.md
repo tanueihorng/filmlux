@@ -28,6 +28,19 @@ The quality loop in `PLAYBOOK.md` is how that standard was reached. Follow it.
 
 Both modes keep the hard rules (§2) and the scorecard (`PLAYBOOK.md` §7), so the quality bar is the same; creative mode only widens the ways to reach it. **If the user doesn't choose, or you're unsure, use guided.**
 
+**Lost? Run `python studio.py next <name>`.** It reads the project and prints the one next step, the exact command, and when to stop for the user. It works for every agent and every mode.
+
+### 0b. Small or local models (e.g. Luna, or any model with a short context): follow this profile
+
+If you are a small or local model, or you lose track in long tasks, these rules replace your own planning:
+1. **Guided mode only.** Never set `"mode": "creative"`, never write `html` scenes, never edit `engine/`.
+2. **Let the engine plan.** After every action run `python studio.py next <name>` and do exactly what it prints: `NEXT` is the task, `RUN` is the command, `STOP` means ask the user and wait.
+3. **Gates are commands.** Only after the user says yes, record it: `python studio.py approve <name> brief|script|images|stills`. Never approve on the user's behalf.
+4. **Fill, don't invent.** Start from the pack starter (`new --from-brief` if `inbox/brief.json` exists). Replace every template line; `qa` lists any that are left. Use only scene types in `SPEC.md`, copying the field names exactly.
+5. **One change at a time.** Edit `project.json`, then run `next` again. `qa` lines end with `-> fix:` and the exact change: apply it literally.
+6. **If you cannot open images**, read `stills_report.txt` (written by `stills`) and fix every `PROBLEM` line, then tell the user: "please look at the stills sheet; I can't view images".
+7. **Keep narration short:** under 20 words per scene, plain words, no numbers you didn't find in the user's files.
+
 ## 0. First contact: run the intake (always, before touching any file)
 
 Greet the user in one line. Then ask these questions, **in one message**, numbered so they can answer quickly. Offer your recommended default for each, so "defaults are fine" is a valid answer:
@@ -111,12 +124,18 @@ These are what works most of the time. **Guided:** follow every one. **Creative:
 
 ```
 python studio.py check                       machine ready?  (run once; fix FAILs: pip install -r requirements.txt)
-python studio.py new <name> --pack <pack>    start a project (release_film | motion_promo | explainer)
+python studio.py new <name> --pack <pack> [--from-brief]   start a project (--from-brief applies inbox/brief.json)
+python studio.py next <name>                 the one next step: task, command, and when to stop for the user
+python studio.py approve <name> <gate>       record the user's yes: brief | script | images | stills
 python studio.py plan <name>                 fitted timeline
-python studio.py stills <name> [t1,t2]       preview frames + sheet  (<temp>/video_studio/stills/<name>/_stills_sheet.jpg; the command prints the path)
+python studio.py stills <name> [t1,t2]       preview frames + sheet + stills_report.txt (text checks)  (<temp>/video_studio/stills/<name>/; the command prints the paths)
 python studio.py audio <name>                soundtrack wav to listen to
 python studio.py qa <name>                   layout, content and craft checks (ERRORs block the render; WARNs are advice)
-python studio.py render <name>               final video (+ .srt, contact sheet, QA) in projects/<name>/renders/
+python studio.py render <name> [--draft]     final video (+ .srt, contact sheet, QA, score) in projects/<name>/renders/; --draft = quick 10 fps pacing check
+python studio.py feedback <name> "<text>"    record the user's feedback as items in feedback.md (tick each when done)
+python studio.py score <name>                scorecard numbers for the current project.json, compared with the last render
+python studio.py export <name> --gif|--webm  GIF or WebM of the latest render (--start/--end/--width/--fps)
+python studio.py vertical <name>             a 9:16 copy as a new project (pop captions)
 python studio.py thumb <name> [scene]        thumbnail PNG
 python studio.py motion                      list motion styles and transitions
 python studio.py cutout <in.png> <out.png>   green-screen image -> transparent PNG
@@ -129,7 +148,8 @@ Notes:
 - **Windows vs macOS:** these commands say `python`. On **macOS/Linux use `python3`** (and `python3 -m pip install -r requirements.txt`). Check which one works before the first command, and use the same one throughout.
 - `<name>` can also be a path, e.g. `examples/launch_teaser`.
 - Renders use 2 headless browsers in parallel (about 5–6 frames/s, so a 60 s video takes about 6 min). `VS_WORKERS=1` is safest on slow machines; more than 2 rarely helps and can stall captures. Run long renders in the background and poll.
-- **Voice needs internet the first time each line is spoken; lines are cached after that.** In a sandbox without network, ask the user to allow network for `plan`/`audio`/`render`.
+- **New versions are faster:** frames that didn't change are reused from the previous render, so a fix to one scene redraws only that scene. Use `render --draft` (10 fps, not a version) to check pacing before the full render.
+- **Voice needs internet the first time each line is spoken; lines are cached after that.** In a sandbox without network, ask the user to allow network for `plan`/`audio`/`render`, or use the offline voice `"name": "local"` for drafts.
 
 ## 4. Where things are
 

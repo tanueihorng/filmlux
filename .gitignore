@@ -7,6 +7,7 @@ venv/
 # Render outputs and caches (regenerate with studio.py)
 **/renders/*
 .cache/
+.state.json
 *.mp4
 !examples/sample_footage/*.mp4
 # ...except the example videos that START_HERE.html plays

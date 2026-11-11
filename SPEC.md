@@ -27,7 +27,7 @@ A project is a folder `projects/<name>/` containing `project.json`, plus `brief.
 | `transition_timing` | `ease`, `linear` or `spring` | `ease` |
 | `look` | Override parts of the theme's look for this project only, e.g. `{"grain": 0.08, "letterbox": true}` (fields under **Themes**) | none |
 | `caption_style` | `glass` (frosted pill, centred), `bar` (lower-third bar, left), `pop` (big words, one 1–3 word chunk at a time, the spoken word lit in the accent colour: social/vertical). Overrides the theme | theme's |
-| `voice` | `{"name", "rate"}`; `null` for no voice. Names: `python studio.py voices`. Rate: `"-8%"` calm, `"-4%"` default, `"+0%"` brisk | Ava, −4 % |
+| `voice` | `{"name", "rate"}`; `null` for no voice. Names: `python studio.py voices`. Rate: `"-8%"` calm, `"-4%"` default, `"+0%"` brisk. `"name": "local"` uses the computer's own speech engine offline (Windows SAPI, macOS `say`, Linux `espeak-ng`): nothing leaves the machine, but it sounds robotic, so use it for drafts or sensitive scripts | Ava, −4 % |
 | `music` | `{"mood"}` with `calm`, `corporate`, `upbeat`, `cinematic` or `minimal`; or `{"file": "assets/track.mp3"}` for a licensed track; or `null` / `"none"`. Optional: `level_db` (bed loudness, default −27), `whoosh` (soft swish into title, stat, bento, kinetic and end scenes, default true) | `calm` |
 | `captions` | `narration` (burn in each scene's `say`), `custom` (use each scene's `caption`), `none` | `narration` |
 | `brand_mark` | Small logo/name top-left on content scenes (`theme.brand`) | `true` |
@@ -103,19 +103,36 @@ Text fields accept `<em>word</em>`, which shows the word in the accent colour in
 ### `end`
 `title`, `sub`, `cta` (button text), `logo` (default true: the theme logo).
 
-### `screen` (footage: screen recordings, product demos, any MP4)
+### `screen` (footage: screen recordings, product demos, any MP4, or a still screenshot)
 | Field | Meaning |
 |---|---|
-| `src` | The MP4 (project-relative or `inbox/...`) |
-| `a`, `b` | Source in and out seconds |
+| `src` | The MP4 (project-relative or `inbox/...`), **or a screenshot** (`.png`, `.jpg`, `.webp`): the camera tours the still. Capture screenshots at 2× for sharp close-ups |
+| `a`, `b` | Source in and out seconds (MP4 only) |
+| `dur` | Screenshot only: how long to show it (the voice can lengthen it) |
 | `speed` | Playback speed. 1.0–1.35 for UI steps; up to 2.5 for waiting or typing (QA warns above 1.5 unless `"fast_ok": true`) |
 | `hold` | Seconds to freeze on the last frame (added automatically if the voice needs more time) |
 | `est` | Seconds to show the full screen before the camera eases in (use 0.5–1.5 on every new page) |
 | `cam` | Camera keyframes `[[t, cx, cy, zoom], ...]`. `t` is seconds after `est`; `cx`/`cy` are the centre as 0–1 fractions of the source frame; `zoom` is 1.0–1.4. Moves ease between keys |
-| `callouts` | `[[t0, t1, x0, y0, x1, y1], ...]`: a highlight box in 0–1 source fractions, shown from t0 to t1 (after `est`), with the rest of the window dimmed |
+| `callouts` | `[[t0, t1, x0, y0, x1, y1], ...]`: a highlight box in 0–1 source fractions, shown from t0 to t1 (after `est`), with the rest of the window dimmed. Add a 7th item for a label chip: `[1.5, 4, 0.2, 0.26, 0.55, 0.29, "12 style packs"]` |
+| `cursor` | `[[t, x, y], ...]`: an animated pointer moving between points (0–1 source fractions, `t` after `est`). Use it on screenshots, or on recordings made without a visible cursor |
+| `clicks` | `[t, ...]`: a click ripple (and a small press of the cursor) at each time |
+| `typing` | `[{"t", "box": [x0, y0, x1, y1], "text", "cps": 14}]`: text typed into an input box (covers the placeholder; colours follow the box). Optional `size` in source pixels. Long text wraps |
+| `toasts` | `[[t0, t1, "Saved"], ...]`: a confirmation pill at the bottom of the window |
 | `frame` | `true` (default): a floating rounded window on the theme backdrop that grows to full size as you zoom. `false`: full-bleed |
 
-Find coordinates by opening a still (`python studio.py stills <name> <t>`) and reading positions as fractions of the frame.
+Find coordinates by opening a still (`python studio.py stills <name> <t>`) and reading positions as fractions of the frame. For a screenshot, read them straight off the image: x ÷ width, y ÷ height.
+
+A guided tour of a screenshot (camera, cursor, typing, a labelled callout, a toast):
+```json
+{"type": "screen", "src": "assets/home.png", "dur": 7, "est": 0.6,
+ "cam": [[0, 0.5, 0.5, 1.0], [1.0, 0.38, 0.3, 1.6]],
+ "cursor": [[0.8, 0.6, 0.6], [1.6, 0.27, 0.22], [4.6, 0.27, 0.22], [5.4, 0.25, 0.42]], "clicks": [1.8, 5.6],
+ "typing": [{"t": 2.0, "box": [0.209, 0.205, 0.55, 0.236], "text": "orbit-launch", "cps": 10}],
+ "callouts": [[3.4, 5.0, 0.209, 0.263, 0.55, 0.291, "12 style packs"]],
+ "toasts": [[5.8, 7.5, "Project created"]],
+ "say": "Type a name, choose a style pack, then click Create project."}
+```
+Screenshots stay sharp up to zoom 2.0 (QA allows it for stills; recordings stay at 1.4 or less).
 ```json
 {"type": "screen", "src": "inbox/demo.mp4", "a": 12.0, "b": 19.5, "speed": 1.1, "est": 0.8,
  "cam": [[0, 0.5, 0.5, 1.0], [1.2, 0.7, 0.35, 1.35]], "callouts": [[1.5, 4.0, 0.62, 0.28, 0.86, 0.36]],

@@ -23,6 +23,8 @@
 - `hold` to let results land
 - one click and its result per scene
 
+**No recordings?** Ask for 2× screenshots of each page instead and tour them: `screen` scenes take a `.png` with `cursor`, `clicks`, `typing`, labelled `callouts` and `toasts` (SPEC.md).
+
 **Recording brief to give the user:**
 - big monitor, clean test data, one clip per step
 - slow mouse, a 1 s pause before clicks, 2 s on results
