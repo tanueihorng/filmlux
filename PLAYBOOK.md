@@ -9,13 +9,15 @@ These rules come from building a product walkthrough over seven versions, each d
 - **Start from the viewer's gap.** What do they not know, or not believe, today? Write it as one sentence in the brief.
 - **Tell a journey, not a feature list.** Follow one person and one task from problem to result. Each feature appears at the moment it's needed.
 - **End where you started, but changed.** Show the result of the journey, the "closed loop", then a clear call to action.
-- **Shape (60–90 s):**
-  1. hook (title or kinetic, 5 s)
+- **Beats (60–90 s):**
+  1. hook (5 s)
   2. the problem or promise (1 scene)
   3. 3–5 beats of value
-  4. proof (stat, quote or demo)
-  5. recap (bento or process)
+  4. proof (a number, a voice or a demo)
+  5. recap
   6. end card with CTA
+- **Beats are the story; scenes are the staging.** A beat says what the viewer must get ("proof"); the scene type and `layout` say how it's framed (a `stat` set `giant`, a `quote` on a sticky `note`, an `annotate` on the real screenshot). Two films with the same beats should be able to look completely different.
+- **Offer treatments, not one plan.** Before the script, give the user 2–3 structures (each pack's `PACK.md` lists three): e.g. photo-led, type-led, timeline-led. Ask; don't assume the first one.
 - **Write the chapter list before anything else.** If the list doesn't read like a story, the video won't either.
 
 ## 2. Words
@@ -77,7 +79,15 @@ These rules come from building a product walkthrough over seven versions, each d
   | Proof | `quote` |
   | A screenshot | `split`, `image` |
   | A live product | `screen` |
-  | Anything bespoke | `html` |
+  | Real photos, people, moments | `polaroids`, `image` polaroid, `split` polaroid |
+  | A human aside, a checklist | `note` |
+  | Pointing at the real thing | `annotate` |
+  | An assistant or a conversation | `chat` |
+  | Suspense before a reveal | `countdown` |
+  | The words are the picture | `wordwall`, `kinetic` stack, `title` giant |
+  | Anything bespoke | `html` (check `scenes/` first) |
+
+- **Vary the frame, not just the content.** Every type has layouts (`python studio.py scenes`; `SPEC.md` **Layouts**). Alternate compositions the way an editor alternates shot sizes: a centred title, then a picture that bleeds off the edge, then words set low-left, then objects on a table. Three scenes in a row with the same composition read as a template, whatever the theme.
 
 ## 5b. Choosing a look (theme × caption style)
 
@@ -142,7 +152,7 @@ Score the draft before showing the user. Each line is an outcome, not a method: 
 | 7 | trusts it | every number is real or labelled "Sample data"; no fake evidence |
 | 8 | remembers one moment | name it; if you can't, strengthen the hero scene (a bolder scene type, an `html` scene, a motion or transition accent) |
 | 9 | knows what to do next | the end card has a clear call to action |
-| 10 | doesn't feel it's a template | at least one choice made for this film (look, structure, a custom scene, an unexpected line) |
+| 10 | doesn't feel it's a template | the user chose a treatment; at least 3 compositions across the film and none three in a row (`qa`); at least one signature scene or choice made for this film (a layout, a custom scene, an unexpected line) |
 
 All ten must pass. Report the score, plus anything you weren't sure about, with the stills.
 

@@ -140,17 +140,21 @@ def next_step(d: Path, py: str = "python") -> None:
         return say(status, "Ask the user to approve brief.md (change it until they do).", f"{py} studio.py approve {name} brief",
                    "Wait for the user's yes before running the command.")
     if _is_template(d / "script.md"):
-        return say(status, "Write script.md with templates/storyboard.md: one row per scene with on-screen text, narration (under 25 words) "
-                           f"and the visual. Follow the scene order in packs/{spec.get('pack', '<pack>')}/PACK.md. Then propose a look "
-                           "(theme, motion, caption style), one line each on why.", None,
-                   f"Show the user script.md and the look. When they approve, run: {py} studio.py approve {name} script")
+        return say(status, "Start from the user's Vision in brief.md (their own words): map each part to a scene type and layout, and plan a custom "
+                           f"scene ({py} studio.py scene {name} <scene>) where nothing fits, with a \"why\" quoting them. "
+                           f"Read the Beats and Treatments in packs/{spec.get('pack', '<pack>')}/PACK.md. Unless the user already chose a structure "
+                           "(brief.md), write 2-3 treatments at the top of script.md: different structures (scene types and layouts per beat), "
+                           "not only different looks. Then fill the storyboard (templates/storyboard.md) for your recommended one: one row per scene "
+                           "with beat, scene type and layout, on-screen text, narration (under 25 words) and the visual. Vary the layout "
+                           f"({py} studio.py scenes). Then propose a look (theme, motion, caption style), one line each on why.", f"{py} studio.py scenes",
+                   f"Show the user the treatments, script.md and the look; ask which treatment they want. When they approve, run: {py} studio.py approve {name} script")
     if "script" not in ap:
-        return say(status, "Ask the user to approve script.md and pick a look.", f"{py} studio.py approve {name} script",
+        return say(status, "Ask the user to pick a treatment, approve script.md and pick a look (rewrite the storyboard if they pick another treatment).", f"{py} studio.py approve {name} script",
                    "Wait for the user's yes before running the command.")
     if leftovers:
         where = "; ".join(f"{w}: {m.split(' -> ')[0]}" for _, w, m in leftovers[:4])
-        return say(status, f"Fill in project.json from script.md. Template text is still in it ({where}). Use only scene types listed in "
-                           "SPEC.md; one scene per script row.", f"{py} studio.py plan {name}")
+        return say(status, f"Fill in project.json from script.md. Template text is still in it ({where}). Use only scene types and layouts listed by "
+                           f"'{py} studio.py scenes'; one scene per script row, with the layout from the storyboard.", f"{py} studio.py plan {name}")
     if pending:
         return say(status, f"{len(pending)} AI image(s) are not made yet. List them, make each with your image tool (IMAGEGEN.md), then check.",
                    f"{py} studio.py imagegen {name}   then   {py} studio.py imagegen {name} --check")
@@ -246,12 +250,16 @@ def apply_brief(d: Path, brief_file: Path) -> list[str]:
         spec["music"] = "none" if b["music"] == "none" else {**(spec.get("music") if isinstance(spec.get("music"), dict) else {}), "mood": b["music"]}; done.append(f"music {b['music']}")
     if b.get("captions"):
         spec["captions"] = b["captions"]; done.append(f"captions {b['captions']}")
-    for k in ("theme", "format", "mode"):
+    for k in ("theme", "format", "mode", "treatment"):
         if b.get(k):
             spec[k] = b[k]; done.append(f"{k} {b[k]}")
     pj.write_text(json.dumps(spec, indent=2, ensure_ascii=False), encoding="utf-8")
-    rows = [("Purpose and audience", b.get("purpose")), ("Length", b.get("length")), ("Must-say messages and call to action", b.get("must_say")),
-            ("AI images", "yes" if b.get("ai_images") else "no" if "ai_images" in b else None)]
+    refs = b.get("references") or []
+    rows = [("Vision (the user's own words: build this first)", b.get("vision")),
+            ("References", "; ".join(refs) if isinstance(refs, list) else refs),
+            ("Purpose and audience", b.get("purpose")), ("Length", b.get("length")), ("Must-say messages and call to action", b.get("must_say")),
+            ("AI images", "yes" if b.get("ai_images") else "no" if "ai_images" in b else None),
+            ("Treatment (structure)", b.get("treatment") or ("show options with the script" if "treatment" in b else None))]
     rows = [(k, v) for k, v in rows if v]
     if rows:
         bm = d / "brief.md"; text = bm.read_text(encoding="utf-8") if bm.exists() else ""

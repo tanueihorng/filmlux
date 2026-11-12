@@ -112,7 +112,13 @@ function words(e) {                                            // wrap words for
   const walk = (node, emp) => { [...node.childNodes].forEach(n => {
     if (n.nodeType === 3) { n.textContent.split(/(\s+)/).forEach(part => { if (!part) return;
       if (/^\s+$/.test(part)) { out.push(document.createTextNode(part)); return; }
-      const s = document.createElement("span"); s.className = "w"; s.textContent = part; if (emp) { const m = document.createElement("em"); m.appendChild(s); out.push(m); } else out.push(s); }); }
+      const s = document.createElement("span"); s.className = "w"; s.textContent = part; let node = s; if (emp) { node = document.createElement("em"); node.appendChild(s); }
+      const prev = out[out.length - 1];
+      if (prev && prev.nodeType === 1 && prev.nodeName !== "BR" && /^[,.;:!?%)\]’”'"…-]/.test(part)) {   // "<em>word</em>," stays on one line
+        const g = prev.classList && prev.classList.contains("nw") ? prev : document.createElement("span");
+        if (g !== prev) { g.className = "nw"; g.style.whiteSpace = "nowrap"; g.appendChild(prev); out[out.length - 1] = g; }
+        g.appendChild(node); return; }
+      out.push(node); }); }
     else if (n.nodeName === "EM") walk(n, true); else if (n.nodeName === "BR") out.push(document.createElement("br")); }); };
   walk(e, false); e.innerHTML = ""; out.forEach(n => e.appendChild(n)); return [...e.querySelectorAll(".w")];
 }
@@ -191,6 +197,51 @@ function count(text, p) {                                      // animate the nu
 }
 const THEME_RADIUS = () => (THEME.look && THEME.look.radius) ?? 28;
 function asset(src) { if (!src) return ""; if (/^(https?:|file:|data:)/.test(src)) return src; return SPEC.root_uri + "/" + src.replace(/\\/g, "/"); }
+
+// ---------- layouts: each scene type can be composed several ways ("layout" on the scene). The first one is the default.
+// Keep this table in step with LAYOUTS in engine/vstudio/render.py (qa checks the names) and SPEC.md.
+const LAYOUTS = {
+  title: ["center", "left", "bottom", "giant", "photo"], kinetic: ["center", "stack"], bullets: ["split", "stack", "big"],
+  stat: ["center", "left", "giant"], quote: ["center", "side", "note", "huge"], chart: ["full", "side"],
+  image: ["frame", "full", "polaroid"], split: ["side", "overlap", "full", "stacked", "polaroid"],
+  bento: ["grid", "row", "pinboard", "list"], compare: ["cards", "halves"], section: ["side", "center"],
+  timeline: ["line", "steps", "vertical"], end: ["center", "left", "band"],
+  polaroids: ["pile", "row"], note: ["sticky", "card"], countdown: ["center"], wordwall: ["rows", "stack"],
+  annotate: ["side", "over"], chat: ["center", "side"],
+};
+window.LAYOUTS = LAYOUTS;
+function lay(sc) {
+  const opts = LAYOUTS[sc.type] || ["default"]; let L = sc.layout;
+  if (!L && sc.type === "title" && sc.align === "left") L = "left";             // older field names still work
+  if (!L && sc.type === "image" && sc.full) L = "full";
+  return opts.includes(L) ? L : opts[0];
+}
+function contentH(box) {                                       // height the box's children need (layout boxes, not glyph ink)
+  const cs = getComputedStyle(box), kids = [...box.children].filter(k => getComputedStyle(k).position !== "absolute");
+  const outer = k => { const s = getComputedStyle(k); return k.offsetHeight + parseFloat(s.marginTop) + parseFloat(s.marginBottom); };
+  if (cs.display === "flex" && cs.flexDirection.startsWith("row")) return Math.max(0, ...kids.map(outer));
+  return kids.reduce((a, k) => a + outer(k), 0) + (parseFloat(cs.rowGap) || 0) * Math.max(0, kids.length - 1);
+}
+function fitH(e, box, minPx) {                                 // shrink a text block until its box's content fits vertically
+  let s = parseFloat(e.style.fontSize) / U || 80;
+  while (s > minPx && contentH(box) > box.clientHeight + 1) { s -= 4; e.style.fontSize = px(s); }
+}
+function bleed(src, pending, shade, focus) {                   // a full-frame picture behind the scene (slow push-in)
+  const fr = el("div", "abs"); fr.dataset.bleed = 1; Object.assign(fr.style, { inset: "0", overflow: "hidden", background: "#111" });
+  const im = pending ? el("div", "abs pending", `<div><b>AI IMAGE PENDING</b>${esc(pending)}</div>`, fr) : el("img", "abs", null, fr);
+  if (pending) im.style.inset = "0"; else { im.src = asset(src); Object.assign(im.style, { inset: "0", width: "100%", height: "100%", objectFit: "cover", objectPosition: focus || "center" }); }
+  if (shade) { const s = el("div", "abs", "", fr); Object.assign(s.style, { inset: "0", background: shade }); }
+  return { fr, move(t, d) { if (!pending) im.style.transform = `scale(${1.08 - .08 * seg(t, 0, d)})`; } };
+}
+function print(parent, src, pending, caption, ratio) {        // an instant-photo print: white border, handwritten caption
+  const p = el("div", "", "", parent); Object.assign(p.style, { background: "#fbf8f1", padding: `${px(20)} ${px(20)} ${px(caption ? 18 : 20)}`, boxShadow: `0 ${px(18)} ${px(40)} rgba(0,0,0,.28), 0 1px 0 rgba(0,0,0,.08)` });
+  const ph = el("div", "", "", p); Object.assign(ph.style, { aspectRatio: ratio || "4/3", overflow: "hidden", background: "#222" });
+  const im = pending ? el("div", "pending", `<div><b>AI IMAGE PENDING</b>${esc(pending)}</div>`, ph) : el("img", "", null, ph);
+  Object.assign(im.style, { width: "100%", height: "100%", objectFit: "cover", display: "block" }); if (!pending) im.src = asset(src);
+  if (caption) { const c = el("div", "", esc(caption), p); Object.assign(c.style, { fontFamily: '"Hand", cursive', fontSize: px(40), lineHeight: 1.1, color: "#2a2219", textAlign: "center", marginTop: px(14), whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }); }
+  return { p, im };
+}
+const TILTS = [-5, 4, -2.5, 6, -4, 2];
 
 // ---------- background + film effects (theme.look; every value is a pure function of t)
 let DOTS = null, NOISE = null, LOOK = {};
@@ -303,11 +354,36 @@ function glitch(e, p, t) {                                       // RGB split + 
 // ---------- scene builders: build(sc) -> {update(t, d)}
 const SCENES = {
   title(sc) {
-    const box = el("div", "safe center"); box.style.alignItems = sc.align === "left" ? "flex-start" : "center"; box.style.textAlign = sc.align === "left" ? "left" : "center";
+    const L = lay(sc);
+    if (L === "photo" && (sc.src || sc.pending)) {                // full-bleed picture, headline low-left in white
+      const bg = bleed(sc.src, sc.pending, "linear-gradient(90deg, rgba(0,0,0,.74) 0%, rgba(0,0,0,.42) 48%, rgba(0,0,0,.08) 100%)", sc.focus);
+      const box = el("div", "safe"); Object.assign(box.style, { display: "flex", flexDirection: "column", justifyContent: "flex-end", alignItems: "flex-start", "--ink": "#fff", "--muted": "rgba(255,255,255,.82)", color: "#fff" });
+      const eb = sc.eyebrow ? el("div", "eyebrow", esc(sc.eyebrow), box) : null;
+      const tt = el("div", "title", esc(sc.title), box); tt.style.marginTop = px(eb ? 22 : 0); tt.style.width = "78%"; tt.style.textShadow = "0 2px 30px rgba(0,0,0,.5)"; fit(tt, PORTRAIT ? 120 : 150, 54); const ws = words(tt);
+      const sb = sc.sub ? el("div", "sub", esc(sc.sub), box) : null; if (sb) { sb.style.marginTop = px(24); sb.style.maxWidth = px(1000); }
+      return { update(t, d) { bg.move(t, d); reveal(eb, seg(t, .2, .8)); ws.forEach((w, i) => reveal(w, seg(t, .35 + i * .07, 1.05 + i * .07), "rise", 40)); reveal(sb, seg(t, 1 + ws.length * .05, 1.7 + ws.length * .05)); } };
+    }
+    if (L === "bottom" || L === "giant") {                        // editorial poster: label up top, a big headline anchored low (bottom) or filling the frame (giant)
+      const box = el("div", "safe"); Object.assign(box.style, { display: "flex", flexDirection: "column", justifyContent: L === "bottom" ? "space-between" : "center", alignItems: "flex-start", textAlign: "left" });
+      const eb = sc.eyebrow ? el("div", "eyebrow", esc(sc.eyebrow), box) : el("div", "", "", box);
+      const grp = el("div", "", "", box); grp.style.width = "100%"; if (L === "giant") grp.style.marginTop = px(26);
+      const tt = el("div", "title grad", esc(sc.title), grp); tt.style.width = L === "giant" ? "100%" : "84%"; if (L === "giant") tt.style.lineHeight = .92;
+      fit(tt, L === "giant" ? (PORTRAIT ? 200 : 300) : (PORTRAIT ? 130 : 170), 60);
+      const row = el("div", "", "", grp); Object.assign(row.style, { display: "flex", alignItems: "center", gap: px(28), marginTop: px(34), justifyContent: L === "giant" && !PORTRAIT ? "flex-end" : "flex-start" });
+      const rule = el("div", "", "", row); Object.assign(rule.style, { height: px(4), width: px(110), background: "var(--accent)", flex: "none", transformOrigin: "left" });
+      const sb = sc.sub ? el("div", "sub", esc(sc.sub), row) : null;
+      fitH(tt, box, 60); const ws = words(tt);
+      return { update(t) {
+        reveal(eb, seg(t, .1, .7)); ws.forEach((w, i) => reveal(w, seg(t, .25 + i * .08, 1 + i * .08), "rise", 60));
+        rule.style.transform = `scaleX(${eo(seg(t, .8, 1.5))})`; reveal(sb, seg(t, 1 + ws.length * .05, 1.7 + ws.length * .05), "left", 20);
+      } };
+    }
+    const left = L === "left";
+    const box = el("div", "safe center"); box.style.alignItems = left ? "flex-start" : "center"; box.style.textAlign = left ? "left" : "center";
     const eb = sc.eyebrow ? el("div", "eyebrow", esc(sc.eyebrow), box) : null;
     const tt = el("div", "title grad", esc(sc.title), box); tt.style.marginTop = px(eb ? 26 : 0); tt.style.width = "100%";
     fit(tt, PORTRAIT ? 120 : 150, 54); const ws = words(tt);
-    const rule = el("div", "", "", box); Object.assign(rule.style, { height: px(4), width: px(140), background: "var(--accent)", borderRadius: px(4), marginTop: px(34), transformOrigin: sc.align === "left" ? "left" : "center" });
+    const rule = el("div", "", "", box); Object.assign(rule.style, { height: px(4), width: px(140), background: "var(--accent)", borderRadius: px(4), marginTop: px(34), transformOrigin: left ? "left" : "center" });
     const sb = sc.sub ? el("div", "sub", esc(sc.sub), box) : null; if (sb) { sb.style.marginTop = px(30); sb.style.maxWidth = px(PORTRAIT ? 860 : 1180); }
     return { update(t) {
       reveal(eb, seg(t, .1, .7));
@@ -318,6 +394,14 @@ const SCENES = {
     } };
   },
   kinetic(sc) {
+    if (lay(sc) === "stack") {                                    // lines build up one under another; earlier lines dim
+      const box = el("div", "safe"); Object.assign(box.style, { display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "flex-start", gap: px(10) });
+      const ls = (sc.lines || []).map(s => { const e = el("div", "title", esc(s), box); e.style.width = "100%"; fit(e, PORTRAIT ? 120 : 132, 46); return e; });
+      ls.forEach(e => fitH(e, box, 40));
+      return { update(t, d) { const n = ls.length, slot = Math.max(.6, (d - .6) / Math.max(1, n));
+        ls.forEach((e, i) => { const a = .1 + i * slot; reveal(e, seg(t, a, a + .6), "rise", 50);
+          if (i < n - 1) e.style.opacity = String(Math.min(+e.style.opacity || 0, 1 - .62 * seg(t, a + slot, a + slot + .4))); }); } };
+    }
     const lines = (sc.lines || []).map(s => { const e = el("div", "abs center"); Object.assign(e.style, { left: "7%", right: "7%", top: "12%", bottom: "14%" });
       const inner = el("div", "title", esc(s), e); inner.style.maxWidth = "100%"; fit(inner, PORTRAIT ? 120 : 150, 50); e._in = inner; return e; });   // inner block keeps "word<em>x</em>." on one line
     return { update(t, d) {
@@ -331,6 +415,31 @@ const SCENES = {
     } };
   },
   bullets(sc) {
+    const L = lay(sc);
+    if (L === "stack" || L === "big") {
+      const its = (sc.items || []).map(it => typeof it === "string" ? { title: it } : it), box = el("div", "safe"); Object.assign(box.style, { display: "flex", flexDirection: "column", justifyContent: "center" });
+      const eb = sc.eyebrow ? el("div", "eyebrow", esc(sc.eyebrow), box) : null;
+      const hd = el("div", "title grad", esc(sc.heading || sc.title || ""), box); hd.style.marginTop = px(eb ? 18 : 0); fit(hd, L === "big" ? 58 : 76, 36);
+      const num = i => sc.numbered === false ? "✓" : String(i + 1).padStart(2, "0");
+      let rows;
+      if (L === "stack") {                                         // heading on top, items as a row of columns
+        const g = el("div", "", "", box); Object.assign(g.style, { display: "grid", gridTemplateColumns: PORTRAIT ? "1fr" : `repeat(${its.length}, 1fr)`, gap: px(22), marginTop: px(44) });
+        rows = its.map((o, i) => { const c = el("div", "card", "", g); c.style.padding = px(32);
+          el("div", "title accentgrad", num(i), c).style.cssText += `;font-size:${px(64)};line-height:1`;
+          el("div", "", esc(o.title), c).style.cssText = `font-size:${px(34)};font-weight:600;letter-spacing:-.01em;margin-top:${px(18)};line-height:1.15`;
+          if (o.body) el("div", "", esc(o.body), c).style.cssText = `font-size:${px(22)};color:var(--muted);margin-top:${px(10)};line-height:1.35`;
+          return c; });
+      } else {                                                     // no cards: big numbered lines between rules, like a magazine list
+        const g = el("div", "", "", box); g.style.marginTop = px(30);
+        rows = its.map((o, i) => { const r = el("div", "", "", g); Object.assign(r.style, { display: "grid", gridTemplateColumns: `${px(120)} 1fr auto`, alignItems: "baseline", gap: px(24), padding: `${px(16)} 0`, borderTop: `${px(2)} solid var(--line)` });
+          el("div", "", num(i), r).style.cssText = `font-family:var(--font-em),serif;font-style:var(--em-style);font-size:${px(52)};color:var(--accent);line-height:1`;
+          el("div", "title", esc(o.title), r).style.cssText += `;font-size:${px(56)}`;
+          el("div", "", esc(o.body || ""), r).style.cssText = `font-size:${px(22)};color:var(--muted);text-align:right;max-width:${px(420)}`;
+          return r; });
+      }
+      return { update(t, d) { reveal(eb, seg(t, .1, .6)); reveal(hd, seg(t, .2, .9)); const span = Math.min(.8, (d - 1.6) / Math.max(1, rows.length));
+        rows.forEach((r, i) => reveal(r, seg(t, .8 + i * span, 1.4 + i * span), L === "big" ? "left" : "rise", 30)); } };
+    }
     const box = el("div", "safe"); box.style.display = "flex"; box.style.flexDirection = PORTRAIT ? "column" : "row"; box.style.gap = px(70); box.style.alignItems = PORTRAIT ? "stretch" : "center";
     const left = el("div", "", "", box); left.style.flex = PORTRAIT ? "none" : "0 0 38%";
     const eb = sc.eyebrow ? el("div", "eyebrow", esc(sc.eyebrow), left) : null;
@@ -348,6 +457,19 @@ const SCENES = {
     } };
   },
   stat(sc) {
+    const L = PORTRAIT && lay(sc) === "left" ? "giant" : lay(sc);
+    if (L === "left" || L === "giant") {                          // number to one side (left) or bleeding huge along the bottom (giant)
+      const box = el("div", "safe"); Object.assign(box.style, L === "left" ? { display: "flex", alignItems: "center", gap: px(70) } : { display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "flex-start" });
+      const col = el("div", "", "", L === "left" ? null : box); if (L === "left") { box.appendChild(col); }
+      const v = el("div", "title accentgrad", esc(sc.value), L === "left" ? null : box);
+      if (L === "left") { box.insertBefore(v, col); v.style.flex = "none"; v.style.maxWidth = "58%"; fit(v, 330, 120); col.style.flex = "1"; col.style.minWidth = "0"; }
+      else { v.style.width = "100%"; v.style.lineHeight = .82; v.style.letterSpacing = "-.05em"; fit(v, PORTRAIT ? 380 : 470, 160); }
+      const eb = sc.eyebrow ? el("div", "eyebrow", esc(sc.eyebrow), col) : null;
+      const lb = el("div", "title grad", esc(sc.label || ""), col); lb.style.marginTop = px(eb ? 18 : 0); fit(lb, L === "left" ? 72 : 64, 30);
+      const sb = sc.sub ? el("div", "sub", esc(sc.sub), col) : null; if (sb) sb.style.marginTop = px(22);
+      fitH(v, box, 120);
+      return { update(t) { reveal(eb, seg(t, .05, .5)); reveal(v, seg(t, .15, .8), L === "left" ? "left" : "rise", 60); v.textContent = count(sc.value, seg(t, .2, 1.6)); reveal(lb, seg(t, .6, 1.2)); reveal(sb, seg(t, 1, 1.7)); } };
+    }
     const box = el("div", "safe center");
     const eb = sc.eyebrow ? el("div", "eyebrow", esc(sc.eyebrow), box) : null;
     const v = el("div", "title accentgrad", esc(sc.value), box); v.style.marginTop = px(16); fit(v, PORTRAIT ? 230 : 280, 90);
@@ -356,6 +478,36 @@ const SCENES = {
     return { update(t) { reveal(eb, seg(t, .05, .5)); reveal(v, seg(t, .15, .7), "pop"); v.textContent = count(sc.value, seg(t, .2, 1.6)); reveal(lb, seg(t, .7, 1.3)); reveal(sb, seg(t, 1.1, 1.8)); } };
   },
   quote(sc) {
+    const L = lay(sc), byHtml = (sc.by ? "— " + esc(sc.by) : "") + (sc.role ? `<span style="opacity:.7">, ${esc(sc.role)}</span>` : "");
+    if (L === "note") {                                           // handwritten on a taped sticky note, slightly askew
+      const box = el("div", "safe center");
+      const n = el("div", "", "", box); Object.assign(n.style, { position: "relative", width: PORTRAIT ? "88%" : "56%", padding: `${px(70)} ${px(64)} ${px(54)}`, background: LOOK.note || "#fbe7a1", color: "#2a2219", rotate: "-2.2deg",
+        boxShadow: `0 ${px(22)} ${px(44)} rgba(40,30,10,.28), inset 0 -${px(30)} ${px(40)} rgba(120,90,20,.08)`, textAlign: "left" });
+      const tape = el("div", "abs", "", n); Object.assign(tape.style, { left: "50%", top: px(-22), width: px(200), height: px(46), marginLeft: px(-100), background: LOOK.tape || "rgba(240,214,120,.78)", rotate: "2deg", opacity: .9 });
+      const q = el("div", "", esc(sc.text), n); Object.assign(q.style, { fontFamily: '"Hand", cursive', fontWeight: 700, lineHeight: 1.08, color: "#2a2219" }); fit(q, PORTRAIT ? 96 : 104, 48);
+      q.querySelectorAll("em").forEach(e => { e.style.fontFamily = "inherit"; e.style.fontStyle = "normal"; e.style.fontWeight = 700; });
+      const ws = words(q);
+      const by = sc.by || sc.role ? el("div", "", byHtml, n) : null; if (by) Object.assign(by.style, { fontFamily: '"Hand", cursive', fontSize: px(38), marginTop: px(26), color: "rgba(42,34,25,.7)", textAlign: "right" });
+      fitH(q, box, 44);
+      return { update(t, d) { reveal(n, seg(t, 0, .6), "pop"); const span = Math.min(.18, (d * .55) / Math.max(1, ws.length));
+        ws.forEach((w, i) => { const p = seg(t, .5 + i * span, .62 + i * span); w.style.opacity = p; w.style.clipPath = p >= 1 ? "none" : `inset(-20% ${(1 - p) * 100}% -20% -10%)`; });
+        reveal(by, seg(t, .7 + ws.length * span, 1.3 + ws.length * span)); } };
+    }
+    if (L === "side" || L === "huge") {
+      const box = el("div", "safe"); Object.assign(box.style, { display: "flex", alignItems: "center", gap: px(60), flexDirection: PORTRAIT ? "column" : "row" });
+      const col = el("div", "", "", box); col.style.flex = "1"; col.style.minWidth = "0";
+      let mk = null, ph = null;
+      if (L === "side" && !(sc.src || sc.pending)) { mk = el("div", "", "“", null); box.insertBefore(mk, col); Object.assign(mk.style, { fontFamily: "Serif", fontSize: px(PORTRAIT ? 300 : 520), lineHeight: ".7", color: "var(--accent)", flex: "none", alignSelf: PORTRAIT ? "flex-start" : "flex-start" }); }
+      const q = el("div", "title", esc(sc.text), col); q.style.fontWeight = 500; q.style.lineHeight = L === "huge" ? 1.04 : 1.14; fit(q, L === "huge" ? (PORTRAIT ? 120 : 132) : 80, 36);
+      const by = el("div", "sub", byHtml, col); by.style.marginTop = px(34); by.style.fontSize = px(28);
+      if (L === "side" && (sc.src || sc.pending)) { const fr = el("div", "", "", box); Object.assign(fr.style, { flex: "none", width: PORTRAIT ? "60%" : "34%", aspectRatio: "4/5", borderRadius: px(+THEME_RADIUS()), overflow: "hidden", boxShadow: `0 ${px(30)} ${px(70)} rgba(0,0,0,.35)` });
+        const im = sc.pending ? el("div", "pending", `<div><b>AI IMAGE PENDING</b>${esc(sc.pending)}</div>`, fr) : el("img", "", null, fr); Object.assign(im.style, { width: "100%", height: "100%", objectFit: "cover", objectPosition: sc.focus || "center" }); if (!sc.pending) im.src = asset(sc.src); ph = fr; }
+      fitH(q, box, 36); const ws = words(q);
+      return { update(t, d) { reveal(mk, seg(t, 0, .6), "scale"); reveal(ph, seg(t, .1, .9), "right", 40);
+        if (L === "huge") { const span = (d * .6) / Math.max(1, ws.length); ws.forEach((w, i) => { w.style.opacity = .2 + .8 * seg(t, .4 + i * span, .4 + (i + 1.4) * span); w.style.transform = ""; }); }
+        else ws.forEach((w, i) => reveal(w, seg(t, .3 + i * .045, .8 + i * .045), "rise", 18));
+        reveal(by, seg(t, L === "huge" ? d * .6 : .5 + ws.length * .045, (L === "huge" ? d * .6 : .5 + ws.length * .045) + .6)); } };
+    }
     const box = el("div", "safe center");
     const mk = el("div", "", "“", box); Object.assign(mk.style, { fontFamily: "Serif", fontSize: px(220), lineHeight: ".6", color: "var(--accent)", height: px(110) });
     const q = el("div", "title", esc(sc.text), box); q.style.fontWeight = 500; q.style.maxWidth = px(PORTRAIT ? 900 : 1400); q.style.lineHeight = 1.18; fit(q, PORTRAIT ? 64 : 66, 36);
@@ -364,13 +516,15 @@ const SCENES = {
     return { update(t) { reveal(mk, seg(t, 0, .5), "scale"); ws.forEach((w, i) => reveal(w, seg(t, .3 + i * .045, .8 + i * .045), "rise", 18)); reveal(by, seg(t, .5 + ws.length * .045, 1.1 + ws.length * .045)); } };
   },
   chart(sc) {
-    const box = el("div", "safe"); box.style.display = "flex"; box.style.flexDirection = "column";
-    const eb = sc.eyebrow ? el("div", "eyebrow", esc(sc.eyebrow), box) : null;
-    const hd = el("div", "title grad", esc(sc.title || ""), box); hd.style.marginTop = px(eb ? 16 : 0); fit(hd, 64, 34);
-    const area = el("div", "card", "", box); Object.assign(area.style, { flex: "1", minHeight: "0", marginTop: px(34), padding: px(40), position: "relative" });
+    const SIDE = lay(sc) === "side" && !PORTRAIT;                 // side: headline and source in a column beside the chart
+    const box = el("div", "safe"); box.style.display = "flex"; box.style.flexDirection = SIDE ? "row" : "column"; if (SIDE) { box.style.gap = px(60); box.style.alignItems = "stretch"; }
+    const head = SIDE ? el("div", "", "", box) : box; if (SIDE) Object.assign(head.style, { flex: "0 0 32%", display: "flex", flexDirection: "column", justifyContent: "center" });
+    const eb = sc.eyebrow ? el("div", "eyebrow", esc(sc.eyebrow), head) : null;
+    const hd = el("div", "title grad", esc(sc.title || ""), head); hd.style.marginTop = px(eb ? 16 : 0); fit(hd, SIDE ? 76 : 64, 34);
+    const area = el("div", "card", "", box); Object.assign(area.style, { flex: "1", minHeight: "0", marginTop: px(SIDE ? 0 : 34), padding: px(40), position: "relative" });
     const data = (sc.data || []).map(r => Array.isArray(r) ? { label: r[0], value: +r[1] } : { label: r.label, value: +r.value });
     const max = Math.max(...data.map(d => d.value), 1) * 1.08, unit = sc.unit || "", kind = sc.kind || "bar";
-    const note = el("div", "", esc(sc.note || ""), box); Object.assign(note.style, { fontSize: px(18), color: "var(--muted)", marginTop: px(14) });
+    const note = el("div", "", esc(sc.note || ""), head); Object.assign(note.style, { fontSize: px(SIDE ? 22 : 18), color: "var(--muted)", marginTop: px(SIDE ? 28 : 14) });
     const dec = sc.decimals ?? (data.every(d => Number.isInteger(d.value)) ? 0 : 1);
     const fmt = v => (sc.prefix || "") + v.toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec }) + unit;
     let upd = () => {};
@@ -441,6 +595,14 @@ const SCENES = {
     } };
   },
   image(sc) {
+    if (lay(sc) === "polaroid" && !sc.layers) {                    // one print dropped onto the table, caption written on it
+      const box = el("div", "safe center"), w = el("div", "", "", box); w.style.width = PORTRAIT ? "84%" : "44%";
+      const pr = print(w, sc.src, sc.pending, sc.title, sc.ratio || "4/3"); pr.p.style.rotate = (sc.tilt ?? -3) + "deg";
+      const fitBox = () => { while (w.scrollHeight > box.clientHeight && parseFloat(w.style.width) > 20) w.style.width = (parseFloat(w.style.width) - 2) + "%"; }; fitBox();
+      return { update(t, d) { const p = eo(seg(t, 0, .8)); w.style.opacity = clamp(p * 2); w.style.transform = `translateY(${px((1 - p) * -60)}) scale(${1.15 - .15 * p}) rotate(${(1 - p) * 8}deg)`;
+        if (!sc.pending) pr.im.style.transform = `scale(${1.06 - .06 * seg(t, 0, d)})`; } };
+    }
+    sc = Object.assign({}, sc, { full: lay(sc) === "full" });
     const frame = el("div", "abs"); const inset = sc.full ? 0 : (PORTRAIT ? 6 : 8);
     if (sc.full) frame.dataset.bleed = 1;
     const CAPS = document.body.classList.contains("caps");
@@ -462,6 +624,16 @@ const SCENES = {
       reveal(frame, seg(t, 0, .7), "scale"); reveal(cap, seg(t, .5, 1.1)); } };
   },
   section(sc) {                                                  // chapter card: giant number + title (Bold Signal style)
+    if (lay(sc) === "center") {                                   // the number as a huge watermark, the title centred over it
+      const box = el("div", "safe center");
+      const num = el("div", "title accentgrad abs", esc(sc.number ?? "01"), box); Object.assign(num.style, { left: 0, right: 0, top: "50%", textAlign: "center", fontSize: px(PORTRAIT ? 560 : 640), lineHeight: ".8", letterSpacing: "-.06em", translate: "0 -50%", opacity: .16 });
+      num.dataset.bleed = 1;
+      const eb = sc.eyebrow ? el("div", "eyebrow", esc(sc.eyebrow), box) : null; if (eb) eb.style.position = "relative";
+      const tt = el("div", "title grad", esc(sc.title || ""), box); Object.assign(tt.style, { position: "relative", marginTop: px(eb ? 22 : 0), width: "100%" }); fit(tt, PORTRAIT ? 110 : 130, 48); const ws = words(tt);
+      const sb = sc.sub ? el("div", "sub", esc(sc.sub), box) : null; if (sb) { sb.style.marginTop = px(24); sb.style.position = "relative"; }
+      return { update(t) { num.style.opacity = .16 * seg(t, 0, .8); num.style.scale = String(1.12 - .12 * eo(seg(t, 0, 1.2))); num.textContent = count(sc.number ?? "01", seg(t, .05, .9));
+        reveal(eb, seg(t, .3, .8)); ws.forEach((w, i) => reveal(w, seg(t, .4 + i * .06, 1 + i * .06), "rise", 30)); reveal(sb, seg(t, 1, 1.6)); } };
+    }
     const box = el("div", "safe"); box.style.display = "flex"; box.style.flexDirection = PORTRAIT ? "column" : "row"; box.style.alignItems = PORTRAIT ? "flex-start" : "center"; box.style.justifyContent = PORTRAIT ? "center" : "flex-start"; box.style.gap = px(PORTRAIT ? 20 : 70);
     const num = el("div", "title accentgrad", esc(sc.number ?? "01"), box); Object.assign(num.style, { fontSize: px(PORTRAIT ? 300 : 360), lineHeight: ".85", letterSpacing: "-.06em", flex: "none" });
     const col = el("div", "", "", box); col.style.flex = PORTRAIT ? "none" : "1"; col.style.minWidth = "0"; col.style.width = PORTRAIT ? "100%" : "";
@@ -485,7 +657,25 @@ const SCENES = {
   },
   timeline(sc) {                                                 // milestones along a line
     const items = (sc.items || []).map(o => typeof o === "string" ? { title: o } : o), n = items.length, box = el("div", "safe"); box.style.display = "flex"; box.style.flexDirection = "column";
-    const hd = sc.title ? el("div", "title grad", esc(sc.title), box) : null; if (hd) { fit(hd, 64, 34); hd.style.marginBottom = px(40); hd.style.textAlign = PORTRAIT ? "left" : "center"; }
+    const L = lay(sc);
+    if (L === "steps" && !PORTRAIT) {                             // a staircase climbing to the right: each milestone a step up
+      const hd = sc.title ? el("div", "title grad", esc(sc.title), box) : null; if (hd) { fit(hd, 64, 34); hd.style.width = "60%"; }
+      const lane = el("div", "", "", box); Object.assign(lane.style, { flex: "1", minHeight: "0", position: "relative", marginTop: px(20) });
+      const ns = "http://www.w3.org/2000/svg", sv = document.createElementNS(ns, "svg"); sv.setAttribute("viewBox", "0 0 1000 600"); sv.setAttribute("preserveAspectRatio", "none"); sv.style.cssText = "position:absolute;inset:0;width:100%;height:100%;overflow:visible"; lane.appendChild(sv);
+      const ys = items.map((_, i) => 580 - i * (420 / Math.max(1, n - 1))), xw = 1000 / n;
+      let d0 = `M0,${ys[0]}`; items.forEach((_, i) => { d0 += ` H${(i + 1) * xw}`; if (i < n - 1) d0 += ` V${ys[i + 1]}`; });
+      const mk = col => { const p = document.createElementNS(ns, "path"); p.setAttribute("d", d0); p.setAttribute("fill", "none"); p.setAttribute("stroke", col); p.setAttribute("stroke-width", 5); p.setAttribute("vector-effect", "non-scaling-stroke"); sv.appendChild(p); return p; };
+      mk("rgba(127,127,127,.22)"); const path = mk("var(--accent)"); const len = path.getTotalLength(); path.style.strokeDasharray = len;
+      const cells = items.map((o, i) => { const c = el("div", "abs", (o.when ? `<div class="eyebrow" style="letter-spacing:.12em">${esc(o.when)}</div>` : "") + `<div class="title" style="font-size:${px(36)};margin-top:${px(6)}">${esc(o.title || "")}</div>` + (o.body ? `<div style="font-size:${px(20)};color:var(--muted);margin-top:${px(6)};line-height:1.35">${esc(o.body)}</div>` : ""), lane);
+        Object.assign(c.style, { left: `calc(${i * 100 / n}% + ${px(14)})`, width: `calc(${100 / n}% - ${px(24)})`, bottom: `calc(${(600 - ys[i]) / 6}% + ${px(18)})` }); return c; });
+      return { update(t, d) { reveal(hd, seg(t, .1, .7)); const p = eio(seg(t, .5, Math.max(1.8, d - 1.2))); path.style.strokeDashoffset = len * (1 - p);
+        cells.forEach((c, i) => reveal(c, seg(p, i / n, i / n + .12), "rise", 24)); } };
+    }
+    const V = PORTRAIT || L === "vertical";                        // vertical: headline in a column, milestones stacked down a line
+    let lb = box;
+    if (L === "vertical" && !PORTRAIT) { box.style.flexDirection = "row"; box.style.gap = px(70); const hc = el("div", "", "", box); Object.assign(hc.style, { flex: "0 0 34%", display: "flex", flexDirection: "column", justifyContent: "center" }); lb = hc; }
+    const hd = sc.title ? el("div", "title grad", esc(sc.title), lb) : null; if (hd) { fit(hd, V && !PORTRAIT ? 76 : 64, 34); hd.style.marginBottom = px(V && !PORTRAIT ? 0 : 40); hd.style.textAlign = V ? "left" : "center"; }
+    { const PORTRAIT = V;                                          // the stacked lane below is the portrait one
     const lane = el("div", "", "", box); Object.assign(lane.style, { flex: "1", minHeight: "0", position: "relative", display: "grid", gridTemplateColumns: PORTRAIT ? "1fr" : `repeat(${n}, 1fr)`, gridTemplateRows: PORTRAIT ? `repeat(${n}, 1fr)` : "1fr", alignItems: "center" });
     const line = el("div", "abs", "", lane), fill = el("div", "abs", "", lane);
     const L = PORTRAIT ? { left: px(23), top: "4%", bottom: "4%", width: px(4) } : { left: "4%", right: "4%", top: "50%", height: px(4), marginTop: px(-2) };
@@ -499,9 +689,58 @@ const SCENES = {
       return { c: tx, dot }; });
     return { update(t, d) { reveal(hd, seg(t, .1, .7)); const p = eio(seg(t, .5, Math.max(1.8, d - 1.2)));
       fill.style.transform = PORTRAIT ? `scaleY(${p})` : `scaleX(${p})`;
-      cells.forEach((o, i) => { const at = (i + .5) / n, on = seg(p, at - .08, at); reveal(o.c, on, PORTRAIT ? "left" : "rise", 20); o.dot.style.background = on > .9 ? "var(--accent)" : "var(--bg0)"; o.dot.style.transform = `scale(${.6 + .4 * back(on)})`; }); } };
+      cells.forEach((o, i) => { const at = (i + .5) / n, on = seg(p, at - .08, at); reveal(o.c, on, PORTRAIT ? "left" : "rise", 20); o.dot.style.background = on > .9 ? "var(--accent)" : "var(--bg0)"; o.dot.style.transform = `scale(${.6 + .4 * back(on)})`; }); } }; }
   },
   split(sc) {
+    const L = PORTRAIT && ["overlap", "stacked"].includes(lay(sc)) ? "side" : lay(sc), flip = sc.side === "left";
+    const pic = (parent, fitMode) => { const im = sc.pending ? el("div", "pending", `<div><b>AI IMAGE PENDING</b>${esc(sc.pending)}</div>`, parent) : el("img", "", null, parent); if (!sc.pending) im.src = asset(sc.src);
+      Object.assign(im.style, { width: "100%", height: "100%", objectFit: fitMode || sc.fit || "cover", objectPosition: sc.focus || "top left", display: "block" }); return im; };
+    const texts = (parent, big) => { const eb = sc.eyebrow ? el("div", "eyebrow", esc(sc.eyebrow), parent) : null;
+      const hd = el("div", "title grad", esc(sc.title || ""), parent); hd.style.marginTop = px(eb ? 18 : 0); fit(hd, big || 72, 36);
+      const bd = sc.body ? el("div", "sub", esc(sc.body), parent) : null; if (bd) bd.style.marginTop = px(20); return { eb, hd, bd }; };
+    if (L === "full") {                                           // the picture fills the frame; the words sit on a card in a corner
+      const bg = bleed(sc.src, sc.pending, null, sc.focus || "center");
+      const box = el("div", "safe"); Object.assign(box.style, { display: "flex", alignItems: "flex-end", justifyContent: flip ? "flex-end" : "flex-start" });
+      const card = el("div", "card", "", box); Object.assign(card.style, { width: PORTRAIT ? "100%" : "42%", padding: px(44), background: "color-mix(in srgb, var(--bg2) 90%, transparent)", backdropFilter: "blur(12px)" });
+      const x = texts(card, 64);
+      return { update(t, d) { bg.move(t, d); reveal(card, seg(t, .3, 1), flip ? "right" : "left", 40); reveal(x.eb, seg(t, .5, 1)); reveal(x.hd, seg(t, .6, 1.2)); reveal(x.bd, seg(t, .9, 1.5)); } };
+    }
+    if (L === "overlap") {                                        // a big picture running off one edge, the words on a card overlapping it
+      const fr = el("div", "abs"); fr.dataset.bleed = 1; Object.assign(fr.style, { top: "9%", bottom: "9%", [flip ? "left" : "right"]: "0", width: "60%", overflow: "hidden", background: "#111", boxShadow: `0 ${px(40)} ${px(90)} rgba(0,0,0,.35)` });
+      if (sc.ratio) {                                              // keep the picture's own shape (no cropping) when a ratio is given
+        const [a, b] = String(sc.ratio).split("/").map(Number); let w = .6 * W, h = w * (b || 1) / (a || 1);
+        if (h > .82 * H) { h = .82 * H; w = h * (a || 1) / (b || 1); }
+        Object.assign(fr.style, { width: w + "px", height: h + "px", top: (H - h) / 2 + "px", bottom: "auto" });
+      }
+      const im = pic(fr);
+      const box = el("div", "safe"); Object.assign(box.style, { display: "flex", alignItems: "center", justifyContent: flip ? "flex-end" : "flex-start" });
+      const card = el("div", "card", "", box); Object.assign(card.style, { width: "44%", padding: px(52), background: "var(--bg2)", position: "relative" });
+      const x = texts(card, 76);
+      return { update(t, d) { reveal(fr, seg(t, 0, .9), flip ? "left" : "right", 50); im.style.transform = `scale(${1.08 - .08 * seg(t, 0, d)})`;
+        reveal(card, seg(t, .4, 1.1), "rise", 40); reveal(x.eb, seg(t, .6, 1.1)); reveal(x.hd, seg(t, .7, 1.3)); reveal(x.bd, seg(t, 1, 1.6)); } };
+    }
+    if (L === "stacked") {                                        // headline and body side by side on top, a wide cinematic band of picture below
+      const box = el("div", "safe"); Object.assign(box.style, { display: "flex", flexDirection: "column", gap: px(34) });
+      const top = el("div", "", "", box); Object.assign(top.style, { display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: px(60), alignItems: "end" });
+      const l = el("div", "", "", top), r = el("div", "", "", top);
+      const eb = sc.eyebrow ? el("div", "eyebrow", esc(sc.eyebrow), l) : null;
+      const hd = el("div", "title grad", esc(sc.title || ""), l); hd.style.marginTop = px(eb ? 16 : 0); fit(hd, 76, 36);
+      const bd = sc.body ? el("div", "sub", esc(sc.body), r) : null;
+      const fr = el("div", "", "", box); Object.assign(fr.style, { flex: "1", minHeight: "0", borderRadius: px(+THEME_RADIUS()), overflow: "hidden", background: "#111", boxShadow: `0 ${px(30)} ${px(70)} rgba(0,0,0,.3)` });
+      const im = pic(fr); if (!sc.focus) im.style.objectPosition = "center";
+      return { update(t, d) { reveal(eb, seg(t, .1, .6)); reveal(hd, seg(t, .2, .9)); reveal(bd, seg(t, .6, 1.3)); fr.style.clipPath = `inset(0 ${(1 - eio(seg(t, .3, 1.3))) * 100}% 0 0)`;
+        im.style.transform = `scale(${1.06 - .06 * seg(t, 0, d)}) translateX(${(seg(t, 0, d) - .5) * -2}%)`; } };
+    }
+    if (L === "polaroid") {                                       // the picture as a tilted print with a handwritten caption
+      const box = el("div", "safe"); Object.assign(box.style, { display: "flex", flexDirection: PORTRAIT ? "column" : (flip ? "row-reverse" : "row"), gap: px(80), alignItems: "center" });
+      const tx = el("div", "", "", box); tx.style.flex = "1"; const x = texts(tx, 80);
+      const w = el("div", "", "", box); w.style.flex = PORTRAIT ? "none" : "0 0 44%"; w.style.width = PORTRAIT ? "80%" : "";
+      const pr = print(w, sc.src, sc.pending, sc.label, sc.ratio || "4/3"); pr.p.style.rotate = (sc.tilt ?? (flip ? -3 : 3)) + "deg";
+      while (w.scrollHeight > box.clientHeight && parseFloat(getComputedStyle(w).flexBasis) > 20) w.style.flex = `0 0 ${parseFloat(getComputedStyle(w).flexBasis) - 2}%`;
+      return { update(t, d) { reveal(x.eb, seg(t, .1, .6)); reveal(x.hd, seg(t, .2, .9)); reveal(x.bd, seg(t, .6, 1.3));
+        const p = eo(seg(t, .2, 1)); w.style.opacity = clamp(p * 2); w.style.transform = `translateY(${px((1 - p) * -70)}) scale(${1.12 - .12 * p}) rotate(${(1 - p) * (flip ? -9 : 9)}deg)`;
+        if (!sc.pending) pr.im.style.transform = `scale(${1.05 - .05 * seg(t, 0, d)})`; } };
+    }
     const box = el("div", "safe"); box.style.display = "flex"; box.style.flexDirection = PORTRAIT ? "column" : (sc.side === "left" ? "row-reverse" : "row"); box.style.gap = px(70); box.style.alignItems = "center";
     const tx = el("div", "", "", box); tx.style.flex = "1";
     const eb = sc.eyebrow ? el("div", "eyebrow", esc(sc.eyebrow), tx) : null;
@@ -513,8 +752,37 @@ const SCENES = {
     return { update(t, d) { reveal(eb, seg(t, .1, .6)); reveal(hd, seg(t, .2, .9)); reveal(bd, seg(t, .6, 1.3)); reveal(fr, seg(t, .3, 1.1), sc.side === "left" ? "left" : "right", 40); img.style.transform = `scale(${1.04 - .04 * seg(t, 0, d)})`; } };
   },
   bento(sc) {
+    const L = lay(sc);
+    if (L === "pinboard" || L === "list") {
+      const tl = sc.tiles || [], n = tl.length, box = el("div", "safe"); Object.assign(box.style, { display: "flex", flexDirection: "column" });
+      const hd = sc.title ? el("div", "title grad", esc(sc.title), box) : null; if (hd) { fit(hd, L === "list" ? 72 : 64, 32); hd.style.marginBottom = px(L === "list" ? 20 : 10); }
+      let items;
+      if (L === "list") {                                          // editorial rows: label, title, a line of body, divided by rules
+        const g = el("div", "", "", box); Object.assign(g.style, { flex: "1", display: "flex", flexDirection: "column", justifyContent: "center" });
+        items = tl.map((o, i) => { const r = el("div", "", "", g); Object.assign(r.style, { display: "grid", gridTemplateColumns: PORTRAIT ? `${px(90)} 1fr` : `${px(110)} 1.2fr 1fr`, alignItems: "baseline", gap: px(26), padding: `${px(18)} 0`, borderTop: `${px(2)} solid var(--line)` });
+          el("div", "", esc(o.label || String(i + 1).padStart(2, "0")), r).style.cssText = `font-family:var(--font-em),serif;font-style:var(--em-style);font-size:${px(46)};color:var(--accent);line-height:1`;
+          el("div", "title", esc(o.value ? `${o.value} ${o.title || ""}` : o.title || ""), r).style.cssText += `;font-size:${px(52)}`;
+          if (!PORTRAIT) el("div", "", esc(o.body || ""), r).style.cssText = `font-size:${px(24)};color:var(--muted);line-height:1.35`;
+          return r; });
+        return { update(t, d) { reveal(hd, seg(t, .1, .7)); const span = Math.min(.7, (d - 1.5) / Math.max(1, n)); items.forEach((r, i) => reveal(r, seg(t, .6 + i * span, 1.2 + i * span), "left", 30)); } };
+      }
+      const area = el("div", "", "", box); Object.assign(area.style, { flex: "1", minHeight: "0", position: "relative" });   // pinboard: cards pinned at angles
+      const cw = PORTRAIT ? 46 : Math.min(30, 92 / Math.max(1, n) + 6);
+      items = tl.map((o, i) => { const c = el("div", "card abs", "", area);
+        const x = n === 1 ? 50 - cw / 2 : (i * (100 - cw) / (n - 1)), y = PORTRAIT ? (i * 70 / Math.max(1, n - 1)) : [8, 26, 0, 22, 12, 30][i % 6];
+        Object.assign(c.style, { left: x + "%", top: y + "%", width: cw + "%", padding: px(34), rotate: TILTS[i % TILTS.length] * .7 + "deg", background: o.accent ? "color-mix(in srgb, var(--accent) 16%, var(--card))" : "var(--card)" });
+        const pin = el("div", "abs", "", c); Object.assign(pin.style, { left: "50%", top: px(-12), width: px(26), height: px(26), marginLeft: px(-13), borderRadius: "50%", background: "var(--accent)", boxShadow: `0 ${px(4)} ${px(8)} rgba(0,0,0,.3)` });
+        if (o.label) el("div", "", esc(o.label), c).style.cssText = `font-family:var(--font-eyebrow),sans-serif;font-size:${px(30)};color:var(--accent2)`;
+        if (o.value) el("div", "title accentgrad", esc(o.value), c).style.cssText += `;font-size:${px(72)}`;
+        if (o.title) el("div", "title", esc(o.title), c).style.cssText += `;font-size:${px(44)};margin-top:${px(8)}`;
+        if (o.body) el("div", "", esc(o.body), c).style.cssText = `font-size:${px(24)};color:var(--muted);margin-top:${px(10)};line-height:1.35`;
+        return c; });
+      items.forEach(c => { const over = c.offsetTop + c.offsetHeight - area.clientHeight; if (over > 0) c.style.top = Math.max(0, c.offsetTop - over) + "px"; });
+      return { update(t, d) { reveal(hd, seg(t, .1, .7)); const span = Math.min(.6, (d - 1.5) / Math.max(1, n)); items.forEach((c, i) => reveal(c, seg(t, .5 + i * span, 1.1 + i * span), "pop")); } };
+    }
     const box = el("div", "safe"); box.style.display = "flex"; box.style.flexDirection = "column";
     const hd = sc.title ? el("div", "title grad", esc(sc.title), box) : null; if (hd) { fit(hd, 60, 32); hd.style.marginBottom = px(26); }
+    if (L === "row") sc = Object.assign({}, sc, { cols: (sc.tiles || []).length || 3, tiles: (sc.tiles || []).map(o => Object.assign({}, o, { size: "1x1" })) });
     const grid = el("div", "", "", box); const cols = sc.cols || (PORTRAIT ? 2 : 4);
     Object.assign(grid.style, { flex: "1", display: "grid", gap: px(18), gridTemplateColumns: `repeat(${cols}, 1fr)`, gridAutoRows: "1fr" });
     const tiles = (sc.tiles || []).map((tl, i) => { const [cw, rh] = String(tl.size || "1x1").split("x").map(Number);
@@ -529,6 +797,23 @@ const SCENES = {
     return { update(t) { reveal(hd, seg(t, .1, .7)); tiles.forEach((o, i) => { reveal(o.c, seg(t, .4 + i * .12, 1.1 + i * .12), "pop"); if (o.c._v) o.c._v.textContent = count(o.tl.value, seg(t, .5 + i * .12, 1.8 + i * .12)); }); } };
   },
   compare(sc) {
+    if (lay(sc) === "halves") {                                   // the frame split in two: before on a muted half, after on an accent half
+      const CAPS = document.body.classList.contains("caps"), V = PORTRAIT;
+      const halves = [0, 1].map(k => { const h = el("div", "abs"); h.dataset.bleed = 1;
+        Object.assign(h.style, V ? { left: 0, right: 0, top: k ? "50%" : 0, height: "50%" } : { top: 0, bottom: 0, left: k ? "50%" : 0, width: "50%" },
+          { background: k ? "color-mix(in srgb, var(--accent) 22%, var(--bg0))" : "color-mix(in srgb, var(--ink) 6%, var(--bg1))" }); return h; });
+      const div = el("div", "abs"); div.dataset.bleed = 1; Object.assign(div.style, V ? { left: 0, right: 0, top: "50%", height: px(4), background: "var(--accent)", transformOrigin: "left" } : { top: 0, bottom: 0, left: "50%", width: px(4), marginLeft: px(-2), background: "var(--accent)", transformOrigin: "top" });
+      const hd = sc.title ? el("div", "abs title grad", esc(sc.title)) : null; if (hd) { Object.assign(hd.style, { left: "8%", right: "8%", top: "9%", textAlign: "center" }); fit(hd, 58, 30); }
+      const sides = [sc.left || {}, sc.right || {}].map((s, k) => { const c = el("div", "abs");
+        Object.assign(c.style, V ? { left: "8%", right: "8%", top: k ? "54%" : (hd ? "16%" : "8%"), bottom: k ? (CAPS ? "27%" : "8%") : "52%" } : { left: k ? "57%" : "7%", width: "36%", top: hd ? "24%" : "14%", bottom: CAPS ? "22%" : "14%" },
+          { display: "flex", flexDirection: "column", justifyContent: "center" });
+        el("div", "eyebrow", esc(s.label || (k ? "After" : "Before")), c);
+        el("div", "title", esc(s.title || ""), c).style.cssText += `;font-size:${px(V ? 56 : 66)};margin-top:${px(14)};margin-bottom:${px(6)}`;
+        const its = (s.items || []).map(it => { const r = el("div", "", `<span style="color:${k ? "var(--accent)" : "var(--muted)"};margin-right:${px(14)}">${k ? "✓" : "–"}</span>${esc(it)}`, c); r.style.cssText = `font-size:${px(30)};margin-top:${px(18)}`; return r; });
+        return { c, its }; });
+      return { update(t) { div.style.transform = V ? `scaleX(${eio(seg(t, .1, .9))})` : `scaleY(${eio(seg(t, .1, .9))})`; halves[1].style.opacity = seg(t, .4, 1.1); reveal(hd, seg(t, .1, .6));
+        sides.forEach((s, k) => { reveal(s.c, seg(t, .3 + k * .7, .9 + k * .7), k ? "right" : "left", 30); s.its.forEach((r, i) => reveal(r, seg(t, .7 + k * .7 + i * .15, 1.2 + k * .7 + i * .15))); }); } };
+    }
     const box = el("div", "safe"); box.style.display = "flex"; box.style.flexDirection = "column";
     const hd = sc.title ? el("div", "title grad", esc(sc.title), box) : null; if (hd) { hd.style.textAlign = "center"; fit(hd, 62, 32); hd.style.marginBottom = px(34); }
     const row = el("div", "", "", box); Object.assign(row.style, { flex: "1", display: "grid", gridTemplateColumns: PORTRAIT ? "1fr" : "1fr 1fr", gap: px(26), alignContent: "center", alignItems: "stretch" });
@@ -541,6 +826,25 @@ const SCENES = {
     return { update(t) { reveal(hd, seg(t, .1, .6)); sides.forEach((s, k) => { reveal(s.c, seg(t, .3 + k * .5, 1 + k * .5), k ? "right" : "left", 30); s.its.forEach((r, i) => reveal(r, seg(t, .8 + k * .5 + i * .15, 1.3 + k * .5 + i * .15))); }); } };
   },
   end(sc) {
+    const L = lay(sc);
+    const ctaEl = parent => { const c = sc.cta ? el("div", "", esc(sc.cta), parent) : null;
+      if (c) Object.assign(c.style, { marginTop: px(40), padding: px(18) + " " + px(38), borderRadius: px(999), background: "var(--accent)", color: "#fff", fontSize: px(28), fontWeight: 600, boxShadow: `0 ${px(16)} ${px(40)} var(--glow)`, alignSelf: "flex-start", display: "inline-block" }); return c; };
+    if (L === "left") {                                           // sign-off set low-left like the last page of a book
+      const box = el("div", "safe"); Object.assign(box.style, { display: "flex", flexDirection: "column", justifyContent: "flex-end", alignItems: "flex-start" });
+      const tt = el("div", "title grad", esc(sc.title || ""), box); tt.style.width = "86%"; fit(tt, PORTRAIT ? 110 : 150, 48);
+      const sb = sc.sub ? el("div", "sub", esc(sc.sub), box) : null; if (sb) sb.style.marginTop = px(24);
+      const cta = ctaEl(box); fitH(tt, box, 48); const ws = words(tt);
+      return { update(t) { ws.forEach((w, i) => reveal(w, seg(t, .2 + i * .07, .9 + i * .07), "rise", 40)); reveal(sb, seg(t, .9, 1.5)); reveal(cta, seg(t, 1.3, 1.9), "left", 20); } };
+    }
+    if (L === "band") {                                           // a full-width accent band carries the closing line
+      const band = el("div", "abs"); band.dataset.bleed = 1; Object.assign(band.style, { left: 0, right: 0, top: PORTRAIT ? "28%" : "24%", height: PORTRAIT ? "26%" : "30%", background: "var(--accent)", transformOrigin: "left" });
+      const tb = el("div", "abs"); Object.assign(tb.style, { left: "8%", right: "8%", top: PORTRAIT ? "28%" : "24%", height: PORTRAIT ? "26%" : "30%", display: "flex", alignItems: "center", justifyContent: "center" });
+      const tt = el("div", "title", esc(sc.title || ""), tb); Object.assign(tt.style, { width: "100%", textAlign: "center", color: "#fff", webkitTextFillColor: "#fff" });
+      tt.querySelectorAll("em").forEach(e => { e.style.color = "#fff"; e.style.webkitTextFillColor = "#fff"; }); fit(tt, PORTRAIT ? 96 : 120, 44);
+      const low = el("div", "abs"); Object.assign(low.style, { left: "8%", right: "8%", top: PORTRAIT ? "57%" : "58%", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" });
+      const sb = sc.sub ? el("div", "sub", esc(sc.sub), low) : null; const cta = ctaEl(low); if (cta) { cta.style.alignSelf = "center"; cta.style.marginTop = px(26); cta.style.background = "var(--ink)"; cta.style.color = "var(--bg0)"; }
+      return { update(t) { band.style.transform = `scaleX(${eio(seg(t, 0, .8))})`; reveal(tt, seg(t, .5, 1.2), "rise", 30); reveal(sb, seg(t, 1, 1.6)); reveal(cta, seg(t, 1.3, 1.9), "pop"); } };
+    }
     const box = el("div", "safe center");
     const lg = (sc.logo !== false && THEME.brand && THEME.brand.logo) ? el("img", "", null, box) : null; if (lg) { lg.src = asset(THEME.brand.logo); lg.style.height = px(70); lg.style.marginBottom = px(46); }
     const tt = el("div", "title grad", esc(sc.title || ""), box); fit(tt, PORTRAIT ? 100 : 120, 48); const ws = words(tt);
@@ -548,6 +852,135 @@ const SCENES = {
     const cta = sc.cta ? el("div", "", esc(sc.cta), box) : null;
     if (cta) Object.assign(cta.style, { marginTop: px(46), padding: px(18) + " " + px(38), borderRadius: px(999), background: "var(--accent)", color: "#fff", fontSize: px(28), fontWeight: 600, boxShadow: `0 ${px(16)} ${px(40)} var(--glow)` });
     return { update(t) { reveal(lg, seg(t, 0, .6), "scale"); ws.forEach((w, i) => reveal(w, seg(t, .3 + i * .06, .9 + i * .06), "rise", 34)); reveal(sb, seg(t, .9, 1.5)); reveal(cta, seg(t, 1.3, 1.9), "pop"); } };
+  },
+  // ---------- signature scenes (each pack leans on a few of these; see packs/*/PACK.md)
+  polaroids(sc) {                                                // 2-5 photo prints tossed onto a pile (or laid in a row), captions handwritten
+    const ph = (sc.photos || []).slice(0, 5), n = ph.length, row = lay(sc) === "row", box = el("div", "safe"); Object.assign(box.style, { display: "flex", flexDirection: "column" });
+    const hd = sc.title ? el("div", "title grad", esc(sc.title), box) : null; if (hd) { fit(hd, 60, 30); hd.style.marginBottom = px(14); }
+    const area = el("div", "", "", box); Object.assign(area.style, { flex: "1", minHeight: "0", position: "relative" });
+    const pw = row ? Math.min(PORTRAIT ? 70 : 30, 94 / Math.max(1, n)) : (PORTRAIT ? 62 : 34);
+    const prints = ph.map((o, i) => { const w = el("div", "abs", "", area); w.style.width = pw + "%";
+      const pr = print(w, o.src, o.pending, o.caption, sc.ratio || "4/3");
+      const cx = n === 1 ? 50 : row ? (pw / 2 + i * (100 - pw) / (n - 1)) : (PORTRAIT ? 50 + [-10, 10, -6, 8, 0][i] : 50 + (i - (n - 1) / 2) * Math.min(22, 64 / Math.max(1, n - 1)));
+      w._cx = cx; w._rot = row ? (i % 2 ? 2 : -2) : TILTS[i % TILTS.length]; w._dy = row ? 0 : [10, -16, 20, -8, 4][i] * U; pr.p.style.rotate = w._rot + "deg"; return { w, pr }; });
+    const place = () => prints.forEach(({ w }, i) => { const h = w.offsetHeight; let top = (area.clientHeight - h) / 2 + w._dy;
+      if (PORTRAIT && !row) top = (i * (area.clientHeight - h) / Math.max(1, n - 1)); w.style.left = `calc(${w._cx}% - ${w.offsetWidth / 2}px)`; w.style.top = Math.max(0, Math.min(area.clientHeight - h, top)) + "px"; });
+    while (prints.some(({ w }) => w.offsetHeight > area.clientHeight) && pw > 12) { prints.forEach(({ w }) => w.style.width = (parseFloat(w.style.width) - 2) + "%"); if (parseFloat(prints[0].w.style.width) <= 12) break; }
+    place();
+    return { update(t, d) { reveal(hd, seg(t, .1, .7)); const span = Math.min(.9, (d - 1.2) / Math.max(1, n));
+      prints.forEach(({ w, pr }, i) => { const p = eo(seg(t, .3 + i * span, .95 + i * span)); w.style.opacity = clamp(p * 2.5);
+        w.style.transform = `translateY(${px((1 - p) * -90)}) scale(${1.25 - .25 * p}) rotate(${(1 - p) * (i % 2 ? -14 : 14)}deg)`;
+        if (pr.im.tagName === "IMG") pr.im.style.transform = `scale(${1.05 - .05 * seg(t, 0, d)})`; }); } };
+  },
+  note(sc) {                                                     // handwriting on a sticky note or a lined index card; optional checklist that ticks off
+    const card = lay(sc) === "card", box = el("div", "safe center");
+    const n = el("div", "", "", box); Object.assign(n.style, { position: "relative", width: PORTRAIT ? "90%" : (card ? "64%" : "50%"), padding: card ? `${px(56)} ${px(70)} ${px(50)} ${px(120)}` : `${px(64)} ${px(60)} ${px(50)}`, color: "#2a2219", textAlign: "left", rotate: (sc.tilt ?? (card ? 1.4 : -2.4)) + "deg",
+      background: card ? `repeating-linear-gradient(180deg, transparent 0 ${px(55)}, rgba(70,110,200,.28) ${px(55)} ${px(57)}), linear-gradient(90deg, transparent ${px(92)}, rgba(220,60,60,.55) ${px(92)} ${px(95)}, transparent ${px(95)}), #fffdf6` : (LOOK.note || "#fbe7a1"),
+      backgroundPosition: card ? `0 ${px(40)}, 0 0, 0 0` : "", boxShadow: `0 ${px(22)} ${px(44)} rgba(40,30,10,.28)` });
+    if (!card) { const tape = el("div", "abs", "", n); Object.assign(tape.style, { left: "50%", top: px(-22), width: px(190), height: px(44), marginLeft: px(-95), background: LOOK.tape || "rgba(240,214,120,.78)", rotate: "3deg", opacity: .9 }); }
+    const hand = `font-family:"Hand",cursive;font-weight:700;color:#2a2219`;
+    const hd = sc.title ? el("div", "", esc(sc.title), n) : null; if (hd) { hd.style.cssText = hand + `;line-height:1.1;color:var(--accent)`; fit(hd, 72, 40); }
+    const tx = sc.text ? el("div", "", esc(sc.text), n) : null; if (tx) { tx.style.cssText = hand + `;line-height:1.12;margin-top:${px(hd ? 10 : 0)}`; tx.querySelectorAll("em").forEach(e => { e.style.fontFamily = "inherit"; e.style.fontStyle = "normal"; }); fit(tx, sc.items ? 64 : 92, 40); }
+    const its = (sc.items || []).map(it => { const r = el("div", "", "", n); r.style.cssText = hand + `;font-size:${px(54)};display:flex;align-items:center;gap:${px(22)};margin-top:${px(10)}`;
+      const b = el("span", "", "", r); b.style.cssText = `flex:none;position:relative;width:${px(40)};height:${px(40)};border:${px(4)} solid #2a2219;border-radius:${px(6)}`;
+      const tick = el("span", "", "✓", b); tick.style.cssText = `position:absolute;left:${px(2)};top:${px(-26)};font-size:${px(64)};color:var(--accent)`;
+      el("span", "", esc(it), r); return { r, tick }; });
+    const by = sc.by ? el("div", "", "— " + esc(sc.by), n) : null; if (by) by.style.cssText = hand + `;font-size:${px(38)};margin-top:${px(22)};text-align:right;opacity:.75`;
+    const ws = tx ? words(tx) : [];
+    if (tx) fitH(tx, box, 40);
+    return { update(t, d) { reveal(n, seg(t, 0, .6), "pop"); reveal(hd, seg(t, .4, .9));
+      const span = Math.min(.18, (d * .45) / Math.max(1, ws.length + its.length * 3));
+      ws.forEach((w, i) => { const p = seg(t, .6 + i * span, .72 + i * span); w.style.opacity = p; w.style.clipPath = p >= 1 ? "none" : `inset(-20% ${(1 - p) * 100}% -20% -10%)`; });
+      const t0 = .8 + ws.length * span, step = Math.min(.9, (d - t0 - .8) / Math.max(1, its.length));
+      its.forEach((o, i) => { reveal(o.r, seg(t, t0 + i * step, t0 + i * step + .4), "left", 20); const p = seg(t, t0 + i * step + .4, t0 + i * step + .7); o.tick.style.opacity = p; o.tick.style.clipPath = `inset(0 ${(1 - p) * 100}% 0 0)`; });
+      reveal(by, seg(t, d - 1.2, d - .6)); } };
+  },
+  countdown(sc) {                                                // numbers slam in one after another, then the line they were counting down to
+    const from = +(sc.from ?? 3), to = +(sc.to ?? 1), nums = []; for (let k = from; from >= to ? k >= to : k <= to; k += from >= to ? -1 : 1) nums.push(k);
+    const box = el("div", "safe center");
+    const eb = sc.eyebrow ? el("div", "eyebrow", esc(sc.eyebrow), box) : null;
+    const stageEl = el("div", "", "", box); Object.assign(stageEl.style, { position: "relative", width: "100%", height: px(PORTRAIT ? 560 : 520), marginTop: px(eb ? 10 : 0) });
+    const ns = "http://www.w3.org/2000/svg", sv = document.createElementNS(ns, "svg"); sv.setAttribute("viewBox", "-110 -110 220 220"); sv.style.cssText = `position:absolute;left:50%;top:50%;width:${px(500)};height:${px(500)};translate:-50% -50%;rotate:-90deg`;
+    const ring = document.createElementNS(ns, "circle"); ring.setAttribute("r", 100); ring.setAttribute("fill", "none"); ring.setAttribute("stroke", "var(--accent)"); ring.setAttribute("stroke-width", 5); sv.appendChild(ring); stageEl.appendChild(sv);
+    const C = 2 * Math.PI * 100; ring.style.strokeDasharray = C;
+    const big = nums.map(k => { const e = el("div", "abs title accentgrad", String(k), stageEl); Object.assign(e.style, { inset: 0, display: "grid", placeItems: "center", fontSize: px(380), lineHeight: 1 }); return e; });
+    const finBox = el("div", "abs", "", stageEl); Object.assign(finBox.style, { inset: 0, display: "flex", alignItems: "center", justifyContent: "center" });
+    const fin = el("div", "title grad", esc(sc.then || ""), finBox); Object.assign(fin.style, { textAlign: "center", width: "100%" }); fit(fin, PORTRAIT ? 130 : 150, 50);
+    const sb = sc.sub ? el("div", "sub", esc(sc.sub), box) : null;
+    return { update(t, d) { reveal(eb, seg(t, 0, .4)); const slot = Math.min(.75, (d - 1.6) / Math.max(1, nums.length)), end = .2 + slot * nums.length;
+      big.forEach((e, i) => { const a = .2 + i * slot, p = seg(t, a, a + slot * .45), out = seg(t, a + slot * .8, a + slot);
+        e.style.opacity = clamp(p * 3) * (1 - out); e.style.transform = `scale(${(1.8 - .8 * spr(p, "snappy")) * (1 - .25 * out)})`; });
+      const rp = seg(t, .2, end); ring.style.strokeDashoffset = C * rp; sv.style.opacity = 1 - seg(t, end, end + .3);
+      reveal(fin, seg(t, end, end + .6), "pop"); reveal(sb, seg(t, end + .5, end + 1.1)); } };
+  },
+  wordwall(sc) {                                                 // the words are the picture: rows of drifting type (rows) or a stacked word list (stack), one phrase lit up
+    const ws = (sc.words && sc.words.length ? sc.words : String(sc.text || "").split(/\s+/)).filter(Boolean);
+    if (lay(sc) === "stack") {
+      const box = el("div", "safe"); Object.assign(box.style, { display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "flex-start" });
+      const ls = ws.map(w => { const e = el("div", "title", esc(w), box); Object.assign(e.style, { lineHeight: .95, color: "var(--muted)", "-webkit-text-fill-color": "var(--muted)" }); fit(e, PORTRAIT ? 150 : 150, 40); return e; });
+      const hi = sc.highlight ? el("div", "title", esc(sc.highlight), box) : null; if (hi) { Object.assign(hi.style, { color: "var(--accent)", lineHeight: .95, marginTop: px(10) }); fit(hi, 170, 50); }
+      [...ls, hi].filter(Boolean).forEach(e => fitH(e, box, 36));
+      return { update(t, d) { const span = Math.min(.45, (d * .5) / Math.max(1, ls.length)); ls.forEach((e, i) => reveal(e, seg(t, .1 + i * span, .5 + i * span), "left", 40)); reveal(hi, seg(t, .3 + ls.length * span, .9 + ls.length * span), "pop"); } };
+    }
+    const wall = el("div", "abs"); wall.dataset.bleed = 1; Object.assign(wall.style, { inset: 0, overflow: "hidden" });
+    const R = PORTRAIT ? 9 : 7, fs = H / (R + .6);
+    const rows = Array.from({ length: R }, (_, k) => { const r = el("div", "abs title", "", wall); const seq = ws.map((_, j) => ws[(j + k * 2) % ws.length]).join("  ·  ");
+      r.textContent = Array(8).fill(seq).join("  ·  "); Object.assign(r.style, { left: 0, top: (k * H / R - fs * .08) + "px", fontSize: fs * .78 + "px", whiteSpace: "nowrap", overflow: "hidden", width: "800%", lineHeight: 1, opacity: .13 }); return r; });
+    const plate = sc.highlight ? el("div", "abs") : null, hi = plate ? el("div", "title", esc(sc.highlight), plate) : null;
+    if (plate) { Object.assign(plate.style, { left: "50%", top: "42%", translate: "-50% -50%", maxWidth: "84%", padding: `${px(28)} ${px(56)}`, background: "var(--bg0)", boxShadow: `0 0 ${px(80)} ${px(40)} var(--bg0)`, textAlign: "center" }); fit(hi, PORTRAIT ? 120 : 140, 44); }
+    return { update(t, d) { rows.forEach((r, k) => { const dir = k % 2 ? 1 : -1, x = (t * 70 * U + k * 211) % (W * 1.5); r.style.transform = `translateX(${dir > 0 ? -W * 1.5 + x : -x}px)`; r.style.opacity = .13 * seg(t, k * .06, .4 + k * .06); });
+      reveal(plate, seg(t, .6, 1.3), "pop"); } };
+  },
+  annotate(sc) {                                                 // a screenshot or diagram with numbered marks that draw on, explained one by one
+    const notes = sc.notes || [], over = lay(sc) === "over" || PORTRAIT, box = el("div", "safe"); Object.assign(box.style, { display: "flex", flexDirection: "column" });
+    const hd = sc.title ? el("div", "title grad", esc(sc.title), box) : null; if (hd) { fit(hd, 60, 30); hd.style.marginBottom = px(22); }
+    const body = el("div", "", "", box); Object.assign(body.style, { flex: "1", minHeight: "0", display: "flex", gap: px(50), alignItems: "center", justifyContent: "center" });
+    const holder = el("div", "", "", body); Object.assign(holder.style, { flex: over ? "1" : "0 0 62%", height: "100%", minWidth: 0, display: "flex", alignItems: "center", justifyContent: "center" });
+    const wrap = el("div", "", "", holder); Object.assign(wrap.style, { position: "relative", display: "inline-block", lineHeight: 0, borderRadius: px(+THEME_RADIUS() * .6), boxShadow: `0 ${px(30)} ${px(70)} rgba(0,0,0,.35), 0 0 0 1px var(--line)` });
+    const im = el("img", "", null, wrap); Object.assign(im.style, { display: "block", maxWidth: "100%", maxHeight: "100%", borderRadius: "inherit" }); if (sc.src) im.src = asset(sc.src);
+    im.style.maxHeight = holder.clientHeight + "px"; im.style.maxWidth = holder.clientWidth + "px";
+    const ns = "http://www.w3.org/2000/svg";
+    const marks = notes.map((o, i) => { const m = el("div", "abs", "", wrap), w = (o.w ?? .14) * 100;
+      Object.assign(m.style, { left: `${o.x * 100 - w / 2}%`, top: `${o.y * 100}%`, width: w + "%", aspectRatio: String(o.ratio || 1.6), translate: "0 -50%", lineHeight: "normal" });
+      const sv = document.createElementNS(ns, "svg"); sv.setAttribute("viewBox", "0 0 160 100"); sv.setAttribute("preserveAspectRatio", "none"); sv.style.cssText = "position:absolute;inset:-12%;width:124%;height:124%;overflow:visible"; m.appendChild(sv);
+      const p = document.createElementNS(ns, "path"); const j = k => (hash("a" + i, k) - .5) * 8;
+      p.setAttribute("d", `M${18 + j(1)},${30 + j(2)} C${40},${2 + j(3)} ${130 + j(4)},${4} ${150},${40 + j(5)} S${110},${102 + j(6)} ${60},${96} S${2 + j(7)},${60} ${30 + j(8)},${22}`);
+      p.setAttribute("fill", "none"); p.setAttribute("stroke", "var(--accent)"); p.setAttribute("stroke-width", 5); p.setAttribute("stroke-linecap", "round"); p.setAttribute("vector-effect", "non-scaling-stroke"); sv.appendChild(p);
+      const b = el("div", "badge abs", String(i + 1), m); Object.assign(b.style, { right: px(-26), top: px(-26) });
+      return { m, p, b }; });
+    marks.forEach(o => { o.len = o.p.getTotalLength(); o.p.style.strokeDasharray = o.len; });
+    let labels;
+    if (over) labels = notes.map((o, i) => { const c = el("div", "card abs", esc(o.text || ""), wrap); const right = o.x < .62;
+      Object.assign(c.style, { [right ? "left" : "right"]: `${(right ? o.x + (o.w ?? .14) / 2 : 1 - o.x + (o.w ?? .14) / 2) * 100 + 1}%`, top: `${o.y * 100}%`, translate: "0 -50%", padding: `${px(14)} ${px(22)}`, fontSize: px(26), fontWeight: 600, lineHeight: 1.25, maxWidth: "36%", background: "var(--bg2)" }); return c; });
+    else { const list = el("div", "", "", body); Object.assign(list.style, { flex: "1", display: "grid", gap: px(26), alignContent: "center" });
+      labels = notes.map((o, i) => { const r = el("div", "", `<span class="badge">${i + 1}</span><span>${esc(o.text || "")}</span>`, list); Object.assign(r.style, { display: "flex", gap: px(20), alignItems: "center", fontSize: px(32), fontWeight: 600, lineHeight: 1.25 }); return r; }); }
+    return { update(t, d) { reveal(hd, seg(t, .1, .7)); reveal(wrap, seg(t, .1, .8), "scale"); im.style.transform = "";
+      const span = Math.min(1.6, (d - 1.8) / Math.max(1, notes.length));
+      marks.forEach((o, i) => { const a = 1 + i * span, p = eio(seg(t, a, a + .6)); o.p.style.strokeDashoffset = o.len * (1 - p); o.b.style.opacity = seg(t, a + .4, a + .6); o.b.style.transform = `scale(${.5 + .5 * back(seg(t, a + .4, a + .7))})`;
+        reveal(labels[i], seg(t, a + .3, a + .9), over ? "scale" : "left", 20); if (!over) labels[i].style.opacity = String(Math.min(+labels[i].style.opacity, i < notes.length - 1 && t > a + span + .2 ? .5 : 1)); }); } };
+  },
+  chat(sc) {                                                     // an assistant conversation: messages arrive in turn, the assistant "types" first
+    const msgs = sc.messages || [], side = lay(sc) === "side" && !PORTRAIT, box = el("div", "safe"); Object.assign(box.style, { display: "flex", gap: px(70), alignItems: "center", justifyContent: "center", flexDirection: side ? "row" : "column" });
+    let hd = null, eb = null;
+    if (side) { const c = el("div", "", "", box); c.style.flex = "0 0 34%"; eb = sc.eyebrow ? el("div", "eyebrow", esc(sc.eyebrow), c) : null; hd = el("div", "title grad", esc(sc.title || ""), c); hd.style.marginTop = px(eb ? 18 : 0); fit(hd, 76, 36); }
+    else if (sc.title) { hd = el("div", "title grad", esc(sc.title), box); fit(hd, 56, 30); hd.style.textAlign = "center"; }
+    const panel = el("div", "card", "", box); Object.assign(panel.style, { flex: side ? "1" : "1", width: side ? "auto" : (PORTRAIT ? "100%" : "62%"), minHeight: 0, alignSelf: "stretch", display: "flex", flexDirection: "column", overflow: "hidden", padding: 0 });
+    const top = el("div", "", `<span style="display:inline-block;width:${px(14)};height:${px(14)};border-radius:50%;background:var(--accent);margin-right:${px(12)}"></span>${esc(sc.name || "Assistant")}`, panel);
+    Object.assign(top.style, { padding: `${px(18)} ${px(28)}`, fontSize: px(22), fontWeight: 600, borderBottom: "1px solid var(--line)", flex: "none" });
+    const view = el("div", "", "", panel); Object.assign(view.style, { flex: "1", minHeight: 0, overflow: "hidden", position: "relative" });
+    const stack = el("div", "abs", "", view); Object.assign(stack.style, { left: px(28), right: px(28), top: px(24), display: "flex", flexDirection: "column", gap: px(16) });
+    const bub = msgs.map(o => { const me = o.from === "user"; const b = el("div", "", esc(o.text || ""), stack);
+      Object.assign(b.style, { alignSelf: me ? "flex-end" : "flex-start", maxWidth: "80%", padding: `${px(16)} ${px(24)}`, fontSize: px(28), lineHeight: 1.35, borderRadius: px(24), [me ? "borderBottomRightRadius" : "borderBottomLeftRadius"]: px(6),
+        background: me ? "var(--accent)" : "color-mix(in srgb, var(--ink) 8%, transparent)", color: me ? "#fff" : "var(--ink)" });
+      const dots = me ? null : el("div", "", "<i></i><i></i><i></i>", stack); if (dots) { Object.assign(dots.style, { alignSelf: "flex-start", display: "flex", gap: px(8), padding: `${px(18)} ${px(22)}`, borderRadius: px(24), background: "color-mix(in srgb, var(--ink) 8%, transparent)" });
+        dots.querySelectorAll("i").forEach(i => Object.assign(i.style, { width: px(12), height: px(12), borderRadius: "50%", background: "var(--muted)", display: "block" })); stack.insertBefore(dots, b); }
+      return { b, dots, me }; });
+    return { update(t, d) { reveal(eb, seg(t, .05, .5)); reveal(hd, seg(t, .1, .7)); reveal(panel, seg(t, .1, .7), "rise", 30);
+      const span = Math.max(.9, (d - 1.2) / Math.max(1, msgs.length)); let shown = 0;
+      bub.forEach((o, i) => { const a = .6 + i * span, typing = o.me ? 0 : Math.min(.8, span * .45), on = t >= a + typing;
+        if (o.dots) { const vis = t >= a && !on; o.dots.style.display = vis ? "flex" : "none"; [...o.dots.children].forEach((c, k) => c.style.opacity = .35 + .65 * Math.abs(Math.sin(t * 6 - k * .7))); }
+        o.b.style.display = on ? "" : "none"; if (on) { reveal(o.b, seg(t, a + typing, a + typing + .35), "rise", 16); shown = i; } });
+      const over = stack.offsetHeight + 48 * U - view.clientHeight; stack.style.transform = `translateY(${-Math.max(0, over)}px)`; } };
   },
   backdrop(sc) { return { update() {} }; },                    // for screen scenes: background only (video composited by the renderer)
 };
@@ -604,7 +1037,7 @@ window.qa = i => {                                           // overflow / safe-
     const texty = !e.childElementCount || /(title|sub|eyebrow|badge)/.test(e.className);
     if (texty && !e.closest("svg") && e.scrollWidth > e.clientWidth + 2 && getComputedStyle(e).overflow !== "hidden" && e.clientWidth > 0) out.push(`text overflows its box: "${(e.textContent || "").trim().slice(0, 40)}"`);
     if (document.body.classList.contains("caps") && texty && !e.closest("[data-bleed]") && r.bottom > H * (PORTRAIT ? .745 : .80)) out.push(`sits in the caption zone (captions will cover it): "${(e.textContent || e.tagName).trim().slice(0, 40)}"`);
-    if (r.left < mx - 1 || r.right > W - mx + 1 || r.top < my - 1 || r.bottom > H - my + 1) if (!e.closest("[data-bleed]") && !(sc.type === "image" && sc.full)) out.push(`outside the safe area: "${(e.textContent || e.tagName).trim().slice(0, 40)}"`); });
+    if (r.left < mx - 1 || r.right > W - mx + 1 || r.top < my - 1 || r.bottom > H - my + 1) if (!e.closest("[data-bleed]") && !(sc.type === "image" && lay(sc) === "full")) out.push(`outside the safe area: "${(e.textContent || e.tagName).trim().slice(0, 40)}"`); });
   return [...new Set(out)].slice(0, 8);
 };
 window.ready = true;

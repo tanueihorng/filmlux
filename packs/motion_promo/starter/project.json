@@ -24,7 +24,8 @@
       "type": "title",
       "eyebrow": "Product · Launch",
       "title": "Product name, <em>promise</em>",
-      "say": "Introducing the product, and the promise it makes."
+      "say": "Introducing the product, and the promise it makes.",
+      "layout": "giant"
     },
     {
       "type": "bento",
@@ -57,7 +58,8 @@
       "title": "Try it <em>today</em>",
       "sub": "Where to find it",
       "cta": "Call to action",
-      "say": "Close with the call to action."
+      "say": "Close with the call to action.",
+      "layout": "band"
     }
   ]
 }

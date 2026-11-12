@@ -7,7 +7,25 @@
 - Transition `glitch` (vhs) or `zoom` (chrome); try `flash` on the beat.
 - Music `upbeat`. Voice optional (Andrew +0 %). Caption style `pop` for vertical.
 
-**Shape (30 s):**
+**Beats** (the story; choose a scene type and a `layout` for each: `python studio.py scenes`):
+1. **Hook**
+2. **Marker**: a date or level number
+3. **What's in it**: 3–4 items
+4. **The number that excites**
+5. **Payoff line**
+6. **Date, place or link**
+
+**Treatments** (offer the user 2–3 before writing the script; each is a different structure, not only a different look):
+- **Arcade**: levels and countdowns.
+  `countdown` → `section` center → `bullets` stack → `stat` giant → `end` band
+- **Mixtape**: words looping like a tape.
+  `wordwall` rows → `kinetic` stack → `polaroids` row → `kinetic` center → `end` left
+- **Departure board**: the event as a destination.
+  library `scenes/split_flap` → `title` giant → `bento` pinboard → `stat` left → `end` center
+
+**Signature scenes:** `countdown`, `wordwall`, library `scenes/split_flap`. Use at least one; they make this pack look like itself.
+
+**The original Shape** (still a valid treatment, the most conventional one):
 1. `kinetic`: the hook ("Press <em>play</em>.")
 2. `section`: a date or level number ("01")
 3. `bento` or `bullets`: what's in it, 3–4 items

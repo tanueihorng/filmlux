@@ -17,7 +17,8 @@
       "eyebrow": "Architecture",
       "title": "How the system <em>works</em>",
       "sub": "Replace with a one-line summary",
-      "say": "Replace with one short sentence for this scene."
+      "say": "Replace with one short sentence for this scene.",
+      "layout": "left"
     },
     {
       "type": "compare",
@@ -38,7 +39,8 @@
           "Governed access"
         ]
       },
-      "say": "Replace with one short sentence for this scene."
+      "say": "Replace with one short sentence for this scene.",
+      "layout": "halves"
     },
     {
       "type": "process",
@@ -75,7 +77,8 @@
           "body": "…"
         }
       ],
-      "say": "Replace with one short sentence for this scene."
+      "say": "Replace with one short sentence for this scene.",
+      "layout": "list"
     },
     {
       "type": "timeline",
@@ -94,13 +97,15 @@
           "title": "Extend"
         }
       ],
-      "say": "Replace with one short sentence for this scene."
+      "say": "Replace with one short sentence for this scene.",
+      "layout": "steps"
     },
     {
       "type": "end",
       "title": "Build on <em>it</em>",
       "cta": "Replace with where to learn more",
-      "say": "Replace with one short sentence for this scene."
+      "say": "Replace with one short sentence for this scene.",
+      "layout": "left"
     }
   ]
 }

@@ -15,7 +15,8 @@
       "type": "quote",
       "text": "Every customer has a <em>story</em>.",
       "by": "",
-      "say": "Replace with an opening line that sets the feeling."
+      "say": "Replace with an opening line that sets the feeling.",
+      "layout": "huge"
     },
     {
       "type": "image",
@@ -46,7 +47,8 @@
       "number": "02",
       "eyebrow": "What we built",
       "title": "Replace with the turn",
-      "say": "Replace with the turn in the story."
+      "say": "Replace with the turn in the story.",
+      "layout": "center"
     },
     {
       "type": "logo",

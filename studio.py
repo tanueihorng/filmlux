@@ -21,6 +21,10 @@
   python studio.py thumb <project> [scene]       thumbnail / poster frame PNG
   python studio.py imagegen <project> [--check]  optional AI images: list what to generate (assets/gen/REQUESTS.md) / verify them
   python studio.py motion                        list motion styles and transitions
+  python studio.py scenes                        every scene type with its layouts, plus the reusable html scene library (scenes/)
+  python studio.py scene <project> <name>        start a custom html scene from the template (kit, theme, safe area wired) in projects/<p>/scenes/<name>/
+  python studio.py keep <project> <scene#> <name> "<what it is>" [--guided-ok]
+                                                 save a project's custom html scene to the library (scenes/<name>/) for future films
   python studio.py cutout <in.png> <out.png>     remove a flat green (#00ff00) background -> transparent PNG (for parallax cutouts)
   python studio.py packs | themes                style packs and visual themes
   python studio.py voices                        list the neural voices
@@ -145,6 +149,75 @@ def cmd_motion(_):
     print("  " + ", ".join(k for k in TRANSITIONS if k not in ("dissolve", "push", "cut")))
     print("  directions (slide, wipe, cube): " + ", ".join(DIRECTIONS))
     print("  transition_timing: ease (default), linear, spring.  Details and taste notes: SPEC.md > Motion and transitions")
+
+
+SCENE_ABOUT = {
+    "title": "opener or chapter: eyebrow, title, sub", "kinetic": "2-4 punchy lines, full screen", "bullets": "up to 5 points",
+    "stat": "one real number that counts up", "quote": "a person's words", "chart": "bar / column / line / donut from real data",
+    "process": "steps on a path or loop", "image": "a picture (Ken Burns, parallax)", "split": "words + a picture or screenshot",
+    "bento": "tiles: features, facts, values", "compare": "before vs after", "section": "chapter number card",
+    "timeline": "milestones, roadmap, journey", "logo": "brand sting", "end": "closing line + call to action",
+    "screen": "screen recording or screenshot tour", "html": "your own composition (creative mode, or a library scene)",
+    "polaroids": "2-5 photo prints with handwritten captions", "note": "handwritten sticky note or index card, optional checklist",
+    "countdown": "3-2-1 then the reveal line", "wordwall": "the words are the picture, one phrase lit",
+    "annotate": "a screenshot or diagram with numbered marks that draw on", "chat": "an assistant conversation, message by message",
+}
+
+
+def cmd_scenes(_):
+    from vstudio.render import LAYOUTS, DEFAULT_DUR, composition_of
+    print("scene types and layouts (\"layout\" on a scene; the first is the default). [composition] helps vary the frame:")
+    for t in DEFAULT_DUR:
+        if t in ("screen", "html"):
+            continue
+        ls = LAYOUTS.get(t, [])
+        lay = ", ".join(f"{l} [{composition_of({'type': t, 'layout': l})}]" for l in ls) if ls else "(one layout)"
+        print(f"  {t:10s} {SCENE_ABOUT.get(t, '')}")
+        print(f"             {lay}")
+    print("  screen     " + SCENE_ABOUT["screen"]); print("  html       " + SCENE_ABOUT["html"])
+    lib = sorted((ROOT / "scenes").glob("*/scene.json"))
+    print()
+    print(f"html scene library (scenes/, {len(lib)}): use {{\"type\": \"html\", \"src\": \"scenes/<name>/scene.html\", \"props\": {{...}}}}")
+    for m in lib:
+        try:
+            d = json.loads(m.read_text(encoding="utf-8"))
+        except ValueError:
+            continue
+        print(f"  {m.parent.name:18s} {d.get('about', '')}{'  [guided ok]' if d.get('guided_ok') else '  [creative mode]'}")
+        if d.get("props"):
+            print(f"  {'':18s} props: {json.dumps(d['props'], ensure_ascii=False)}")
+
+
+def cmd_scene(a):
+    """Start a custom html scene in a project from templates/html_scene (the kit, theme and safe area already wired)."""
+    prj = proj(a.project); dst = prj.dir / "scenes" / a.name
+    if dst.exists():
+        raise SystemExit(f"{dst} already exists")
+    dst.mkdir(parents=True)
+    kit = os.path.relpath(ROOT / "engine" / "kit" / "filmlux-kit.js", dst).replace("\\", "/")
+    html = (ROOT / "templates" / "html_scene" / "scene.html").read_text(encoding="utf-8").replace("__KIT__", kit)
+    (dst / "scene.html").write_text(html, encoding="utf-8")
+    snippet = {"type": "html", "src": f"scenes/{a.name}/scene.html", "props": {"eyebrow": "", "title": "Your <em>idea</em> here", "sub": ""},
+               "why": "<the user's words this scene builds>", "dur": 5, "say": "..."}
+    print(f"created {dst / 'scene.html'}\nadd to project.json scenes:\n  {json.dumps(snippet, ensure_ascii=False)}")
+    print(f"then: python studio.py stills {a.project}   and   python studio.py qa {a.project}")
+
+
+def cmd_keep(a):
+    prj = proj(a.project); i = int(a.scene) - 1
+    if not 0 <= i < len(prj.scenes) or prj.scenes[i]["type"] != "html":
+        raise SystemExit(f"scene {a.scene} is not an html scene")
+    src = Path(prj.scenes[i]["_path"]); dst = ROOT / "scenes" / a.name
+    if dst.exists():
+        raise SystemExit(f"{dst} already exists: pick another name")
+    shutil.copytree(src.parent, dst, ignore=shutil.ignore_patterns("*.mp4", "renders", ".cache"))
+    if src.name != "scene.html":
+        (dst / src.name).rename(dst / "scene.html")
+    props = prj.scenes[i].get("props") or {}
+    (dst / "scene.json").write_text(json.dumps({"about": a.about, "props": props, "guided_ok": bool(a.guided_ok),
+                                                "from_project": prj.dir.name, "format": f"{prj.W}x{prj.H}"}, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(f"kept: {dst}  (use: {{\"type\": \"html\", \"src\": \"scenes/{a.name}/scene.html\", \"props\": {json.dumps(props)}}})")
+    print("Check that the page reads its text from window.FILMLUX.props (not hard-coded), so other films can reuse it.")
 
 
 def cmd_cutout(a):
@@ -349,10 +422,30 @@ def cmd_shortcut(_):
         print("First time only: if macOS says it can't verify the file, right-click it > Open > Open.")
 
 
+LAYOUT_SHOTS = [("layout_02.jpg", "title · photo"), ("layout_00.jpg", "title · bottom"), ("layout_09.jpg", "quote · note"), ("layout_10.jpg", "quote · huge"),
+                ("layout_13.jpg", "split · overlap"), ("layout_16.jpg", "split · polaroid"), ("layout_17.jpg", "bento · pinboard"), ("layout_20.jpg", "compare · halves"),
+                ("layout_22.jpg", "timeline · steps"), ("layout_24.jpg", "polaroids"), ("layout_26.jpg", "note (checklist)"), ("layout_28.jpg", "countdown"),
+                ("layout_29.jpg", "wordwall"), ("layout_31.jpg", "annotate"), ("layout_33.jpg", "chat"), ("layout_35.jpg", "end · band")]
+
+
+def write_shapes():
+    """assets/gallery/shapes.js for START_HERE.html: each pack's treatments (read from PACK.md) and the layout stills."""
+    import re
+    tr = {}
+    for f in sorted((ROOT / "packs").glob("*/PACK.md")):
+        lines = f.read_text(encoding="utf-8").splitlines()
+        tr[f.parent.name] = [[m.group(1), m.group(2), lines[i + 1].strip().replace("`", "")]
+                             for i, l in enumerate(lines) if (m := re.match(r"- \*\*(.+?)\*\*: (.+)\.$", l)) and i + 1 < len(lines) and "→" in lines[i + 1]]
+    shots = [[f, label] for f, label in LAYOUT_SHOTS if (ROOT / "assets" / "gallery" / f).exists()]
+    (ROOT / "assets" / "gallery" / "shapes.js").write_text("window.SHAPES = " + json.dumps({"treatments": tr, "layouts": shots}, ensure_ascii=False, indent=1) + ";\n", encoding="utf-8")
+    return sum(map(len, tr.values())), len(shots)
+
+
 def cmd_samples(_):
     sys.path.insert(0, str(ROOT / "tools"))
     import make_samples
     make_samples.main()
+    n, k = write_shapes(); print(f"shapes.js: {n} treatments, {k} layout stills")
 
 
 if __name__ == "__main__":
@@ -371,6 +464,9 @@ if __name__ == "__main__":
     g = sp.add_parser("cutout"); g.add_argument("input"); g.add_argument("output"); g.add_argument("--key", default="")
     g.add_argument("--tolerance", type=float, default=.18); g.add_argument("--softness", type=float, default=.12); g.set_defaults(f=cmd_cutout)
     ap_ = sp.add_parser("app"); ap_.add_argument("--port", type=int, default=8765); ap_.add_argument("--no-browser", action="store_true"); ap_.set_defaults(f=cmd_app)
+    sp.add_parser("scenes").set_defaults(f=cmd_scenes)
+    x = sp.add_parser("scene"); x.add_argument("project"); x.add_argument("name"); x.set_defaults(f=cmd_scene)
+    k = sp.add_parser("keep"); k.add_argument("project"); k.add_argument("scene"); k.add_argument("name"); k.add_argument("about"); k.add_argument("--guided-ok", action="store_true"); k.set_defaults(f=cmd_keep)
     sp.add_parser("packs").set_defaults(f=cmd_packs); sp.add_parser("themes").set_defaults(f=cmd_themes); sp.add_parser("motion").set_defaults(f=cmd_motion)
     for c, f in (("plan", cmd_plan), ("audio", cmd_audio), ("qa", cmd_qa)):
         x = sp.add_parser(c); x.add_argument("project"); x.set_defaults(f=f)

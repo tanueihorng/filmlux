@@ -25,7 +25,8 @@
       "number": "01",
       "eyebrow": "Level",
       "title": "The <em>launch</em>",
-      "transition": "glitch"
+      "transition": "glitch",
+      "layout": "center"
     },
     {
       "type": "bullets",
@@ -43,7 +44,8 @@
         }
       ],
       "say": "Replace with one short sentence for this scene.",
-      "transition": "cut"
+      "transition": "cut",
+      "layout": "stack"
     },
     {
       "type": "stat",
@@ -51,14 +53,16 @@
       "value": "10x",
       "label": "replace with your number",
       "say": "Replace with one short sentence for this scene.",
-      "transition": "flash"
+      "transition": "flash",
+      "layout": "giant"
     },
     {
       "type": "end",
       "title": "See you <em>there</em>",
       "cta": "Replace with date or link",
       "say": "Replace with one short sentence for this scene.",
-      "transition": "glitch"
+      "transition": "glitch",
+      "layout": "band"
     }
   ]
 }

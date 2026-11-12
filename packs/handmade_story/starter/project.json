@@ -15,14 +15,16 @@
       "type": "title",
       "eyebrow": "Team spotlight",
       "title": "Meet the people behind <em>every reply</em>",
-      "say": "Replace with one short sentence for this scene."
+      "say": "Replace with one short sentence for this scene.",
+      "layout": "bottom"
     },
     {
       "type": "quote",
       "text": "Replace with a real quote, in their own <em>words</em>.",
       "by": "Name",
       "role": "Role",
-      "say": "Replace with one short sentence for this scene."
+      "say": "Replace with one short sentence for this scene.",
+      "layout": "note"
     },
     {
       "type": "bento",
@@ -48,7 +50,8 @@
           "body": "…"
         }
       ],
-      "say": "Replace with one short sentence for this scene."
+      "say": "Replace with one short sentence for this scene.",
+      "layout": "pinboard"
     },
     {
       "type": "timeline",
@@ -67,13 +70,15 @@
           "title": "…"
         }
       ],
-      "say": "Replace with one short sentence for this scene."
+      "say": "Replace with one short sentence for this scene.",
+      "layout": "steps"
     },
     {
       "type": "end",
       "title": "Come <em>say hello</em>",
       "cta": "Replace with the invitation",
-      "say": "Replace with one short sentence for this scene."
+      "say": "Replace with one short sentence for this scene.",
+      "layout": "left"
     }
   ]
 }

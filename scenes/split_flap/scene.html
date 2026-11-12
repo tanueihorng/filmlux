@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Split-flap board</title>
+<!-- Library scene: a departure-board reveal. Text comes from window.FILMLUX.props, colours from the film's theme.
+     Props: {"eyebrow": "NOW BOARDING", "lines": ["TRUST", "BRIDGE"], "sub": "optional line under the board"}
+     Deterministic: renderAt(t) draws the frame for t seconds; no wall-clock animation. -->
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; }
+  body { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3vh; font-family: "Segoe UI", system-ui, sans-serif; }
+  .eb { font-size: 2.2vh; letter-spacing: .3em; font-weight: 600; text-transform: uppercase; }
+  .board { display: flex; flex-direction: column; gap: 1.4vh; padding: 3vh 3vw; border-radius: 1.6vh; }
+  .row { display: flex; gap: .7vh; justify-content: center; }
+  .cell { position: relative; width: var(--cw); height: calc(var(--cw) * 1.45); border-radius: .8vh; overflow: hidden; perspective: 60vh; }
+  .half { position: absolute; left: 0; right: 0; height: 50%; overflow: hidden; display: flex; justify-content: center; }
+  .half span { font-family: "Consolas", "Courier New", monospace; font-weight: 700; font-size: calc(var(--cw) * 1.1); line-height: calc(var(--cw) * 1.45); }
+  .top { top: 0; align-items: flex-start; } .bot { bottom: 0; align-items: flex-end; }
+  .flap { transform-origin: 50% 100%; z-index: 2; }
+  .seam { position: absolute; left: 0; right: 0; top: 50%; height: 2px; margin-top: -1px; z-index: 3; }
+  .sub { font-size: 3vh; opacity: .8; }
+</style>
+</head>
+<body>
+<div class="eb" id="eb"></div>
+<div class="board" id="board"></div>
+<div class="sub" id="sub"></div>
+<script>
+"use strict";
+const CH = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&-.!?";
+let cells = [], built = false;
+const clamp = x => Math.min(1, Math.max(0, x));
+function build() {
+  const F = window.FILMLUX || { props: {}, theme: { colors: {} } }, P = F.props || {}, C = F.theme.colors || {};
+  const lines = (P.lines && P.lines.length ? P.lines : ["FILMLUX"]).map(s => String(s).toUpperCase());
+  const n = Math.max(...lines.map(l => l.length)), portrait = (F.height || innerHeight) > (F.width || innerWidth);
+  document.body.style.background = C.bg0 || "#0b1530"; document.body.style.color = C.ink || "#fff";
+  const cw = Math.min(portrait ? 82 / n : 70 / n, 13 / Math.max(1, lines.length) * (portrait ? 0.9 : 1.2));
+  document.documentElement.style.setProperty("--cw", cw + (portrait ? "vw" : "vw"));
+  const eb = document.getElementById("eb"); eb.textContent = P.eyebrow || ""; eb.style.color = C.accent2 || C.accent || "#f55";
+  document.getElementById("sub").textContent = P.sub || "";
+  const board = document.getElementById("board"); board.style.background = "rgba(0,0,0,.35)";
+  lines.forEach((line, r) => { const row = document.createElement("div"); row.className = "row"; board.appendChild(row);
+    line.padEnd(n).split("").forEach((ch, k) => {
+      const c = document.createElement("div"); c.className = "cell"; c.style.background = "#16181d"; row.appendChild(c);
+      const mk = cls => { const h = document.createElement("div"); h.className = "half " + cls; h.style.background = cls.includes("top") ? "#1f2229" : "#1a1c22"; const s = document.createElement("span"); s.style.color = "#f4f1e8"; h.appendChild(s); c.appendChild(h); return s; };
+      const top = mk("top"), bot = mk("bot"), flap = mk("top flap");
+      const seam = document.createElement("div"); seam.className = "seam"; seam.style.background = "rgba(0,0,0,.6)"; c.appendChild(seam);
+      const target = Math.max(0, CH.indexOf(ch)), spins = 6 + ((k * 7 + r * 3) % 9);
+      cells.push({ top, bot, flap, flapEl: flap.parentElement, target, spins, delay: 0.25 + k * 0.06 + r * 0.25, accent: P.accent_word && line.includes(String(P.accent_word).toUpperCase()) });
+    }); });
+  built = true; window.ready = true;
+}
+window.onFilmlux = () => { if (!built) build(); };
+window.renderAt = t => {
+  if (!built) build();
+  cells.forEach(o => {
+    const steps = o.target + o.spins, per = 0.055, p = (t - o.delay) / per, i = Math.max(0, Math.min(steps, Math.floor(p)));
+    const L = CH.length, at = j => CH[(((o.target - steps + Math.min(j, steps)) % L) + L) % L];   // lands exactly on the target letter
+    const cur = at(i), nxt = at(i + 1);
+    const done = i >= steps, f = done ? 1 : clamp(p - i);
+    o.top.textContent = done ? cur : nxt; o.bot.textContent = done ? cur : (f > .5 ? nxt : cur); o.flap.textContent = cur;
+    o.flapEl.style.transform = done ? "rotateX(-90deg)" : `rotateX(${-180 * f}deg)`; o.flapEl.style.visibility = done || f > .5 ? "hidden" : "visible";
+  });
+  const last = Math.max(...cells.map(o => o.delay + (o.target + o.spins) * 0.055));
+  document.getElementById("eb").style.opacity = clamp(t / .4);
+  document.getElementById("sub").style.opacity = clamp((t - last) / .5);
+};
+// Built on onFilmlux (props arrive) or the first renderAt, never earlier, so the film's words are used.
+</script>
+</body>
+</html>

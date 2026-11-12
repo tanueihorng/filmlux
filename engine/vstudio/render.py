@@ -19,10 +19,50 @@ from . import audio, voice
 from .capture import Browser
 from .config import ASSETS, FORMATS, FPS, ROOT, SR, STAGE, THEMES, WORK, h264_encoder
 
+KIT = STAGE.parent.parent / "kit" / "filmlux-kit.js"     # helpers injected into every custom html scene
+
 DEFAULT_DUR = {"title": 4.5, "kinetic": 5.0, "bullets": 6.0, "stat": 4.5, "quote": 5.5, "chart": 6.5, "process": 6.5,
                "image": 5.0, "split": 6.0, "bento": 6.5, "compare": 6.5, "end": 5.0, "screen": 0, "html": 5.0,
-               "section": 3.5, "logo": 3.5, "timeline": 7.0}
-IMAGE_TYPES = ("image", "split")
+               "section": 3.5, "logo": 3.5, "timeline": 7.0,
+               "polaroids": 6.5, "note": 5.5, "countdown": 4.5, "wordwall": 5.0, "annotate": 7.5, "chat": 7.5}
+IMAGE_TYPES = ("image", "split", "title", "quote", "annotate")
+# Every way a scene type can be composed ("layout"); the first is the default. Mirrors LAYOUTS in engine/stage/stage.html.
+LAYOUTS = {
+    "title": ["center", "left", "bottom", "giant", "photo"], "kinetic": ["center", "stack"], "bullets": ["split", "stack", "big"],
+    "stat": ["center", "left", "giant"], "quote": ["center", "side", "note", "huge"], "chart": ["full", "side"],
+    "image": ["frame", "full", "polaroid"], "split": ["side", "overlap", "full", "stacked", "polaroid"],
+    "bento": ["grid", "row", "pinboard", "list"], "compare": ["cards", "halves"], "section": ["side", "center"],
+    "timeline": ["line", "steps", "vertical"], "end": ["center", "left", "band"],
+    "polaroids": ["pile", "row"], "note": ["sticky", "card"], "countdown": ["center"], "wordwall": ["rows", "stack"],
+    "annotate": ["side", "over"], "chat": ["center", "side"],
+}
+# The composition each (type, layout) puts on screen. qa uses it to stop a film from repeating one frame.
+COMPOSITION = {
+    "centred": {"title:center", "kinetic:center", "stat:center", "quote:center", "end:center", "logo:center", "countdown:center", "section:center", "chat:center"},
+    "left-type": {"title:left", "title:bottom", "title:giant", "kinetic:stack", "stat:left", "stat:giant", "quote:huge", "end:left", "section:side", "bullets:big", "wordwall:stack", "bento:list"},
+    "side-by-side": {"split:side", "split:polaroid", "bullets:split", "chart:side", "quote:side", "timeline:vertical", "annotate:side", "chat:side"},
+    "grid": {"bento:grid", "bento:row", "bullets:stack", "compare:cards"},
+    "full-bleed": {"title:photo", "image:full", "split:full", "split:overlap", "compare:halves", "end:band", "wordwall:rows"},
+    "diagram": {"process:path", "timeline:line", "timeline:steps", "chart:full", "split:stacked", "annotate:over", "image:frame"},
+    "objects": {"polaroids:pile", "polaroids:row", "note:sticky", "note:card", "quote:note", "bento:pinboard", "image:polaroid"},
+}
+
+
+def layout_of(sc):
+    opts = LAYOUTS.get(sc["type"])
+    if not opts:
+        return {"process": "path", "logo": "center"}.get(sc["type"], "default")
+    L = sc.get("layout")
+    if not L and sc["type"] == "title" and sc.get("align") == "left":
+        L = "left"
+    if not L and sc["type"] == "image" and sc.get("full"):
+        L = "full"
+    return L if L in opts else opts[0]
+
+
+def composition_of(sc):
+    key = f"{sc['type']}:{layout_of(sc)}"
+    return next((k for k, v in COMPOSITION.items() if key in v), "other")
 LEAD, TAIL = .35, .7          # voice starts LEAD s into its scene; TAIL s of breathing room after it
 XFADE = .4                    # default dissolve between scenes (s)
 STILL_EXT = (".png", ".jpg", ".jpeg", ".webp")   # a screen scene can tour a still screenshot instead of a video
@@ -71,6 +111,13 @@ class Project:
             for ly in sc.get("layers") or []:
                 if ly.get("src") and not re.match(r"^(https?:|data:)", ly["src"]):
                     ly["_path"] = str(self.resolve(ly["src"]))
+            if sc.get("photos"):                                 # polaroids: each print has its own picture
+                sc["photos"] = [dict(o) for o in sc["photos"]]
+                for o in sc["photos"]:
+                    if o.get("src") and not re.match(r"^(https?:|data:)", o["src"]):
+                        o["_path"] = str(self.resolve(o["src"]))
+                    if o.get("gen") and not Path(o.get("_path", "")).exists():
+                        o["_pending"] = gen_prompt(o["gen"])
             # an AI image that has not been generated yet: previews show a placeholder, QA blocks the final render
             if sc["type"] in IMAGE_TYPES and sc.get("gen") and not Path(sc.get("_path", "")).exists() and not sc.get("layers"):
                 sc["_pending"] = gen_prompt(sc["gen"])
@@ -121,6 +168,10 @@ class Project:
                 d["layers"] = [{**{k: v for k, v in ly.items() if not k.startswith("_")},
                                 **({"src": Path(ly["_path"]).as_uri()} if ly.get("_path") else {}),
                                 **({"pending": ly["_pending"]} if ly.get("_pending") else {})} for ly in sc["layers"]]
+            if sc.get("photos"):
+                d["photos"] = [{**{k: v for k, v in o.items() if not k.startswith("_")},
+                                **({"src": Path(o["_path"]).as_uri()} if o.get("_path") else {}),
+                                **({"pending": o["_pending"]} if o.get("_pending") else {})} for o in sc["photos"]]
             scenes.append(d)
         theme = dict(self.theme)
         return {"width": self.W, "height": self.H, "theme": theme, "scenes": scenes, "root_uri": ROOT.as_uri(), "title": self.title,
@@ -526,15 +577,30 @@ class Frames:
                 self.stage.eval(f"renderFrame({i}, 1.0)", await_promise=True); self.backdrop[i] = self.stage.shot()
             return self.comp.frame(i, sc, rt, self.backdrop[i])
         if sc["type"] == "html":
-            b = self.custom.get(sc["_path"])
-            if b is None:
-                b = self.custom[sc["_path"]] = Browser(Path(sc["_path"]), self.p.W, self.p.H,
-                                                      "window.ready === true || (document.readyState === 'complete' && !window.__waitReady)")
-            b.eval(f"(window.renderAt ? Promise.resolve(window.renderAt({rt:.5f})) : (Object.values(window.__timelines || {{}}).forEach(tl => tl.seek({rt:.5f}, false)), true))",
-                   await_promise=True)
+            b = self.html_page(i)
+            self.html_seek(b, rt)
             return b.shot()
         self.stage.eval(f"renderFrame({i}, {rt:.5f})", await_promise=True)
         return self.stage.shot()
+
+    def html_page(self, i):
+        """The browser for html scene i: loads the page, injects the Filmlux kit, hands it FILMLUX (props + the film's look)."""
+        b = self.custom.get(i)
+        if b is None:
+            sc = self.p.scenes[i]
+            b = self.custom[i] = Browser(Path(sc["_path"]), self.p.W, self.p.H,
+                                         "window.ready === true || (document.readyState === 'complete' && !window.__waitReady)")
+            b.eval(KIT.read_text(encoding="utf-8") + "\n;true")
+            fl = {"props": sc.get("props") or {}, "theme": {"colors": self.p.theme.get("colors", {}), "type": self.p.theme.get("type", {}), "mode": self.p.theme.get("mode")},
+                  "width": self.p.W, "height": self.p.H, "dur": sc["dur"], "fonts": (ASSETS / "fonts").as_uri(),
+                  "motion": sc.get("motion") or self.p.theme.get("motion") or "smooth", "captions": bool(self.caps) and sc.get("caption") is not False}
+            b.eval(f"window.FILMLUX = {json.dumps(fl)}; Promise.resolve(window.onFilmlux ? window.onFilmlux(window.FILMLUX) : true)", await_promise=True)
+        return b
+
+    @staticmethod
+    def html_seek(b, rt):
+        b.eval(f"(window.renderAt ? Promise.resolve(window.renderAt({rt:.5f})) : (Object.values(window.__timelines || {{}}).forEach(tl => tl.seek({rt:.5f}, false)), true))",
+               await_promise=True)
 
     def close(self):
         self.stage.close()
@@ -719,8 +785,17 @@ def qa(prj: Project, fr: Frames | None = None):
         tag = f"scene {i + 1} ({sc['type']})"
         if sc.get("_pending"):
             issues.append(("ERROR", tag, f"AI image not generated yet: {sc.get('src')} (run: python studio.py imagegen <name>, then generate it; see IMAGEGEN.md)"))
-        elif sc["type"] in ("screen", "image", "split", "html") and not sc.get("layers") and not Path(sc.get("_path", "")).exists():
+        elif (sc["type"] in ("screen", "image", "split", "html", "annotate") or sc.get("_path")) and not sc.get("layers") and not Path(sc.get("_path", "")).exists():
             issues.append(("ERROR", tag, f"file not found: {sc.get('src')}"))
+        for o in sc.get("photos") or []:
+            if o.get("_pending"):
+                issues.append(("ERROR", tag, f"AI photo not generated yet: {o.get('src')}"))
+            elif not Path(o.get("_path", "")).exists():
+                issues.append(("ERROR", tag, f"photo file not found: {o.get('src')}"))
+        if sc.get("layout") and sc["type"] in LAYOUTS and sc["layout"] not in LAYOUTS[sc["type"]]:
+            issues.append(("WARN", tag, f"unknown layout '{sc['layout']}' for {sc['type']} (using '{LAYOUTS[sc['type']][0]}') -> fix: choose one of: {', '.join(LAYOUTS[sc['type']])}"))
+        if sc["type"] == "title" and layout_of(sc) == "photo" and not sc.get("src") and not sc.get("gen"):
+            issues.append(("WARN", tag, "title layout 'photo' needs a 'src' picture (it falls back to 'center') -> fix: add \"src\", or choose another layout"))
         for ly in sc.get("layers") or []:
             if ly.get("_pending"):
                 issues.append(("ERROR", tag, f"AI image layer not generated yet: {ly.get('src')}"))
@@ -751,15 +826,22 @@ def qa(prj: Project, fr: Frames | None = None):
             issues.append(("ERROR", tag, f"unknown scene type '{sc['type']}' (see SPEC.md)"))
     issues += craft_checks(prj)
     issues += placeholder_checks(prj)
-    if prj.mode == "guided":
-        for i, sc in enumerate(prj.scenes):
-            if sc["type"] == "html":
-                issues.append(("WARN", f"scene {i + 1} (html)", "custom html scenes need \"mode\": \"creative\"; use a built-in scene type"))
+    if prj.mode == "guided":                       # guided: a custom scene is allowed when it builds something the user asked for
+        bespoke = [i for i, sc in enumerate(prj.scenes) if sc["type"] == "html" and not (library_scene(sc) or {}).get("guided_ok")]
+        for n, i in enumerate(bespoke):
+            sc = prj.scenes[i]
+            if not str(sc.get("why", "")).strip():
+                issues.append(("WARN", f"scene {i + 1} (html)", "a custom html scene in guided mode must say which request it fulfils -> fix: add \"why\": \"<the user's words it builds>\" "
+                                                              "(or use a built-in layout / a guided_ok library scene: python studio.py scenes)"))
+            elif n >= GUIDED_CUSTOM:
+                issues.append(("WARN", f"scene {i + 1} (html)", f"more than {GUIDED_CUSTOM} custom html scenes in guided mode -> fix: use built-in layouts for the rest, or set \"mode\": \"creative\""))
     for s, e, text in prj.captions_list():
         if len(text) > 90:
             issues.append(("WARN", "caption", f"long caption ({len(text)} chars): {text[:50]}... -> fix: shorten that scene's say line, or set \"caption\" to a version under 72 characters"))
     if fr is not None:
         for i, sc in enumerate(prj.scenes):
+            if sc["type"] == "html" and Path(sc.get("_path", "")).exists():
+                issues += html_checks(fr, i, sc)
             if sc["type"] in ("screen", "html"):
                 continue
             for msg in fr.stage.eval(f"qa({i})") or []:
@@ -769,8 +851,51 @@ def qa(prj: Project, fr: Frames | None = None):
     return issues
 
 
+GUIDED_CUSTOM = 2          # custom html scenes a guided film may have (each with a "why")
+
+
+def html_checks(fr, i, sc):
+    """The same bar as built-in scenes: frames that depend only on t, nothing blank, no clipped or covered text."""
+    tag, out, d = f"scene {i + 1} (html)", [], sc["dur"]
+    try:
+        b = fr.html_page(i)
+    except Exception as e:                                       # the page itself fails to load
+        return [("ERROR", tag, f"the page did not load: {str(e)[:120]}")]
+    if not b.eval("!!(window.renderAt || (window.__timelines && Object.keys(window.__timelines).length))"):
+        return [("ERROR", tag, "the page has no window.renderAt(t) and no paused GSAP timelines in window.__timelines (SPEC.md, html)")]
+    def grab(t):
+        fr.html_seek(b, t); return np.asarray(b.shot().convert("L").resize((240, 135)), dtype=np.float32)
+    t1 = min(1.0, d * .3)
+    a = grab(t1); grab(d * .75); c = grab(t1)
+    if np.abs(a - c).mean() > 1.5:
+        out.append(("ERROR", tag, "the same time gives different frames (wall-clock animation: Date.now, requestAnimationFrame or CSS animation) -> fix: draw everything from t in renderAt"))
+    mid = grab(d * .6)
+    if mid.std() < 3:
+        out.append(("WARN", tag, f"the frame at {d * .6:.1f}s looks blank (one flat colour) -> fix: check the page draws at that time"))
+    fr.html_seek(b, max(0, d - .05))
+    for msg in b.eval("window.Kit ? Kit.qa() : []") or []:
+        out.append(("ERROR", tag, msg + " (mark full-frame art with data-bleed)"))
+    return out
+
+
 _TEXT_SKIP = {"say", "caption", "src", "gen", "type", "transition", "transition_s", "transition_timing", "transition_direction",
-              "motion", "cam", "note", "layers", "size", "accent", "dur", "speed", "hold", "move", "fit", "loop", "data", "unit"}
+              "motion", "cam", "note", "layers", "size", "accent", "dur", "speed", "hold", "move", "fit", "loop", "data", "unit",
+              "layout", "beat", "why", "side", "ratio", "align", "focus", "tilt", "from", "to", "props"}
+
+
+def library_scene(sc):
+    """The manifest of a reusable html scene from scenes/<name>/ (None for a project's own html scene)."""
+    p = Path(sc.get("_path", ""))
+    lib = (ROOT / "scenes").resolve()
+    try:
+        p.resolve().relative_to(lib)
+    except ValueError:
+        return None
+    m = p.parent / "scene.json"
+    try:
+        return json.loads(m.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
 LOUD_TRANSITIONS = {"flash", "glitch", "iris", "cube", "clockwipe"}
 
 
@@ -812,6 +937,23 @@ def craft_checks(prj: Project):
         if i >= 2 and sc_[i - 1]["type"] == sc_[i - 2]["type"] == sc["type"]:
             alt = next(x for x in ("bullets", "stat", "image", "quote", "split") if x != sc["type"])
             out.append(("WARN", tag, f"third '{sc['type']}' scene in a row; vary the scene type unless the repetition is the point -> fix: make this one a '{alt}' scene"))
+    # composition: the same frame again and again reads as a template, whatever the theme
+    framed = [(i, composition_of(sc)) for i, sc in enumerate(sc_) if sc["type"] not in ("screen", "html")]
+    for k in range(2, len(framed)):
+        (i0, a), (i1, b), (i2, c_) = framed[k - 2], framed[k - 1], framed[k]
+        same_type = sc_[i0]["type"] == sc_[i1]["type"] == sc_[i2]["type"]          # already reported above
+        if a == b == c_ and i2 - i0 == 2 and not same_type:
+            sc = sc_[i2]; opts = [l for l in LAYOUTS.get(sc["type"], []) if composition_of({**sc, "layout": l}) != c_]
+            fix = f"set \"layout\" to one of: {', '.join(opts)}" if opts else "use a scene type with a different composition (python studio.py scenes)"
+            out.append(("WARN", f"scene {i2 + 1} ({sc['type']})", f"third '{c_}' composition in a row (scenes {i0 + 1}-{i2 + 1} share one frame) -> fix: {fix}"))
+    if len(framed) >= 6:
+        fams = {c for _, c in framed}
+        centred = sum(1 for _, c in framed if c == "centred")
+        if len(fams) < 3:
+            out.append(("WARN", "structure", f"only {len(fams)} kinds of composition across {len(framed)} scenes ({', '.join(sorted(fams))}); it will feel like one template "
+                                              "-> fix: give 2-3 scenes another layout (python studio.py scenes lists them)"))
+        if centred > len(framed) / 2:
+            out.append(("WARN", "structure", f"{centred} of {len(framed)} scenes are centred text -> fix: move some to a 'left', 'bottom', 'giant', 'side' or 'note' layout"))
     loud = [i + 1 for i, sc in enumerate(sc_) if i > 0 and
             str(sc.get("transition") or prj.spec.get("transition") or "").partition(":")[0] in LOUD_TRANSITIONS]
     if len(loud) > 3:
@@ -1000,7 +1142,7 @@ def _chunk(job):
 
 def _engine_sig():
     h = hashlib.sha1()
-    for f in (STAGE, Path(__file__)):
+    for f in (STAGE, KIT, Path(__file__)):
         h.update(f.read_bytes())
     return h.hexdigest()[:12]
 

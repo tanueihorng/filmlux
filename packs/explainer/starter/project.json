@@ -15,7 +15,8 @@
       "type": "title",
       "eyebrow": "Explainer",
       "title": "The question this <em>answers</em>",
-      "say": "In the next minute, here's the question we'll answer."
+      "say": "In the next minute, here's the question we'll answer.",
+      "layout": "left"
     },
     {
       "type": "bullets",
@@ -25,7 +26,8 @@
         "Second point",
         "Third point"
       ],
-      "say": "There are three things to know."
+      "say": "There are three things to know.",
+      "layout": "big"
     },
     {
       "type": "process",
@@ -57,7 +59,8 @@
         ]
       ],
       "note": "Sample data: replace with the user's real figures",
-      "say": "And here's the evidence, from your own data."
+      "say": "And here's the evidence, from your own data.",
+      "layout": "side"
     },
     {
       "type": "end",

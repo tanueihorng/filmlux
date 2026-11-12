@@ -8,7 +8,24 @@
 - Caption style `pop`: big words, with the spoken word lit up.
 - Music `upbeat`. Voice Ava −4 % or Andrew +0 %.
 
-**Shape (30 s):**
+**Beats** (the story; choose a scene type and a `layout` for each: `python studio.py scenes`):
+1. **Hook** in the first 2 seconds
+2. **Why care**: one fact
+3. **The points**: 3 items
+4. **Proof or a face**
+5. **One CTA**
+
+**Treatments** (offer the user 2–3 before writing the script; each is a different structure, not only a different look):
+- **Pop**: big words, one idea a screen.
+  `kinetic` center → `stat` giant → `bullets` big → `quote` huge → `end` band
+- **Chat screenshot**: the story told as a conversation.
+  `kinetic` stack → `chat` center → `annotate` over → `end` center
+- **Photo dump**: prints and notes, like a story post.
+  `polaroids` pile → `note` sticky → `stat` left → `end` left
+
+**Signature scenes:** `chat`, `countdown`, `polaroids`. Use at least one; they make this pack look like itself.
+
+**The original Shape** (still a valid treatment, the most conventional one):
 1. `kinetic`: the hook in the first 2 seconds (3 lines of 1–3 words)
 2. `stat` or `section`: the one fact that makes people care
 3. `bullets` (3 items) or `bento` (`cols: 2`, 3–4 tiles)

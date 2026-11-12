@@ -7,7 +7,24 @@
 - Music `calm`. Voice Emma or Ava −4 %.
 - Captions `narration`.
 
-**Shape (60 s):**
+**Beats** (the story; choose a scene type and a `layout` for each: `python studio.py scenes`):
+1. **Hook**: one striking picture and a 3–6 word line
+2. **Unfold**: 2–3 ideas, each with its own illustration
+3. **Hero moment**: a parallax or full-bleed picture
+4. **Takeaway**: the point, built from type or a diagram, not another picture
+5. **Ask**: what to do next
+
+**Treatments** (offer the user 2–3 before writing the script; each is a different structure, not only a different look):
+- **Picture book**: every beat is an illustration; the words sit on cards over them.
+  `title` photo → `split` full ×2 (alternate `side`) → `image` with `layers` → `note` card → `end` left
+- **Gallery wall**: illustrations as prints on a table, the story told between them.
+  `image` polaroid → `polaroids` pile → `quote` huge → `split` polaroid → `end` center
+- **Conversation**: an assistant explains, pictures answer.
+  `kinetic` stack → `chat` side → `split` overlap → `annotate` over → `end` band
+
+**Signature scenes:** `polaroids`, `chat`, `split` layouts `full` / `overlap`. Use at least one; they make this pack look like itself.
+
+**The original Shape** (still a valid treatment, the most conventional one):
 1. `image` (full) hook: one striking illustration and a 3–6 word title
 2. `split` ×2–3: text on one side, an illustration on the other (alternate `side`)
 3. `image` with `layers` (a background plus a cutout subject) for a parallax hero moment

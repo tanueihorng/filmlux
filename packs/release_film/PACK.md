@@ -4,7 +4,25 @@
 
 **Defaults:** theme `navy`; music `calm`; voice Ava −4 %; captions `narration`; screen scenes use `frame: true` (a floating window on the brand backdrop).
 
-**Shape:**
+**Beats** (the story; choose a scene type and a `layout` for each: `python studio.py scenes`):
+1. **Release and promise**
+2. **Journey map**: the user's 4–6 steps
+3. **Each step**: a chapter card, then 2–5 `screen` scenes, one action each
+4. **Closing loop**: back where it started, now changed
+5. **What's in the release**
+6. **Where to start**
+
+**Treatments** (offer the user 2–3 before writing the script; each is a different structure, not only a different look):
+- **Walkthrough**: one user's journey through the release, step by step.
+  `title` center → `process` loop → per step: `section` side + `screen` ×2–5 → `bento` grid → `end` center
+- **Highlights**: the three changes that matter, each explained on a screenshot.
+  `title` bottom → `bullets` big → `annotate` side ×3 → `compare` halves → `end` left
+- **Ask the product**: a question to the assistant opens each chapter.
+  `chat` side → `screen` ×2 → `chat` center → `screen` ×2 → `bento` list → `end` band
+
+**Signature scenes:** `annotate`, `chat`, `section` chapter cards. Use at least one; they make this pack look like itself.
+
+**The original Shape** (still a valid treatment, the most conventional one):
 1. `title`: release name and promise
 2. `process` with `loop` (or `bullets`): the journey map, e.g. the user's 4–6 steps
 3. For each step:

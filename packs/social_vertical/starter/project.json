@@ -26,7 +26,8 @@
       "eyebrow": "Every week",
       "value": "5 hrs",
       "label": "back for every AM",
-      "say": "Replace with the one number that matters, and where it comes from."
+      "say": "Replace with the one number that matters, and where it comes from.",
+      "layout": "giant"
     },
     {
       "type": "bullets",
@@ -36,13 +37,15 @@
         "Get the answer",
         "Act on it"
       ],
-      "say": "Ask in plain words, get the answer, and act on it."
+      "say": "Ask in plain words, get the answer, and act on it.",
+      "layout": "big"
     },
     {
       "type": "end",
       "title": "Try it <em>today</em>",
       "cta": "Open the app",
-      "say": "Try it today."
+      "say": "Try it today.",
+      "layout": "band"
     }
   ]
 }

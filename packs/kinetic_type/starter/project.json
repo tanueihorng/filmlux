@@ -22,7 +22,8 @@
       "type": "section",
       "number": "01",
       "eyebrow": "The shift",
-      "title": "One <em>idea</em> per screen"
+      "title": "One <em>idea</em> per screen",
+      "layout": "center"
     },
     {
       "type": "kinetic",
@@ -31,14 +32,16 @@
         "Every signal.",
         "<em>One</em> place."
       ],
-      "say": "Replace with one short sentence for this scene."
+      "say": "Replace with one short sentence for this scene.",
+      "layout": "stack"
     },
     {
       "type": "stat",
       "eyebrow": "Proof",
       "value": "3x",
       "label": "faster answers",
-      "sub": "Replace with your real number and source"
+      "sub": "Replace with your real number and source",
+      "layout": "giant"
     },
     {
       "type": "kinetic",
@@ -50,7 +53,8 @@
     {
       "type": "end",
       "title": "Make it <em>loud</em>",
-      "cta": "Replace with the call to action"
+      "cta": "Replace with the call to action",
+      "layout": "band"
     }
   ]
 }

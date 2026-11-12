@@ -20,7 +20,8 @@
       "full": true,
       "title": "A <em>hook</em> title",
       "move": "in",
-      "say": "Replace with the hook."
+      "say": "Replace with the hook.",
+      "layout": "full"
     },
     {
       "type": "split",
@@ -31,7 +32,8 @@
       "eyebrow": "The problem",
       "title": "Replace with the problem",
       "body": "One short sentence.",
-      "say": "Replace with the problem."
+      "say": "Replace with the problem.",
+      "layout": "overlap"
     },
     {
       "type": "split",
@@ -43,7 +45,8 @@
       "eyebrow": "The idea",
       "title": "Replace with the idea",
       "body": "One short sentence.",
-      "say": "Replace with the idea."
+      "say": "Replace with the idea.",
+      "layout": "polaroid"
     },
     {
       "type": "image",
@@ -83,7 +86,8 @@
       "type": "end",
       "title": "Replace with the close",
       "cta": "Call to action",
-      "say": "Replace with the call to action."
+      "say": "Replace with the call to action.",
+      "layout": "left"
     }
   ]
 }

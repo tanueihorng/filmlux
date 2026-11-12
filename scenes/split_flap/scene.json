@@ -1,0 +1,8 @@
+{
+  "about": "Departure-board reveal: letters flip until the words land. A launch, a destination, a new name.",
+  "props": {"eyebrow": "Now boarding", "lines": ["NEXT STOP", "LAUNCH"], "sub": "One line under the board (optional)"},
+  "guided_ok": true,
+  "dur": 5,
+  "best_for": ["motion_promo", "retro_hype", "kinetic_type", "cinematic_brand"],
+  "notes": "Keep each line to 12 characters or fewer. Letters A-Z, 0-9 and & - . ! ? only."
+}

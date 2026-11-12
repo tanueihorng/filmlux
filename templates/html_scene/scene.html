@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Custom scene</title>
+<!-- A custom Filmlux scene. Start here when the user describes something no layout covers.
+     Rules (SPEC.md, html): every frame depends only on t; read words from FILMLUX.props, colours/fonts from the theme (Kit.init);
+     keep text inside Kit.safe() (clear of the captions); mark full-frame art with data-bleed. qa checks all of this.
+     Preview: python studio.py stills <project>   (the engine injects the kit, the film's theme and your props) -->
+<script src="__KIT__"></script>
+</head>
+<body>
+<script>
+"use strict";
+let S = null;                                     // what we build once, then animate from t
+
+function build(F) {
+  Kit.init();                                     // theme colours + fonts, .kit-* classes, the safe area
+  const P = F.props || {};
+  // 1. Full-frame art (exempt from the safe-area check): a soft accent wash, as an example
+  const art = document.createElement("div"); art.dataset.bleed = 1;
+  Object.assign(art.style, { position: "absolute", inset: 0, background: "radial-gradient(60% 70% at 70% 40%, color-mix(in srgb, var(--accent) 25%, transparent), transparent)" });
+  document.body.appendChild(art);
+  // 2. The words, inside the safe area
+  const box = Kit.safe(); Object.assign(box.style, { display: "flex", flexDirection: "column", justifyContent: "center" });
+  const eb = document.createElement("div"); eb.className = "kit-eyebrow"; eb.textContent = P.eyebrow || ""; box.appendChild(eb);
+  const tt = document.createElement("div"); tt.className = "kit-title"; tt.innerHTML = P.title || "Your <em>idea</em> here"; box.appendChild(tt);
+  Kit.fit(tt, 140, 48); const ws = Kit.words(tt);
+  const sb = document.createElement("div"); sb.className = "kit-sub"; sb.textContent = P.sub || ""; sb.style.marginTop = Kit.px(24); box.appendChild(sb);
+  S = { art, eb, ws, sb };
+}
+
+window.onFilmlux = F => { if (!S) build(F); };
+window.renderAt = t => {
+  if (!S) build(window.FILMLUX || {});
+  const d = (window.FILMLUX && FILMLUX.dur) || 5;
+  S.art.style.transform = `scale(${1.1 - .1 * Kit.seg(t, 0, d)})`;             // slow push-in
+  Kit.reveal(S.eb, Kit.seg(t, .1, .6));
+  S.ws.forEach((w, i) => Kit.reveal(w, Kit.seg(t, .3 + i * .08, 1 + i * .08), "rise", 40));
+  Kit.reveal(S.sb, Kit.seg(t, 1.2, 1.9));
+};
+</script>
+</body>
+</html>

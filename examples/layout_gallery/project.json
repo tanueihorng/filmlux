@@ -1,0 +1,536 @@
+{
+ "title": "Layout gallery",
+ "format": "16:9",
+ "theme": "collage",
+ "voice": null,
+ "music": "none",
+ "captions": "custom",
+ "brand_mark": false,
+ "mode": "creative",
+ "scenes": [
+  {
+   "type": "title",
+   "layout": "bottom",
+   "eyebrow": "Layout gallery",
+   "title": "One library, <em>many</em> frames",
+   "sub": "Every layout, one scene each",
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "title",
+   "layout": "giant",
+   "eyebrow": "Title · giant",
+   "title": "Make it <em>loud</em>",
+   "sub": "Type that fills the frame",
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "title",
+   "layout": "photo",
+   "src": "assets/filmlux-intro-images-20261110/03-projector.png",
+   "eyebrow": "Title · photo",
+   "title": "Start with a <em>picture</em>",
+   "sub": "Full-bleed opener",
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "kinetic",
+   "layout": "stack",
+   "lines": [
+    "Find the gap.",
+    "Check the facts.",
+    "Ship the <em>fix</em>."
+   ],
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "bullets",
+   "layout": "stack",
+   "eyebrow": "Bullets · stack",
+   "heading": "Three things to <em>know</em>",
+   "items": [
+    {
+     "title": "Plan the beats",
+     "body": "Hook, proof, ask"
+    },
+    {
+     "title": "Pick a layout",
+     "body": "Vary the frame"
+    },
+    {
+     "title": "Check the stills",
+     "body": "Look before render"
+    }
+   ],
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "bullets",
+   "layout": "big",
+   "eyebrow": "Bullets · big",
+   "heading": "The <em>checklist</em>",
+   "items": [
+    {
+     "title": "Story first",
+     "body": "One idea per scene"
+    },
+    {
+     "title": "Voice second",
+     "body": "Under 25 words"
+    },
+    {
+     "title": "Look last",
+     "body": "Theme and motion"
+    }
+   ],
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "stat",
+   "layout": "left",
+   "eyebrow": "Stat · left",
+   "value": "19",
+   "label": "themes to choose from",
+   "sub": "Sample data",
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "stat",
+   "layout": "giant",
+   "eyebrow": "Stat · giant",
+   "value": "98%",
+   "label": "of frames reused",
+   "sub": "Sample data",
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "quote",
+   "layout": "side",
+   "text": "Find the <em>ground truth</em> first.",
+   "by": "A producer",
+   "role": "on research",
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "quote",
+   "layout": "note",
+   "text": "Look at every <em>still</em> before you render.",
+   "by": "the playbook",
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "quote",
+   "layout": "huge",
+   "text": "Structure is a <em>choice</em>, not a template.",
+   "by": "Filmlux",
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "chart",
+   "layout": "side",
+   "kind": "column",
+   "eyebrow": "Chart · side",
+   "title": "Renders per <em>week</em>",
+   "data": [
+    [
+     "W1",
+     4
+    ],
+    [
+     "W2",
+     7
+    ],
+    [
+     "W3",
+     11
+    ],
+    [
+     "W4",
+     15
+    ]
+   ],
+   "note": "Sample data",
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "image",
+   "layout": "polaroid",
+   "src": "assets/filmlux-intro-images-20261110/04-story-frames.png",
+   "title": "Story frames",
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "split",
+   "layout": "overlap",
+   "eyebrow": "Split · overlap",
+   "title": "A picture that <em>bleeds</em>",
+   "body": "Words on a card over it",
+   "src": "assets/filmlux-intro-images-20261110/02-idea-to-images.png",
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "split",
+   "layout": "full",
+   "eyebrow": "Split · full",
+   "title": "Let the image <em>lead</em>",
+   "body": "A card in the corner",
+   "src": "assets/filmlux-intro-images-20261110/01-opening-portal.png",
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "split",
+   "layout": "stacked",
+   "eyebrow": "Split · stacked",
+   "title": "A cinematic <em>band</em>",
+   "body": "Headline above, wide picture below",
+   "src": "assets/filmlux-intro-images-20261110/05-closing-horizon.png",
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "split",
+   "layout": "polaroid",
+   "side": "left",
+   "eyebrow": "Split · polaroid",
+   "title": "Hand-made <em>moments</em>",
+   "body": "A tilted print with a caption",
+   "label": "the first draft",
+   "src": "assets/filmlux-intro-images-20261110/03-projector.png",
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "bento",
+   "layout": "pinboard",
+   "title": "Pinned <em>ideas</em>",
+   "tiles": [
+    {
+     "label": "one",
+     "title": "Hook",
+     "body": "First five seconds"
+    },
+    {
+     "label": "two",
+     "title": "Proof",
+     "body": "Real numbers only",
+     "accent": true
+    },
+    {
+     "label": "three",
+     "title": "Ask",
+     "body": "One clear action"
+    }
+   ],
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "bento",
+   "layout": "list",
+   "title": "What's <em>inside</em>",
+   "tiles": [
+    {
+     "title": "Six new scenes",
+     "body": "Signature moments per pack"
+    },
+    {
+     "title": "Forty layouts",
+     "body": "Same content, new frame"
+    },
+    {
+     "title": "A scene library",
+     "body": "Reuse custom scenes"
+    }
+   ],
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "bento",
+   "layout": "row",
+   "title": "Row of <em>tiles</em>",
+   "tiles": [
+    {
+     "label": "A",
+     "title": "Brief"
+    },
+    {
+     "label": "B",
+     "title": "Script"
+    },
+    {
+     "label": "C",
+     "title": "Stills"
+    },
+    {
+     "label": "D",
+     "title": "Render"
+    }
+   ],
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "compare",
+   "layout": "halves",
+   "title": "Before and <em>after</em>",
+   "left": {
+    "label": "Before",
+    "title": "One frame",
+    "items": [
+     "Same layout",
+     "Theme swaps"
+    ]
+   },
+   "right": {
+    "label": "After",
+    "title": "Many frames",
+    "items": [
+     "Layouts per beat",
+     "Signature scenes"
+    ]
+   },
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "section",
+   "layout": "center",
+   "number": "02",
+   "eyebrow": "Section · center",
+   "title": "The <em>build</em>",
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "timeline",
+   "layout": "steps",
+   "title": "Climbing the <em>steps</em>",
+   "items": [
+    {
+     "when": "Week 1",
+     "title": "Brief"
+    },
+    {
+     "when": "Week 2",
+     "title": "Script"
+    },
+    {
+     "when": "Week 3",
+     "title": "Stills"
+    },
+    {
+     "when": "Week 4",
+     "title": "Ship"
+    }
+   ],
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "timeline",
+   "layout": "vertical",
+   "title": "A journey, <em>down</em> the page",
+   "items": [
+    {
+     "when": "Aug",
+     "title": "Market"
+    },
+    {
+     "when": "Sep",
+     "title": "Data"
+    },
+    {
+     "when": "Oct",
+     "title": "Product"
+    },
+    {
+     "when": "Nov",
+     "title": "AI"
+    }
+   ],
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "polaroids",
+   "layout": "pile",
+   "title": "From the <em>shoot</em>",
+   "photos": [
+    {
+     "src": "assets/filmlux-intro-images-20261110/01-opening-portal.png",
+     "caption": "day one"
+    },
+    {
+     "src": "assets/filmlux-intro-images-20261110/03-projector.png",
+     "caption": "the projector"
+    },
+    {
+     "src": "assets/filmlux-intro-images-20261110/05-closing-horizon.png",
+     "caption": "last light"
+    }
+   ],
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "polaroids",
+   "layout": "row",
+   "photos": [
+    {
+     "src": "assets/filmlux-intro-images-20261110/02-idea-to-images.png",
+     "caption": "idea"
+    },
+    {
+     "src": "assets/filmlux-intro-images-20261110/04-story-frames.png",
+     "caption": "frames"
+    },
+    {
+     "src": "assets/filmlux-intro-images-20261110/05-closing-horizon.png",
+     "caption": "film"
+    }
+   ],
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "note",
+   "layout": "sticky",
+   "title": "Before you render",
+   "items": [
+    "Open the stills",
+    "Run qa",
+    "Listen once"
+   ],
+   "dur": 6,
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "note",
+   "layout": "card",
+   "text": "Vary the <em>frame</em>, keep the story.",
+   "by": "the playbook",
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "countdown",
+   "eyebrow": "Countdown",
+   "from": 3,
+   "to": 1,
+   "then": "Lights, <em>camera</em>.",
+   "sub": "Then the reveal",
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "wordwall",
+   "layout": "rows",
+   "words": [
+    "story",
+    "beats",
+    "layouts",
+    "voice",
+    "music",
+    "stills",
+    "render"
+   ],
+   "highlight": "Every film its own <em>shape</em>",
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "wordwall",
+   "layout": "stack",
+   "words": [
+    "Brief.",
+    "Script.",
+    "Stills."
+   ],
+   "highlight": "Render.",
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "annotate",
+   "layout": "side",
+   "title": "What's in the <em>frame</em>",
+   "src": "assets/filmlux-intro-images-20261110/02-idea-to-images.png",
+   "notes": [
+    {
+     "x": 0.3,
+     "y": 0.4,
+     "text": "The idea"
+    },
+    {
+     "x": 0.7,
+     "y": 0.55,
+     "text": "The images it becomes"
+    }
+   ],
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "annotate",
+   "layout": "over",
+   "src": "assets/filmlux-intro-images-20261110/04-story-frames.png",
+   "notes": [
+    {
+     "x": 0.25,
+     "y": 0.35,
+     "text": "Frame one"
+    },
+    {
+     "x": 0.72,
+     "y": 0.6,
+     "text": "Frame two"
+    }
+   ],
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "chat",
+   "layout": "side",
+   "eyebrow": "Chat · side",
+   "title": "Ask, and it <em>answers</em>",
+   "name": "Filmlux helper",
+   "messages": [
+    {
+     "from": "user",
+     "text": "Make my film feel less like a template."
+    },
+    {
+     "from": "bot",
+     "text": "Try three treatments: photo-led, type-led or timeline-led."
+    },
+    {
+     "from": "user",
+     "text": "Photo-led, please."
+    },
+    {
+     "from": "bot",
+     "text": "Great. I'll open on a full-bleed picture."
+    }
+   ],
+   "dur": 9,
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "chat",
+   "layout": "center",
+   "name": "Assistant",
+   "messages": [
+    {
+     "from": "user",
+     "text": "Which layout for a quote?"
+    },
+    {
+     "from": "bot",
+     "text": "A sticky note feels hand-made."
+    }
+   ],
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "end",
+   "layout": "band",
+   "title": "Every film its own <em>shape</em>",
+   "sub": "python studio.py scenes",
+   "cta": "Try a layout",
+   "caption": "Every scene type can be composed several ways."
+  },
+  {
+   "type": "end",
+   "layout": "left",
+   "title": "Thank <em>you</em>",
+   "sub": "The end, set low-left",
+   "cta": "Share feedback",
+   "caption": "Every scene type can be composed several ways."
+  }
+ ]
+}

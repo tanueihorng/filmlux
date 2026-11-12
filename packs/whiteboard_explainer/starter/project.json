@@ -17,7 +17,8 @@
       "eyebrow": "How to",
       "title": "How do I <em>get started</em>?",
       "sub": "Replace with the topic",
-      "say": "Replace with one short sentence for this scene."
+      "say": "Replace with one short sentence for this scene.",
+      "layout": "left"
     },
     {
       "type": "bullets",
@@ -37,7 +38,8 @@
           "body": "…"
         }
       ],
-      "say": "Replace with one short sentence for this scene."
+      "say": "Replace with one short sentence for this scene.",
+      "layout": "big"
     },
     {
       "type": "process",
@@ -67,7 +69,8 @@
           "…"
         ]
       },
-      "say": "Replace with one short sentence for this scene."
+      "say": "Replace with one short sentence for this scene.",
+      "layout": "halves"
     },
     {
       "type": "end",

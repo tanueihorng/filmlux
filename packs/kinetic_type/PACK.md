@@ -7,7 +7,25 @@
 - Motion `slam`, `snappy` or `mask`. Transition `cut` or `slide`.
 - Music `upbeat` or `cinematic`. Voice optional; with a voice, captions `none` (the type already says it).
 
-**Shape (30 s):**
+**Beats** (the story; choose a scene type and a `layout` for each: `python studio.py scenes`):
+1. **Hook**: 2–3 punchy lines
+2. **Turn**: a big number or word
+3. **Core message**: one phrase per line
+4. **Proof**: the single number
+5. **Payoff**
+6. **Call to action**
+
+**Treatments** (offer the user 2–3 before writing the script; each is a different structure, not only a different look):
+- **Drumbeat**: full-screen lines that replace each other.
+  `kinetic` center → `section` center → `kinetic` center → `stat` giant → `end` band
+- **Wall of words**: the words are the picture; one phrase lights up.
+  `wordwall` rows → `kinetic` stack → `countdown` → `wordwall` stack → `end` left
+- **Poster series**: each scene a typographic poster.
+  `title` giant → `quote` huge → `stat` left → `title` bottom → `end` left
+
+**Signature scenes:** `wordwall`, `countdown`, `kinetic` layout `stack`, library `scenes/split_flap`. Use at least one; they make this pack look like itself.
+
+**The original Shape** (still a valid treatment, the most conventional one):
 1. `kinetic`: 2–3 punchy lines, one idea each ("Stop searching." / "Start <em>knowing</em>.")
 2. `section`: a big number or word that marks the turn
 3. `kinetic`: the core message, one phrase per line

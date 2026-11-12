@@ -19,7 +19,7 @@ A project is a folder `projects/<name>/` containing `project.json`, plus `brief.
 
 | Field | Values | Default |
 |---|---|---|
-| `mode` | `guided`: every `qa` craft warning blocks the render and custom `html` scenes are flagged, for reliable results with any agent. `creative`: only errors block; warnings are advice the agent may override on purpose. See AGENTS.md | `guided` |
+| `mode` | `guided`: every `qa` craft warning blocks the render, and custom `html` scenes are limited to 2, each with a `why` (the user's request it builds), for reliable results with any agent. `creative`: only errors block; warnings are advice the agent may override on purpose. See AGENTS.md | `guided` |
 | `format` | `16:9` (1920×1080), `9:16` (1080×1920), `1:1` (1080×1080), `4:5` (1080×1350) | `16:9` |
 | `theme` | `navy`, `midnight`, `paper`, `swiss`, `newsroom`, `warm`, `cinema`, `aurora`, `neon`, `brutal`, `riso`, `collage`, `blueprint`, `whiteboard`, `chrome`, `vhs`, `bauhaus`, `clay`, `terminal` (`python studio.py themes`), or a project-relative path to your own theme `.json` | `navy` |
 | `motion` | How elements arrive: `smooth`, `snappy`, `spring`, `bouncy`, `heavy`, `mask`, `typewriter`, `stopmotion`, `focus`, `flip`, `slam`, `gentle`, `glitch`. See **Motion and transitions** | theme's (else `smooth`) |
@@ -37,6 +37,8 @@ A project is a folder `projects/<name>/` containing `project.json`, plus `brief.
 | Field | Meaning |
 |---|---|
 | `type` | One of the types below |
+| `layout` | How the scene is composed on screen (see **Layouts**). Each type has a default; the others change the frame, not the content |
+| `beat` | Optional note of the story beat this scene plays (e.g. `"hook"`, `"proof"`); not shown on screen |
 | `say` | The narration line for this scene (6–25 words). The scene is lengthened automatically to fit it, plus 0.35 s lead and 0.7 s tail |
 | `dur` | Minimum length in seconds (defaults per type, e.g. title 4.5, bullets 6). The voice can make it longer, never shorter |
 | `caption` | Caption text when `captions` is `custom`; `false` hides the caption for this scene |
@@ -47,6 +49,33 @@ A project is a folder `projects/<name>/` containing `project.json`, plus `brief.
 
 Text fields accept `<em>word</em>`, which shows the word in the accent colour in italic serif. Use it on one or two words per title, no more.
 `<br>` forces a line break.
+
+## Layouts
+
+The same content can be framed in several ways. Set `"layout"` on a scene; leave it out for the default (listed first). `python studio.py scenes` prints this table with each layout's composition family. A gallery of every layout is in `examples/layout_gallery/`.
+
+| Type | Layouts |
+|---|---|
+| `title` | `center` · `left` (left-aligned) · `bottom` (label top-left, big headline anchored low, poster-like) · `giant` (headline fills the frame) · `photo` (full-bleed `src` picture, white headline low-left; needs `src` or `gen`) |
+| `kinetic` | `center` (each line replaces the last) · `stack` (lines build up, earlier ones dim) |
+| `bullets` | `split` (heading left, cards right) · `stack` (heading on top, items as columns) · `big` (no cards: big numbered lines between rules) |
+| `stat` | `center` · `left` (number on the left, label beside it) · `giant` (label on top, the number huge along the bottom) |
+| `quote` | `center` · `side` (a big quote mark, or the speaker's photo with `src`, beside the words) · `note` (handwritten on a taped sticky note) · `huge` (left-aligned, words light up as the voice reads) |
+| `chart` | `full` · `side` (headline and source in a column beside the chart) |
+| `image` | `frame` · `full` (same as `full: true`) · `polaroid` (a tilted print; `title` becomes its handwritten caption; `tilt` in degrees) |
+| `split` | `side` · `overlap` (picture runs off one edge, words on a card over it) · `full` (picture fills the frame, card in a corner) · `stacked` (headline and body on top, a wide band of picture below) · `polaroid` (the picture as a tilted print, `label` is its caption) |
+| `bento` | `grid` · `row` (one row of equal tiles) · `pinboard` (cards pinned at angles) · `list` (editorial rows divided by rules) |
+| `compare` | `cards` · `halves` (the frame split in two, the "after" half tinted with the accent) |
+| `section` | `side` · `center` (the number as a huge watermark behind the title) |
+| `timeline` | `line` · `steps` (a staircase climbing to the right) · `vertical` (headline column, milestones down a line) |
+| `end` | `center` · `left` (set low-left) · `band` (the closing line on a full-width accent band) |
+| `polaroids` | `pile` · `row` |
+| `note` | `sticky` · `card` (lined index card) |
+| `annotate` | `side` (numbered list beside the picture) · `over` (labels on the picture) |
+| `chat` | `center` · `side` (headline column beside the conversation) |
+| `wordwall` | `rows` (drifting rows of words) · `stack` (a stacked word list) |
+
+Layouts adapt to portrait formats (side-by-side ones stack). `qa` warns about an unknown layout, about three scenes in a row with the same **composition** (centred, left-type, side-by-side, grid, full-bleed, diagram, objects), and about a film where most scenes are centred text.
 
 ## Scene types
 
@@ -103,6 +132,30 @@ Text fields accept `<em>word</em>`, which shows the word in the accent colour in
 ### `end`
 `title`, `sub`, `cta` (button text), `logo` (default true: the theme logo).
 
+### Signature scenes
+Each pack leans on a few of these (see `packs/<pack>/PACK.md`). They give a film a shape the classic types don't.
+
+**`polaroids`**: `title` (optional), `photos`: `[{"src", "caption", "gen"}]` (2–5), `ratio` (default `"4/3"`). Prints drop onto a pile (or a row) one by one, captions handwritten. Real photos only for people.
+```json
+{"type": "polaroids", "title": "From the <em>shoot</em>", "photos": [{"src": "assets/a.jpg", "caption": "day one"}, {"src": "assets/b.jpg", "caption": "launch"}]}
+```
+
+**`note`**: `title` (optional, accent ink), `text` (handwritten), `items` (optional checklist; boxes tick in turn), `by`, `tilt`. A sticky note or a lined index card; the words write on.
+```json
+{"type": "note", "layout": "card", "text": "Find the <em>ground truth</em> first.", "by": "the team"}
+```
+
+**`countdown`**: `eyebrow`, `from` (default 3), `to` (default 1), `then` (the line it counts down to), `sub`. Numbers slam in inside a closing ring, then the reveal.
+
+**`wordwall`**: `words` (list) or `text`, `highlight` (the lit phrase, may use `<em>`). `rows`: the frame fills with drifting rows of the words and the highlight sits on a plate in the middle. `stack`: the words pile up left-aligned, the highlight last in the accent colour.
+
+**`annotate`**: `src` (screenshot, diagram or chart image), `title`, `notes`: `[{"x", "y", "text", "w"}]`: `x`/`y` are the centre of the mark as 0–1 fractions of the picture, `w` its width (default 0.14). Hand-drawn rings draw on in turn with numbered badges; `side` lists the notes beside the picture, `over` puts labels on it.
+```json
+{"type": "annotate", "src": "assets/dashboard.png", "title": "What's <em>new</em>", "notes": [{"x": 0.22, "y": 0.3, "text": "Filters remember you"}, {"x": 0.7, "y": 0.62, "text": "Export in one click"}]}
+```
+
+**`chat`**: `title`, `eyebrow`, `name` (assistant name in the header), `messages`: `[{"from": "user" | "bot", "text"}]`. Messages arrive in turn; the assistant shows typing dots first; older messages scroll up. Give it a `dur` of about 2 s per message.
+
 ### `screen` (footage: screen recordings, product demos, any MP4, or a still screenshot)
 | Field | Meaning |
 |---|---|
@@ -145,6 +198,24 @@ Screenshots stay sharp up to zoom 2.0 (QA allows it for stills; recordings stay 
 - GSAP timelines created `paused: true` and registered as `window.__timelines = { main: tl }`. The engine calls `tl.seek(t)`. This is the HyperFrames convention, so HyperFrames-style compositions work. Bundle GSAP locally (no network at render time).
 
 Set `window.ready = true` when assets are loaded. Never use `Date.now()`, `requestAnimationFrame` loops or CSS animations that run on wall-clock time: frames must depend only on `t`.
+
+`props`: any data for the page. Before the first frame the engine sets `window.FILMLUX = {props, theme: {colors, type, mode}, width, height, dur, fonts, motion, captions}` and calls `window.onFilmlux(FILMLUX)` if the page defines it. Read words from `props` and colours from `theme.colors` so the scene can be reused.
+
+`why`: the user's request this scene builds (quote them). Required for custom scenes in guided mode (up to 2 per film).
+
+**Start from the template:** `python studio.py scene <project> <name>` writes `scenes/<name>/scene.html` in the project with the **Filmlux kit** wired in. The engine also injects the kit into every html scene, so `window.Kit` is always there inside `onFilmlux` and `renderAt`:
+
+| Kit | What it does |
+|---|---|
+| `Kit.init()` | the film's theme colours (`--bg0`, `--ink`, `--accent`…) and fonts as CSS variables, plus classes `.kit-title`, `.kit-sub`, `.kit-eyebrow`, `.kit-card`; `<em>` = accent italic |
+| `Kit.safe()` | a box inside the safe area, clear of the captions when they are on |
+| `Kit.seg(t, a, b)`, `Kit.ease.out/inOut/back`, `Kit.spring(p, name)` | timing: progress between two times, easings, the same spring physics as the built-in scenes |
+| `Kit.reveal(el, p, kind)` | an entrance in the film's motion style (`rise`, `left`, `right`, `scale`, `pop`) |
+| `Kit.words(el)`, `Kit.fit(el, max, min)`, `Kit.px(n)` | split words for staggered reveals; shrink text to fit; design pixels at 1080p |
+
+**`qa` checks custom scenes like built-in ones:** the page must have `renderAt` or paused timelines; the same `t` must give the same frame (no wall-clock animation); the frame must not be blank; at the last frame no text may overflow, leave the safe area or sit under the captions. Mark full-frame art (backgrounds, big decorative type) with `data-bleed` to exempt it from the safe-area check.
+
+**The scene library** (`scenes/`, listed by `python studio.py scenes`): reusable html scenes, e.g. `{"type": "html", "src": "scenes/split_flap/scene.html", "props": {"eyebrow": "Now boarding", "lines": ["NEXT STOP", "LAUNCH"]}}`. Guided mode may use library scenes whose `scene.json` says `"guided_ok": true`. Save a good custom scene with `python studio.py keep <project> <scene#> <name> "<about>"` (see `scenes/README.md`).
 
 ## Motion and transitions
 

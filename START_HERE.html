@@ -38,7 +38,7 @@ section { padding-top: 64px; }
 h2 { font-size: clamp(28px, 4vw, 42px); letter-spacing: -.025em; line-height: 1.08; font-weight: 600; }
 .lead { color: var(--muted); font-size: 18px; margin-top: 8px; max-width: 780px; }
 .grid { display: grid; gap: 18px; margin-top: 24px; }
-.g3 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); } .g2 { grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); }
+.g3 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); } .g4 { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); } .g2 { grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); }
 @media (max-width: 520px) { .g2 { grid-template-columns: 1fr; } }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 24px; overflow: hidden; }
 .card .pad { padding: 20px 22px 22px; }
@@ -73,7 +73,7 @@ code { background: var(--chip); padding: 1px 6px; border-radius: 6px; font-size:
 </head>
 <body>
 <nav><div class="in"><a class="brand" href="#how"><img src="assets/brand/filmlux-mark.svg" alt=""><b>Film<i>lux</i></b></a>
-  <a href="#how">How it works</a><a href="#styles">Styles</a><a href="#motion">Motion</a><a href="#voices">Voices</a><a href="#music">Music</a><a href="#brief">Brief</a><a href="#example">Example</a><a href="#faq">FAQ</a>
+  <a href="#how">How it works</a><a href="#styles">Styles</a><a href="#shape">Shape</a><a href="#motion">Motion</a><a href="#voices">Voices</a><a href="#music">Music</a><a href="#brief">Brief</a><a href="#example">Example</a><a href="#faq">FAQ</a>
   <button id="theme" type="button">◐</button></div></nav>
 <main>
   <div class="hero" id="how">
@@ -90,10 +90,20 @@ code { background: var(--chip); padding: 1px 6px; border-radius: 6px; font-size:
 
   <section id="styles">
     <h2>Pick a style</h2>
-    <p class="lead">Each style pack is a recipe: a story shape, scene types and default music. Click one to use it in your brief.</p>
+    <p class="lead">Each style pack is a recipe: story beats, three treatments, signature scenes and default music. Click one to use it in your brief, then pick its shape below.</p>
     <div class="grid g3" id="packs"></div>
     <h3 style="margin-top:34px;font-size:22px">Themes</h3>
     <div class="grid g3" id="themes"></div>
+  </section>
+
+  <section id="shape">
+    <h2>Shape your film</h2>
+    <p class="lead">A style sets the <b>look</b>. The <b>shape</b> is how the story is staged: which scenes, and how each one is framed. Every pack has three <b>treatments</b>, three different structures for the same story. Pick one here, let your agent show you options with the script, or simply <b>describe what you imagine</b> in the brief: anything you can describe, the agent can build, with custom scenes where no layout fits.</p>
+    <h3 style="margin-top:28px;font-size:22px">Treatments for <span id="shapepack">this pack</span></h3>
+    <div class="grid g3" id="treatments"></div>
+    <h3 style="margin-top:34px;font-size:22px">Layouts and signature scenes</h3>
+    <p class="lead" style="margin-top:6px">Every scene type can be framed several ways (about 40 layouts), and each pack has its own signature scenes. A few of them, all from one project in <code>examples/layout_gallery/</code>:</p>
+    <div class="grid g4" id="layouts"></div>
   </section>
 
   <section id="voices">
@@ -118,10 +128,13 @@ code { background: var(--chip); padding: 1px 6px; border-radius: 6px; font-size:
       <label>Where will it be shown?<input name="channel" placeholder="e.g. Teams, town hall screen, LinkedIn"></label>
       <label class="full">Key messages <small>(up to 3, one per line)</small><textarea name="messages" placeholder="One view of every account&#10;Campaigns in a few clicks&#10;Every reply tracked"></textarea></label>
       <label>Call to action<input name="cta" placeholder="e.g. Open the portal and start a campaign"></label>
+      <label class="full">Describe your vision <small>(in your own words: what it should look and feel like, a scene you can picture, a film or ad you love. The menus below are only shortcuts; the agent builds what you describe, with custom scenes where needed)</small><textarea name="vision" rows="4" placeholder="e.g. Opens on a dark screen; our logo assembles from tiny dots like stars. Then it feels like flipping through a photo album of the team, each photo with a handwritten note. Warm and a bit nostalgic, not corporate. End on a big bold thank-you that fills the screen."></textarea></label>
+      <label class="full">References <small>(optional: links, or files you'll put in inbox/ that show the look you want)</small><textarea name="references" placeholder="e.g. inbox/ref_poster.png: the colours and type I like&#10;https://… : the way the titles move in this ad"></textarea></label>
       <label>Length<select name="length"><option>about 30 s</option><option selected>about 60 s</option><option>about 90 s</option><option>2–3 min</option><option>3–5 min</option></select></label>
       <label>Format<select name="format"><option value="16:9">Landscape 16:9</option><option value="9:16">Vertical 9:16 (phone / social)</option><option value="1:1">Square 1:1</option><option value="4:5">Portrait 4:5</option></select></label>
       <label>Style pack<select name="pack"><option value="motion_promo">Motion promo</option><option value="explainer">Explainer</option><option value="release_film">Release film (screen recordings)</option><option value="social_vertical">Social vertical (9:16)</option><option value="data_story">Data story</option><option value="cinematic_brand">Cinematic brand film</option><option value="ai_illustrated">AI-illustrated explainer</option><option value="kinetic_type">Kinetic type</option><option value="tech_architecture">Tech architecture</option><option value="whiteboard_explainer">Whiteboard explainer</option><option value="handmade_story">Handmade story</option><option value="retro_hype">Retro hype</option></select></label>
       <label>Theme<select name="theme"><option value="navy">Navy (default)</option><option value="midnight">Midnight (neutral dark)</option><option value="paper">Paper (light)</option><option value="swiss">Swiss editorial (light)</option><option value="newsroom">Newsroom data (light)</option><option value="warm">Warm grain (light)</option><option value="cinema">Cinematic (dark)</option><option value="aurora">Aurora glass (dark)</option><option value="neon">Neon tech (dark)</option><option value="brutal">Neo-brutalist (light)</option><option value="riso">Risograph print (light)</option><option value="collage">Paper collage (light)</option><option value="blueprint">Blueprint (dark)</option><option value="whiteboard">Whiteboard (light)</option><option value="chrome">Y2K chrome (dark)</option><option value="vhs">Retro VHS (dark)</option><option value="bauhaus">Bauhaus geometric (light)</option><option value="clay">Soft clay (light)</option><option value="terminal">Terminal (dark)</option></select></label>
+      <label>Shape <small>(treatment: how the story is staged)</small><select name="treatment" id="treatsel"><option value="">Show me options with the script (recommended)</option></select></label>
       <label>Creative freedom<select name="mode"><option value="guided">Guided: proven structure, every check enforced (recommended)</option><option value="creative">Creative: the agent may break defaults on purpose</option></select></label>
       <label>Motion <small>(how things move)</small><select name="motion"><option value="">The theme's own (recommended)</option><option value="smooth">Smooth</option><option value="snappy">Snappy spring</option><option value="spring">Spring (playful bounce)</option><option value="bouncy">Bouncy</option><option value="heavy">Heavy</option><option value="mask">Mask reveal (editorial)</option><option value="typewriter">Typewriter</option><option value="stopmotion">Stop-motion (hand-made)</option><option value="focus">Focus pull (cinematic)</option><option value="flip">Flip</option><option value="slam">Slam</option><option value="gentle">Gentle</option><option value="glitch">Glitch</option></select></label>
       <label>Voice<select name="voice" id="voicesel"><option value="">No voice</option></select></label>
@@ -175,6 +188,7 @@ code { background: var(--chip); padding: 1px 6px; border-radius: 6px; font-size:
   </section>
 </main>
 <script src="assets/gallery/manifest.js"></script>
+<script src="assets/gallery/shapes.js"></script>
 <script>
 const M = window.MANIFEST || { packs: {}, themes: [], voices: [], moods: [] };
 const PACKS = {
@@ -223,19 +237,38 @@ const ml = document.getElementById("moodlist"), ms = document.getElementById("mo
 M.moods.forEach((m, i) => { ml.insertAdjacentHTML("beforeend", `<div class="row"><div class="nm">${m.name}</div><div class="ds">${m.desc}</div><audio controls preload="none" src="assets/samples/${m.file}"></audio></div>`);
   ms.insertAdjacentHTML("beforeend", `<option value="${m.name}"${m.name === "corporate" ? " selected" : ""}>${m.name}</option>`); });
 if (!M.moods.length) { ml.innerHTML = '<div class="empty">Run <code>python studio.py samples</code> to hear the moods.</div>'; ["calm", "corporate", "upbeat", "cinematic", "minimal"].forEach(n => ms.insertAdjacentHTML("beforeend", `<option${n === "corporate" ? " selected" : ""}>${n}</option>`)); }
+// shape: treatments for the chosen pack, and the layout stills
+const SH = window.SHAPES || { treatments: {}, layouts: [] }, trEl = document.getElementById("treatments"), ts = document.getElementById("treatsel");
+const escH = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+function shapes() {
+  const k = F.pack.value, list = SH.treatments[k] || [], keep = ts.value;
+  document.getElementById("shapepack").textContent = (PACKS[k] || [k])[0];
+  trEl.innerHTML = ""; ts.innerHTML = '<option value="">Show me options with the script (recommended)</option>';
+  list.forEach(([name, idea, plan]) => {
+    ts.insertAdjacentHTML("beforeend", `<option value="${escH(name)}">${escH(name)}: ${escH(idea)}</option>`);
+    const c = document.createElement("div"); c.className = "card pick"; c.dataset.treat = name;
+    c.innerHTML = `<div class="pad"><h3>${escH(name)}</h3><p>${escH(idea)}.</p><p style="font-size:13px;opacity:.75;margin-top:10px">${escH(plan)}</p></div>`;
+    c.onclick = () => { ts.value = ts.value === name ? "" : name; update(); };
+    trEl.appendChild(c); });
+  if (!list.length) trEl.innerHTML = '<div class="empty">Run <code>python studio.py samples</code> to list the treatments.</div>';
+  ts.value = list.some(t => t[0] === keep) ? keep : "";
+  trEl.querySelectorAll(".card").forEach(c => c.classList.toggle("on", c.dataset.treat === ts.value));
+}
+document.getElementById("layouts").innerHTML = SH.layouts.map(([f, label]) => `<div class="card"><div class="shots"><img class="on" src="assets/gallery/${f}" alt="${escH(label)} layout"></div><div class="pad" style="padding:10px 14px"><p style="margin:0;font-size:14px"><b>${escH(label)}</b></p></div></div>`).join("");
 // brief
 function brief() {
   const d = Object.fromEntries(new FormData(F).entries());
   return { title: d.title, purpose: d.purpose, audience: d.audience, channel: d.channel,
     key_messages: (d.messages || "").split("\n").map(s => s.trim()).filter(Boolean), call_to_action: d.cta, length: d.length,
-    format: d.format, pack: d.pack, theme: d.theme, voice: d.voice ? { name: d.voice, rate: d.rate } : null,
+    vision: (d.vision || "").trim() || null, references: (d.references || "").split("\n").map(s => s.trim()).filter(Boolean),
+    format: d.format, pack: d.pack, treatment: d.treatment || null, theme: d.theme, voice: d.voice ? { name: d.voice, rate: d.rate } : null,
     music: d.music === "none" ? "none" : { mood: d.music }, captions: d.captions, caption_style: d.caption_style || null, motion: d.motion || null, mode: d.mode || "guided", ai_images: d.ai_images === "yes",
     files: (d.files || "").split("\n").map(s => s.trim()).filter(Boolean), avoid: d.avoid, made_with: "START_HERE.html" };
 }
 const PROMPT = "Read AGENTS.md. My brief is in inbox/brief.json and my files are in inbox/. Ask me anything that's missing, then make my video.";
 const PROMPT_AI = " You may generate illustrations with your image tool where I have no visuals (follow IMAGEGEN.md).";
-function update() { const b = brief(); document.getElementById("preview").textContent = JSON.stringify(b, null, 2); store.set("vs-brief", JSON.stringify(Object.fromEntries(new FormData(F).entries()))); mark(); }
-try { const saved = JSON.parse(store.get("vs-brief") || "null"); if (saved) Object.entries(saved).forEach(([k, v]) => { if (F[k]) F[k].value = v; }); } catch (e) {}
+function update() { shapes(); const b = brief(); document.getElementById("preview").textContent = JSON.stringify(b, null, 2); store.set("vs-brief", JSON.stringify(Object.fromEntries(new FormData(F).entries()))); mark(); }
+try { const saved = JSON.parse(store.get("vs-brief") || "null"); if (saved) { Object.entries(saved).forEach(([k, v]) => { if (F[k]) F[k].value = v; }); shapes(); if (saved.treatment) ts.value = saved.treatment; } } catch (e) {}
 F.addEventListener("input", update); F.addEventListener("change", update); update();
 document.getElementById("save").onclick = async () => {
   const text = JSON.stringify(brief(), null, 2), msg = document.getElementById("savemsg");
